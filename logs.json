@@ -1,0 +1,8 @@
+{
+  "name": "Business_Directory",
+  "filename": "directory_log",
+  "MaxFileSize": "20M",
+  "folder": "logs",
+  "output": "console",
+  "buffer": 10000
+}
