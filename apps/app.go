@@ -1,13 +1,34 @@
 package apps
 
 import (
+	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend.git/middlewares"
+	"github.com/TechBuilder-360/business-directory-backend.git/repository"
+	"github.com/TechBuilder-360/business-directory-backend.git/services"
 	"github.com/Toflex/oris_log/logger"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type App struct {
-	srv interface{}
-	repo interface{}
 	Router *gin.Engine
+	Config *configs.Config
 	Logger logger.Logger
+	Mongo  *mongo.Database
+	Repo   *repository.DefaultRepo
+	Serv   services.DefaultService
+
+	//repo:= repository.NewRepository(a.Mongo, a.Config)
+	//service:= services.NewService(repo)
+}
+
+// SetupMiddlewares sets up middlewares
+func (a *App) SetupMiddlewares() {
+	m := middlewares.Middleware{}
+	m.Repo = a.Repo
+	m.Logger = a.Logger
+	m.Config = a.Config
+
+	a.Router.Use(gin.Recovery())
+	a.Router.Use(m.ClientValidation())
 }

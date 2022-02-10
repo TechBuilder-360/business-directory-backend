@@ -1,9 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"github.com/TechBuilder-360/business-directory-backend.git/apps"
+	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend.git/database"
 	"github.com/TechBuilder-360/business-directory-backend.git/docs"
+	"github.com/TechBuilder-360/business-directory-backend.git/repository"
+	"github.com/TechBuilder-360/business-directory-backend.git/services"
 	"github.com/Toflex/oris_log/logger"
+	"github.com/gin-gonic/gin"
 	_ "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
 )
@@ -23,23 +29,41 @@ import (
 
 // @securityDefinitions.basic  BasicAuth
 func main()  {
+	// APP config
+	APP:= &apps.App{}
+	APP.Config = configs.Configuration()
+	APP.Logger = logger.New()
+	if !APP.Config.DEBUG {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	APP.Router = gin.New()
 
 	// programmatically set swagger info
 	docs.SwaggerInfo_swagger.Title = "Business directory API"
 	docs.SwaggerInfo_swagger.Description = "This is the API for business directory api."
 	docs.SwaggerInfo_swagger.Version = "1.0"
-	docs.SwaggerInfo_swagger.Host = "localhost:8080"
+	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s:%s", APP.Config.Host,APP.Config.Port)
 	docs.SwaggerInfo_swagger.BasePath = "/api/v1"
 	docs.SwaggerInfo_swagger.Schemes = []string{"http", "https"}
 
-	APP:= apps.App{}
+	// Database config
+	Database:=&database.Database{}
+	Database.Config = APP.Config
+	Database.Logger = APP.Logger
+	Database.ConnectToMongo()
 
-	APP.Logger = logger.New()
+	APP.Mongo = Database.Mongo
+	APP.Repo=repository.NewRepository(APP.Mongo, APP.Config)
+	APP.Serv=services.NewService(APP.Repo)
+
+	// middlewares ...
+	APP.SetupMiddlewares()
 
 	// Set up the routes
-	APP.SetupRouter()
+	APP.SetupRoutes()
 
 	// Start the server
-	APP.Router.Run(":8080")
+	APP.Logger.Info("Server started on port %s", APP.Config.Port)
+	APP.Router.Run(fmt.Sprintf(":%s",APP.Config.Port))
 
 }

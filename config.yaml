@@ -1,0 +1,13 @@
+AppName: "Business Directory"
+
+Host: "localhost"
+
+Port: "8000"
+
+DEBUG: false
+
+MongoURI: "mongodb://localhost:27017"
+
+MongoDBName: "Directory"
+
+ClientCollection: "Clients"
