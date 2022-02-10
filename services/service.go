@@ -10,10 +10,10 @@ type Service interface {
 
 
 type DefaultService struct {
-	repo *repository.Repository
+	repo *repository.DefaultRepo
 }
 
-func NewService(repo *repository.Repository) DefaultService {
+func NewService(repo *repository.DefaultRepo) DefaultService {
 	return DefaultService{repo: repo}
 }
 
