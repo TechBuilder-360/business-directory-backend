@@ -4,7 +4,7 @@ Host: "localhost"
 
 Port: "8000"
 
-DEBUG: false
+DEBUG: true
 
 MongoURI: "mongodb://localhost:27017"
 
