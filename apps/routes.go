@@ -12,15 +12,15 @@ var once sync.Once
 func (a *App) SetupRoutes() {
 	once.Do(func() {
 
-		//repo:= repository.NewRepository(a.Mongo, a.Config)
-		//service:= services.NewService(repo)
 		controller := controllers.Controller{
 			Service: a.Serv,
 			Logger: a.Logger,
 		}
+		if a.Config.DEBUG {
+			// use ginSwagger middlewares to serve the API docs
+			a.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		}
 
-		// use ginSwagger middlewares to serve the API docs
-		a.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		a.Router.GET("/ping", controller.Ping)
 
 		v1 := a.Router.Group("/api/v1")
