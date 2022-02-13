@@ -7,7 +7,9 @@ Manages user information and serves API to the front-end mobile
 
 ## Get started
 `git clone https://github.com/TechBuilder-360/business-directory-backend.git`
+
 `go install`
+
 `go run main.go`
 
 ## API Middlewares
