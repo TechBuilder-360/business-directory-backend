@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
+	"github.com/gin-contrib/cors"
 )
 
 // @title           Business directory API
@@ -36,7 +37,15 @@ func main()  {
 	if !APP.Config.DEBUG {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	APP.Router = gin.New()
+
+	app := gin.New()
+	
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:4001"}
+	
+	app.Use(cors.New(config))
+
+	APP.Router = app
 
 	// programmatically set swagger info
 	docs.SwaggerInfo_swagger.Title = "Business directory API"
