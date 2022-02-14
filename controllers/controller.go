@@ -2,20 +2,21 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend.git/repository"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
-	"github.com/Toflex/oris_log/logger"
+	log "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type Controller struct {
 	Service services.Service
-	Logger logger.Logger
+	Repository repository.Repository
+	Logger log.Logger
+	Config *configs.Config
 }
 
-//func NewController(serv *services.DefaultService, logger logger.Logger) *Controller {
-//	return &Controller{Service: serv, Logger: logger}
-//}
 
 func (c *Controller) Ping(ct *gin.Context) {
 	var body interface{}
@@ -24,5 +25,5 @@ func (c *Controller) Ping(ct *gin.Context) {
 		c.Logger.Error(err.Error())
 	}
 	c.Logger.Info("%+v", body)
-	ct.JSON(http.StatusOK, "Pongc ...")
+	ct.JSON(http.StatusOK, "Pong ...")
 }

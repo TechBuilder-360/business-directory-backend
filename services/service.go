@@ -1,6 +1,9 @@
 package services
 
-import "github.com/TechBuilder-360/business-directory-backend.git/repository"
+import (
+	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend.git/repository"
+)
 
 
 //go:generate mockgen -destination=../mocks/service/mockService.go -package=service github.com/TechBuilder-360/business-directory-backend.git/services Service
@@ -11,6 +14,7 @@ type Service interface {
 
 type DefaultService struct {
 	repo *repository.DefaultRepo
+	config *configs.Config
 }
 
 func NewService(repo *repository.DefaultRepo) DefaultService {
