@@ -13,6 +13,8 @@ type Config struct {
 	MongoURI         string `yaml:"MongoURI"`
 	MongoDBName      string `yaml:"MongoDBName"`
 	ClientCollection string `yaml:"ClientCollection"`
+	AllowedOrigin    []string `yaml:"AllowedOrigin"`
+	TrustedProxies   []string `yaml:"TrustedProxies"`
 }
 
 func Configuration() *Config {

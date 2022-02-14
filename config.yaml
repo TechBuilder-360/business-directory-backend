@@ -4,6 +4,13 @@ Host: "localhost"
 
 Port: "8000"
 
+AllowedOrigin:
+  - "http://localhost:3000"
+  - "http://localhost:4001"
+
+TrustedProxies:
+  - "192.168.1.2"
+
 DEBUG: true
 
 MongoURI: "mongodb://localhost:27017"

@@ -9,10 +9,10 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend.git/repository"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
 	"github.com/Toflex/oris_log/logger"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
-	"github.com/gin-contrib/cors"
 )
 
 // @title           Business directory API
@@ -38,14 +38,7 @@ func main()  {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	app := gin.New()
-	
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:4001"}
-	
-	app.Use(cors.New(config))
-
-	APP.Router = app
+	APP.Router = gin.New()
 
 	// programmatically set swagger info
 	docs.SwaggerInfo_swagger.Title = "Business directory API"
@@ -66,6 +59,10 @@ func main()  {
 	APP.Serv=services.NewService(APP.Repo)
 
 	// middlewares ...
+	APP.Router.SetTrustedProxies(APP.Config.TrustedProxies)
+	config := cors.DefaultConfig()
+	config.AllowOrigins = APP.Config.AllowedOrigin
+	APP.Router.Use(cors.New(config))
 	APP.SetupMiddlewares()
 
 	// Set up the routes
