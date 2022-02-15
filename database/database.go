@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"github.com/TechBuilder-360/business-directory-backend.git/configs"
-	"github.com/Toflex/oris_log/logger"
+	log "github.com/Toflex/oris_log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -11,7 +11,7 @@ import (
 
 type Database struct {
 	Mongo *mongo.Database
-	Logger logger.Logger
+	Logger log.Logger
 	Config *configs.Config
 }
 
