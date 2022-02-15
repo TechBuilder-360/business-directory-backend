@@ -12,6 +12,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
 	"github.com/TechBuilder-360/business-directory-backend.git/utility"
 	"github.com/Toflex/oris_log/logger"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
@@ -70,6 +71,10 @@ defer res.Body.Close()
 	APP.Serv=services.NewService(APP.Repo)
 
 	// middlewares ...
+	APP.Router.SetTrustedProxies(APP.Config.TrustedProxies)
+	config := cors.DefaultConfig()
+	config.AllowOrigins = APP.Config.AllowedOrigin
+	APP.Router.Use(cors.New(config))
 	APP.SetupMiddlewares()
 
 	// Set up the routes
