@@ -14,7 +14,9 @@ func (a *App) SetupRoutes() {
 
 		controller := controllers.Controller{
 			Service: a.Serv,
+			Repository: a.Repo,
 			Logger: a.Logger,
+			Config: a.Config,
 		}
 		if a.Config.DEBUG {
 			// use ginSwagger middlewares to serve the API docs

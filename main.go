@@ -2,16 +2,13 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-
 	"github.com/TechBuilder-360/business-directory-backend.git/apps"
 	"github.com/TechBuilder-360/business-directory-backend.git/configs"
 	"github.com/TechBuilder-360/business-directory-backend.git/database"
 	"github.com/TechBuilder-360/business-directory-backend.git/docs"
 	"github.com/TechBuilder-360/business-directory-backend.git/repository"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
-	"github.com/TechBuilder-360/business-directory-backend.git/utility"
-	"github.com/Toflex/oris_log/logger"
+	log "github.com/Toflex/oris_log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/swaggo/files"
@@ -34,22 +31,12 @@ import (
 // @securityDefinitions.basic  BasicAuth
 func main()  {
 	// APP config
-
-res:= utility.Get("https://www.google.com/")
-
 	APP:= &apps.App{}
 	APP.Config = configs.Configuration()
-	APP.Logger = logger.New()
+	APP.Logger = log.New()
 	if !APP.Config.DEBUG {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	b, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		APP.Logger.Fatal(err)
-	}
-	
-APP.Logger.Info(string(b))
-defer res.Body.Close()
 	APP.Router = gin.New()
 
 	// programmatically set swagger info
@@ -68,7 +55,7 @@ defer res.Body.Close()
 
 	APP.Mongo = Database.Mongo
 	APP.Repo=repository.NewRepository(APP.Mongo, APP.Config)
-	APP.Serv=services.NewService(APP.Repo)
+	APP.Serv=services.NewService(APP.Repo, APP.Logger)
 
 	// middlewares ...
 	APP.Router.SetTrustedProxies(APP.Config.TrustedProxies)
