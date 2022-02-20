@@ -38,7 +38,8 @@ func main()  {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	APP.Router = gin.New()
+	// Server
+	APP.Router = gin.Default()
 
 	// programmatically set swagger info
 	docs.SwaggerInfo_swagger.Title = "Business directory API"
@@ -60,9 +61,13 @@ func main()  {
 
 	// middlewares ...
 	APP.Router.SetTrustedProxies(APP.Config.TrustedProxies)
-	config := cors.DefaultConfig()
-	config.AllowOrigins = APP.Config.AllowedOrigin
-	APP.Router.Use(cors.New(config))
+	//config := cors.DefaultConfig()
+	//config.AllowOrigins = APP.Config.AllowedOrigin
+	//config.AllowMethods = []string{"POST", "GET", "DELETE", "PATCH", "PUT"}
+	//config.AllowHeaders = []string{"*"}
+	//config.AllowAllOrigins = false
+	//APP.Router.Use(cors.New(config))
+	APP.Router.Use(cors.Default())
 	APP.SetupMiddlewares()
 
 	// Set up the routes

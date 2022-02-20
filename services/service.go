@@ -13,7 +13,7 @@ type DefaultService struct {
 	repo *repository.DefaultRepo
 }
 
-func NewService(repo *repository.DefaultRepo) DefaultService {
+func NewService(repo *repository.DefaultRepo) Service {
 	return DefaultService{repo: repo}
 }
 

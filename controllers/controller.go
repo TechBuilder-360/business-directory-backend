@@ -8,21 +8,28 @@ import (
 	"net/http"
 )
 
-type Controller struct {
-	Service services.Service
-	Logger logger.Logger
+type Controller interface {
+	Ping(ctx *gin.Context)
 }
 
-//func NewController(serv *services.DefaultService, logger logger.Logger) *Controller {
-//	return &Controller{Service: serv, Logger: logger}
-//}
+type NewController struct {
+	Service services.Service
+	Logger  logger.Logger
+}
 
-func (c *Controller) Ping(ct *gin.Context) {
+func DefaultController(serv services.Service, log logger.Logger) Controller {
+	return &NewController{
+		Service: serv,
+		Logger: log,
+	}
+}
+
+func (c *NewController) Ping(ct *gin.Context) {
 	var body interface{}
-	err:=json.NewDecoder(ct.Request.Body).Decode(&body)
-	if err!= nil{
+	err := json.NewDecoder(ct.Request.Body).Decode(&body)
+	if err != nil {
 		c.Logger.Error(err.Error())
 	}
 	c.Logger.Info("%+v", body)
-	ct.JSON(http.StatusOK, "Pongc ...")
+	ct.JSON(http.StatusOK, "Pong ...")
 }
