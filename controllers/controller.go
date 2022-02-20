@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
-	"github.com/Toflex/oris_log/logger"
+	logger "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

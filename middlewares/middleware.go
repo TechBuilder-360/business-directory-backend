@@ -7,7 +7,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend.git/repository"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
 	"github.com/TechBuilder-360/business-directory-backend.git/utility"
-	"github.com/Toflex/oris_log/logger"
+	log "github.com/Toflex/oris_log"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -15,8 +15,8 @@ import (
 )
 
 type Middleware struct {
-	Repo   *repository.DefaultRepo
-	Logger logger.Logger
+	Repo   repository.Repository
+	Logger log.Logger
 	Config *configs.Config
 }
 
@@ -39,7 +39,7 @@ func (m *Middleware) ClientValidation() gin.HandlerFunc {
 				}
 				body, req := utility.ExtractRequestBody(c)
 				c.Request.Body = req
-				m.Logger.Warning(body)
+				m.Logger.Debug(body)
 
 				if !client.ValidateClient(clientSecret, body) {
 					m.Logger.Error("Client validation failed!")

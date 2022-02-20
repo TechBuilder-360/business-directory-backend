@@ -12,7 +12,6 @@ var once sync.Once
 
 func (a *App) SetupRoutes() {
 	once.Do(func() {
-
 		controller := controllers.DefaultController(a.Serv, a.Logger)
 		auth:= services.DefaultAuth(a.Repo)
 		jwt:=services.DefultJWTAuth()
@@ -24,11 +23,11 @@ func (a *App) SetupRoutes() {
 			a.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		}
 
-		a.Router.POST("/ping", controller.Ping)
+		a.Router.GET("/ping", controller.Ping)
 
 		v1 := a.Router.Group("/api/v1")
 		{
-			v1.GET("/ping", controller.Ping)
+			v1.POST("/ping", controller.Ping)
 			v1.POST("/getLoginToken", authHandler.Login)
 		}
 

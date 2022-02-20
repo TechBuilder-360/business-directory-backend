@@ -8,7 +8,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend.git/docs"
 	"github.com/TechBuilder-360/business-directory-backend.git/repository"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
-	"github.com/Toflex/oris_log/logger"
+	log "github.com/Toflex/oris_log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/swaggo/files"
@@ -33,13 +33,13 @@ func main()  {
 	// APP config
 	APP:= &apps.App{}
 	APP.Config = configs.Configuration()
-	APP.Logger = logger.New()
+	APP.Logger = log.New()
 	if !APP.Config.DEBUG {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	// Server
-	APP.Router = gin.Default()
+	APP.Router = gin.New()
 
 	// programmatically set swagger info
 	docs.SwaggerInfo_swagger.Title = "Business directory API"

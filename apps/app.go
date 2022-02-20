@@ -5,7 +5,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend.git/middlewares"
 	"github.com/TechBuilder-360/business-directory-backend.git/repository"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
-	"github.com/Toflex/oris_log/logger"
+	log "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -13,9 +13,9 @@ import (
 type App struct {
 	Router *gin.Engine
 	Config *configs.Config
-	Logger logger.Logger
+	Logger log.Logger
 	Mongo  *mongo.Database
-	Repo   *repository.DefaultRepo
+	Repo   repository.Repository
 	Serv   services.Service
 
 	//repo:= repository.NewRepository(a.Mongo, a.Config)

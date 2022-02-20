@@ -4,7 +4,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend.git/dto"
 	"github.com/TechBuilder-360/business-directory-backend.git/services"
 	"github.com/TechBuilder-360/business-directory-backend.git/utility"
-	"github.com/Toflex/oris_log/logger"
+	log "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,10 +16,10 @@ type Authentication interface {
 type NewAuthHandler struct {
 	auth   services.AuthService
 	jwtService services.JWTService
-	logger  logger.Logger
+	logger  log.Logger
 }
 
-func AuthHandler(auth services.AuthService, jwt services.JWTService, log logger.Logger) Authentication {
+func AuthHandler(auth services.AuthService, jwt services.JWTService, log log.Logger) Authentication {
 	return &NewAuthHandler{
 		auth:      auth,
 		jwtService: jwt,

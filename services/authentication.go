@@ -9,10 +9,10 @@ type AuthService interface {
 }
 
 type loginInformation struct {
-	repo *repository.DefaultRepo
+	repo repository.Repository
 }
 
-func DefaultAuth(repo *repository.DefaultRepo) AuthService {
+func DefaultAuth(repo repository.Repository) AuthService {
 	return &loginInformation{
 		repo: repo,
 	}
