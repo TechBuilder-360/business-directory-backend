@@ -1,4 +1,4 @@
-package domain
+package dto
 
 type Rating struct {
 	UserId     int

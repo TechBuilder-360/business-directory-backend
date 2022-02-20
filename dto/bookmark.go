@@ -1,4 +1,4 @@
-package domain
+package dto
 
 
 // Pending Implementation

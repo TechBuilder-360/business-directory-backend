@@ -3,6 +3,8 @@ module github.com/TechBuilder-360/business-directory-backend.git
 go 1.17
 
 require (
+	github.com/Toflex/oris_log v0.0.0-20220211103751-b6b9403d96ec
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/golang/mock v1.6.0
@@ -18,7 +20,6 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/Toflex/oris_log v0.0.0-20220211103751-b6b9403d96ec // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
