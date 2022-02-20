@@ -2,6 +2,7 @@ package configs
 
 import (
 	"fmt"
+
 	"github.com/spf13/viper"
 )
 
@@ -11,6 +12,7 @@ type Config struct {
 	Port             string `yaml:"Port"`
 	DEBUG            bool   `yaml:"DEBUG"`
 	MongoURI         string `yaml:"MongoURI"`
+	AesKey           string `yaml:"AesKey"`
 	MongoDBName      string `yaml:"MongoDBName"`
 	ClientCollection string `yaml:"ClientCollection"`
 	AllowedOrigin    []string `yaml:"AllowedOrigin"`

@@ -13,6 +13,7 @@ type Repository interface {
 type DefaultRepo struct {
 	Config  *configs.Config
 	Client	*mongo.Collection
+ 
 }
 
 func NewRepository(mdb *mongo.Database, config *configs.Config) *DefaultRepo {
@@ -22,3 +23,4 @@ func NewRepository(mdb *mongo.Database, config *configs.Config) *DefaultRepo {
 		Config: config,
 	}
 }
+

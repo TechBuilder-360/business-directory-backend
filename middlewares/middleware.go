@@ -1,14 +1,15 @@
 package middlewares
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/TechBuilder-360/business-directory-backend.git/configs"
 	"github.com/TechBuilder-360/business-directory-backend.git/models"
 	"github.com/TechBuilder-360/business-directory-backend.git/repository"
 	"github.com/TechBuilder-360/business-directory-backend.git/utility"
 	log "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 type Middleware struct {

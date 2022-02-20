@@ -3,6 +3,7 @@ AppName: "Business Directory"
 Host: "localhost"
 
 Port: "8000"
+AesKey: "thisis32bitlongpassphraseimusing"
 
 AllowedOrigin:
   - "http://localhost:3000"
