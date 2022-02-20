@@ -4,27 +4,33 @@ import (
 	"crypto/aes"
 	"encoding/hex"
 	"fmt"
+
+	"github.com/TechBuilder-360/business-directory-backend.git/configs"
 )
 
 
-func Encrypt(key []byte, plaintext string) string {
+func Encrypt(body []byte) string {
+
+	Config := configs.Configuration()
+	
         // create cipher
-    c, err := aes.NewCipher(key)
+    c, err := aes.NewCipher([]byte(Config.AesKey))
     CheckError(err)
         
         // allocate space for ciphered data
-    out := make([]byte, len(plaintext))
+    out := make([]byte, len(body))
  
         // encrypt
-    c.Encrypt(out, []byte(plaintext))
+    c.Encrypt(out, []byte(body))
         // return hex string
     return hex.EncodeToString(out)
 }
 
-func Decrypt(key []byte, ct string) {
+func Decrypt(ct string) {
+	Config := configs.Configuration()
 	ciphertext, _ := hex.DecodeString(ct)
      
-	c, err := aes.NewCipher(key)
+	c, err := aes.NewCipher([]byte(Config.AesKey))
 	CheckError(err)
      
 	pt := make([]byte, len(ciphertext))
