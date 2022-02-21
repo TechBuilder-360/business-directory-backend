@@ -15,8 +15,8 @@ type App struct {
 	Config *configs.Config
 	Logger log.Logger
 	Mongo  *mongo.Database
-	Repo   *repository.DefaultRepo
-	Serv   services.DefaultService
+	Repo   repository.Repository
+	Serv   services.Service
 
 	//repo:= repository.NewRepository(a.Mongo, a.Config)
 	//service:= services.NewService(repo)

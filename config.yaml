@@ -6,7 +6,7 @@ Port: "8000"
 AesKey: "thisis32bitlongpassphraseimusing"
 
 AllowedOrigin:
-  - "http://localhost:3000"
+  - "http://localhost:8000"
   - "http://localhost:4001"
 
 TrustedProxies:

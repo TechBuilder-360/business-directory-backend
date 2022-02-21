@@ -1,1 +1,5 @@
 CLI001: "Client validation failed"
+
+AUTHERR004: "Authentication failed"
+
+SUC001: "Success"

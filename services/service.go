@@ -13,11 +13,11 @@ type Service interface {
 
 
 type DefaultService struct {
-	repo *repository.DefaultRepo
+	repo repository.Repository
 	config *configs.Config
 }
 
-func NewService(repo *repository.DefaultRepo) DefaultService {
+func NewService(repo repository.Repository) Service {
 	return DefaultService{repo: repo}
 }
 

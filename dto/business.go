@@ -1,4 +1,4 @@
-package domain
+package dto
 
 type Business struct {
 	BusId		 int	`db:"business_id"`

@@ -1,19 +1,22 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/TechBuilder-360/business-directory-backend.git/configs"
 	"github.com/TechBuilder-360/business-directory-backend.git/models"
 	"github.com/TechBuilder-360/business-directory-backend.git/repository"
+	"github.com/TechBuilder-360/business-directory-backend.git/services"
 	"github.com/TechBuilder-360/business-directory-backend.git/utility"
 	log "github.com/Toflex/oris_log"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 type Middleware struct {
-	Repo   *repository.DefaultRepo
+	Repo   repository.Repository
 	Logger log.Logger
 	Config *configs.Config
 }
@@ -51,3 +54,22 @@ func (m *Middleware) ClientValidation() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// AuthorizeJWT
+func AuthorizeJWT() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		const BearerSchema = "Bearer"
+		authHeader := c.GetHeader("Authorization")
+		tokenString := authHeader[len(BearerSchema):]
+		token, err := services.DefultJWTAuth().ValidateToken(tokenString)
+		if token.Valid {
+			claims := token.Claims.(jwt.MapClaims)
+			fmt.Println(claims)
+		} else {
+			fmt.Println(err)
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+
+	}
+}
+
