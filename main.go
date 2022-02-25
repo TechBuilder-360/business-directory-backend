@@ -38,7 +38,7 @@ func main()  {
 	if !APP.Config.DEBUG {
 		gin.SetMode(gin.ReleaseMode)
 	}
-
+	
 	// Server
 	APP.Router = gin.New()
 

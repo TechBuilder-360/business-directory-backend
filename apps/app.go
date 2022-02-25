@@ -31,4 +31,5 @@ func (a *App) SetupMiddlewares() {
 
 	a.Router.Use(gin.Recovery())
 	a.Router.Use(m.ClientValidation())
+	a.Router.Use(m.SecurityMiddleware())
 }

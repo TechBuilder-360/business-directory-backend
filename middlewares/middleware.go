@@ -1,7 +1,9 @@
 package middlewares
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -73,3 +75,24 @@ func AuthorizeJWT() gin.HandlerFunc {
 	}
 }
 
+//securitymiddleware
+func (m *Middleware) SecurityMiddleware() gin.HandlerFunc{
+	return func(c *gin.Context) {
+
+		body, _ := utility.ExtractRequestBody(c)
+				
+				bd,err:=utility.Encrypt([]byte("648gdghi68bfe536bkf8t9gcf257jugr"),body,m.Logger)
+				c.Request.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(bd)))
+				if err !=nil{
+					m.Logger.Error(err)
+				}
+				m.Logger.Debug(bd)
+				
+
+
+		c.Next()
+	}
+
+
+
+}

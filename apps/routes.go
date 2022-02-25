@@ -29,6 +29,7 @@ func (a *App) SetupRoutes() {
 		{
 			v1.POST("/ping", controller.Ping)
 			v1.POST("/getLoginToken", authHandler.Login)
+			v1.POST("/create",controllers.CreateBook)
 		}
 
 	})
