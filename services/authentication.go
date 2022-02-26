@@ -1,9 +1,9 @@
 package services
 
-import "github.com/TechBuilder-360/business-directory-backend.git/repository"
+import "github.com/TechBuilder-360/business-directory-backend/repository"
 
 
-//go:generate mockgen -destination=../mocks/service/mockAuthService.go -package=service github.com/TechBuilder-360/business-directory-backend.git/services AuthService
+//go:generate mockgen -destination=../mocks/service/mockAuthService.go -package=service github.com/TechBuilder-360/business-directory-backend/services AuthService
 type AuthService interface {
 	LoginUser(string, string) bool
 }

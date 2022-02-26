@@ -5,16 +5,16 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"github.com/gin-gonic/gin"
 	"io"
 	"io/ioutil"
 )
 
-func ExtractRequestBody(c *gin.Context) (string, io.ReadCloser) {
+// ExtractRequestBody returns body and body reader
+func ExtractRequestBody(c io.ReadCloser) (string, io.ReadCloser) {
 	// Read the Body content
 	var bodyBytes []byte
-	if c.Request.Body != nil {
-		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+	if c != nil {
+		bodyBytes, _ = ioutil.ReadAll(c)
 	}
 	return string(bodyBytes), ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 }

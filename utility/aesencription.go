@@ -1,94 +1,85 @@
 package utility
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"encoding/base64"
+	"encoding/hex"
 	"errors"
+	"fmt"
+	"github.com/zenazn/pkcs7pad"
 	"io"
-	"strings"
-	log "github.com/Toflex/oris_log"
+	random "math/rand"
+	"time"
 )
 
+var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-)([]}{.?:><")
 
-func addBase64Padding(value string) string {
-	m := len(value) % 4
-	if m != 0 {
-	    value += strings.Repeat("=", 4-m)
+func GenerateRandomString(size uint) []byte {
+	random.Seed(time.Now().UnixNano())
+
+	b := make([]byte, size)
+	for i := range b {
+		b[i] = letters[random.Intn(len(letters))]
 	}
-	return value
-    }
-    
-    func removeBase64Padding(value string) string {
-	return strings.Replace(value, "=", "", -1)
-    }
 
+	return b
+}
 
-func Pad(src []byte) []byte {
-	padding := aes.BlockSize - len(src)%aes.BlockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(src, padtext...)
-    }
-    
-    func  Unpad(src []byte) ([]byte, error) {
-	length := len(src)
-	unpadding := int(src[length-1])
-    
-	if unpadding > length {
-	    return nil, errors.New(" error. This could happen when incorrect encryption key is used")
-	}
-    
-	return src[:(length - unpadding)], nil
-    }
-    
-    func Encrypt(key []byte, text string,l log.Logger) (string, error) {
-	block, err := aes.NewCipher(key)
+func Encrypt(key string, text string) (string, error) {
+	keyByte, _ := hex.DecodeString(key)
+	plaintext := []byte(text)
+
+	// Pad plain text if length isn't of block size 16
+	plaintext = pkcs7pad.Pad(plaintext, aes.BlockSize)
+
+	block, err := aes.NewCipher(keyByte)
 	if err != nil {
-	    l.Error(err)
+		return "", err
 	}
-    
-	msg := Pad([]byte(text))
-	ciphertext := make([]byte, aes.BlockSize+len(msg))
+
+	// The IV needs to be unique, it would be appended to the head of cipher text
+	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
 	iv := ciphertext[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-	    return "", err
+		return "", err
 	}
-    
-	cfb := cipher.NewCFBEncrypter(block, iv)
-	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(msg))
-	finalMsg := removeBase64Padding(base64.URLEncoding.EncodeToString(ciphertext))
-	return finalMsg, nil
-    }
-    
-    func Decrypt(key []byte, text string) (string, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-	    return "", err
-	}
-    
-	decodedMsg, err := base64.URLEncoding.DecodeString(addBase64Padding(text))
-	if err != nil {
-	    return "", err
-	}
-    
-	if (len(decodedMsg) % aes.BlockSize) != 0 {
-	    return "", errors.New("blocksize must be multipe of decoded message length")
-	}
-    
-	iv := decodedMsg[:aes.BlockSize]
-	msg := decodedMsg[aes.BlockSize:]
-    
-	cfb := cipher.NewCFBDecrypter(block, iv)
-	cfb.XORKeyStream(msg, msg)
-    
-	unpadMsg, err := Unpad(msg)
-	if err != nil {
-	    return "", err
-	}
-    
-	return string(unpadMsg), nil
-    }
 
+	mode := cipher.NewCBCEncrypter(block, iv)
+	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
 
+	return fmt.Sprintf("%x", ciphertext), nil
+}
+
+func Decrypt(key string, text string) (string, error) {
+	keyByte, _ := hex.DecodeString(key)
+	ciphertext, _ := hex.DecodeString(text)
+
+	block, err := aes.NewCipher(keyByte)
+	if err != nil {
+		return "", err
+	}
+
+	// The IV extracted from the beginning of the ciphertext.
+	if len(ciphertext) < aes.BlockSize {
+		return "", errors.New("ciphertext too short")
+	}
+	iv := ciphertext[:aes.BlockSize]
+	ciphertext = ciphertext[aes.BlockSize:]
+
+	// CBC mode always works in whole blocks.
+	if len(ciphertext)%aes.BlockSize != 0 {
+		return "", errors.New("ciphertext is not a multiple of the block size")
+	}
+
+	mode := cipher.NewCBCDecrypter(block, iv)
+
+	mode.CryptBlocks(ciphertext, ciphertext)
+
+	plaintext, err := pkcs7pad.Unpad(ciphertext)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
+}

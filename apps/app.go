@@ -1,10 +1,10 @@
 package apps
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
-	"github.com/TechBuilder-360/business-directory-backend.git/middlewares"
-	"github.com/TechBuilder-360/business-directory-backend.git/repository"
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
+	"github.com/TechBuilder-360/business-directory-backend/middlewares"
+	"github.com/TechBuilder-360/business-directory-backend/repository"
+	"github.com/TechBuilder-360/business-directory-backend/services"
 	log "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -30,6 +30,6 @@ func (a *App) SetupMiddlewares() {
 	m.Config = a.Config
 
 	a.Router.Use(gin.Recovery())
-	a.Router.Use(m.ClientValidation())
+	//a.Router.Use(m.ClientValidation())
 	a.Router.Use(m.SecurityMiddleware())
 }

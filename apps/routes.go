@@ -1,8 +1,8 @@
 package apps
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/controllers"
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
+	"github.com/TechBuilder-360/business-directory-backend/controllers"
+	"github.com/TechBuilder-360/business-directory-backend/services"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"sync"

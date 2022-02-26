@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/TechBuilder-360/business-directory-backend.git/apps"
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
-	"github.com/TechBuilder-360/business-directory-backend.git/database"
-	"github.com/TechBuilder-360/business-directory-backend.git/docs"
-	"github.com/TechBuilder-360/business-directory-backend.git/repository"
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
+	"github.com/TechBuilder-360/business-directory-backend/apps"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
+	"github.com/TechBuilder-360/business-directory-backend/database"
+	"github.com/TechBuilder-360/business-directory-backend/docs"
+	"github.com/TechBuilder-360/business-directory-backend/repository"
+	"github.com/TechBuilder-360/business-directory-backend/services"
 	log "github.com/Toflex/oris_log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

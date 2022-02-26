@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
+	"github.com/TechBuilder-360/business-directory-backend/services"
 	logger "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
 )
