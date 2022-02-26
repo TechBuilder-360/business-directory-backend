@@ -54,7 +54,7 @@ func (m *Middleware) ClientValidation() gin.HandlerFunc {
 	}
 }
 
-// AuthorizeJWT
+// AuthorizeJWT handles jwt validation
 func AuthorizeJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		const BearerSchema = "Bearer"
