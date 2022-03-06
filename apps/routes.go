@@ -1,8 +1,8 @@
 package apps
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/controllers"
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
+	"github.com/TechBuilder-360/business-directory-backend/controllers"
+	"github.com/TechBuilder-360/business-directory-backend/services"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"sync"
@@ -29,6 +29,7 @@ func (a *App) SetupRoutes() {
 		{
 			v1.POST("/ping", controller.Ping)
 			v1.POST("/getLoginToken", authHandler.Login)
+			v1.POST("/create",controllers.CreateBook)
 		}
 
 	})

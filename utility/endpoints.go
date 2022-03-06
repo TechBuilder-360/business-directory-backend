@@ -1,7 +1,7 @@
 package utility
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
 )
 
 type EndPoint struct {

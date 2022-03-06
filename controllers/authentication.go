@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/dto"
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
-	"github.com/TechBuilder-360/business-directory-backend.git/utility"
+	"github.com/TechBuilder-360/business-directory-backend/dto"
+	"github.com/TechBuilder-360/business-directory-backend/services"
+	"github.com/TechBuilder-360/business-directory-backend/utility"
 	log "github.com/Toflex/oris_log"
 	"github.com/gin-gonic/gin"
 	"net/http"

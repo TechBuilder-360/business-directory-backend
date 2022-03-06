@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
 	log "github.com/Toflex/oris_log"
 	"io"
 	"net/http"

@@ -9,9 +9,10 @@ import (
 var once sync.Once
 
 var (
-	CLIENTERROR = "CLI001"
-	AUTHERROR004 = "AUTHERR004"
-	SYSTEM001 = "SM001"
+	CLIENTERROR        = "CLI001"
+	AUTHERROR004       = "AUTHERR004"
+	SYSTEM001          = "SM001"
+	SECURITYDECRYPTERR = "SECURITYDECRYPTERR"
 )
 
 func GetCodeMsg(code string) string {

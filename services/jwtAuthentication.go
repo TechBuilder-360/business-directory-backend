@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-//go:generate mockgen -destination=../mocks/service/mockJWTService.go -package=service github.com/TechBuilder-360/business-directory-backend.git/services JWTService
+//go:generate mockgen -destination=../mocks/service/mockJWTService.go -package=service github.com/TechBuilder-360/business-directory-backend/services JWTService
 type JWTService interface {
 	GenerateToken(email string, isUser bool) string
 	ValidateToken(token string) (*jwt.Token, error)

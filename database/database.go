@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
 	log "github.com/Toflex/oris_log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

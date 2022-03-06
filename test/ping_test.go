@@ -1,9 +1,9 @@
 package test
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/controllers"
-	"github.com/TechBuilder-360/business-directory-backend.git/mocks/service"
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
+	"github.com/TechBuilder-360/business-directory-backend/controllers"
+	"github.com/TechBuilder-360/business-directory-backend/mocks/service"
+	"github.com/TechBuilder-360/business-directory-backend/services"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"net/http"
@@ -21,7 +21,7 @@ func setup(t *testing.T) func() {
 
 	serv = service.NewMockService(crtl)
 
-	ch = controllers.Controller{Service: serv}
+	//ch = controllers.Controller{Service: serv}
 
 	router = gin.Default()
 
@@ -33,6 +33,8 @@ func setup(t *testing.T) func() {
 
 func Test_should_return_author(t *testing.T) {
 	// Arrange
+
+
 
 	person:=services.Person{
 	Name:"Adegunwa Toluwalope",

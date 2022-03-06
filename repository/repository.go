@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
-	"github.com/TechBuilder-360/business-directory-backend.git/models"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
+	"github.com/TechBuilder-360/business-directory-backend/models"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-//go:generate mockgen -destination=../mocks/repository/mockRepo.go -package=repository github.com/TechBuilder-360/business-directory-backend.git/repository Repository
+//go:generate mockgen -destination=../mocks/repository/mockRepo.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository Repository
 type Repository interface {
 	GetClientByID(string) ( *models.Client , error)
 }
@@ -14,6 +14,7 @@ type Repository interface {
 type DefaultRepo struct {
 	Config  *configs.Config
 	Client	*mongo.Collection
+ 
 }
 
 func NewRepository(mdb *mongo.Database, config *configs.Config) Repository {
@@ -23,3 +24,4 @@ func NewRepository(mdb *mongo.Database, config *configs.Config) Repository {
 		Config: config,
 	}
 }
+
