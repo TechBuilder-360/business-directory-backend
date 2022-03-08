@@ -72,7 +72,6 @@ func AuthorizeJWT() gin.HandlerFunc {
 			fmt.Println(err)
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-
 	}
 }
 
@@ -80,7 +79,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 func (m *Middleware) SecurityMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		response := utility.NewResponse()
-		ctx:=make(map[string]interface{})
+		ctx := make(map[string]interface{})
 		for k, v := range c.Request.Header {
 			ctx[k] = v
 		}
@@ -103,7 +102,7 @@ func (m *Middleware) SecurityMiddleware() gin.HandlerFunc {
 				decrypt, err := utility.Decrypt(client.AESKey, string(body))
 				if err != nil {
 					log.Error("Request body could not be decrypted. %s", err.Error())
-					resp,_ := json.Marshal(response.Error(utility.SECURITYDECRYPTERR, utility.GetCodeMsg(utility.SECURITYDECRYPTERR)))
+					resp, _ := json.Marshal(response.Error(utility.SECURITYDECRYPTERR, utility.GetCodeMsg(utility.SECURITYDECRYPTERR)))
 					encrypt, err := utility.Encrypt(client.AESKey, string(resp))
 					if err != nil {
 						c.AbortWithStatusJSON(http.StatusOK, response.Error(utility.SECURITYDECRYPTERR, utility.GetCodeMsg(utility.SECURITYDECRYPTERR)))
@@ -127,4 +126,50 @@ func (m *Middleware) SecurityMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 
+}
+
+func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
+	hmacSecretString := "secureSecretText"
+	hmacSecret := []byte(hmacSecretString)
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		// check token signing method etc
+		return hmacSecret, nil
+	})
+
+	if err != nil {
+		return nil, false
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, true
+	} else {
+		fmt.Printf("Invalid JWT Token")
+		return nil, false
+	}
+}
+
+func (m *Middleware) AuthorizationMiddleware(role ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//	response := utility.NewResponse()
+		const BearerSchema = "Bearer"
+		authHeader := c.GetHeader("Authorization")
+		tokenString := authHeader[len(BearerSchema):]
+		fmt.Print(tokenString)
+		token, err := services.DefultJWTAuth().ValidateToken(tokenString)
+		if token.Valid {
+			claims, _ := extractClaims(tokenString)
+			fmt.Print(claims)
+			// if !utility.IsContain(role, claims.Role) {
+			// 	m.Logger.Error(utility.UNAUTHORISE)
+			// 	c.AbortWithStatusJSON(http.StatusUnauthorized, response.Error(utility.UNAUTHORISE, utility.GetCodeMsg(utility.UNAUTHORISE)))
+			// 	return
+			// }
+			fmt.Println(claims)
+		} else {
+			fmt.Println(err)
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+
+		c.Next()
+	}
 }

@@ -13,6 +13,7 @@ var (
 	AUTHERROR004       = "AUTHERR004"
 	SYSTEM001          = "SM001"
 	SECURITYDECRYPTERR = "SECURITYDECRYPTERR"
+	UNAUTHORISE        = "UNAUTHORISE"
 )
 
 func GetCodeMsg(code string) string {

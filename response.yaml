@@ -5,3 +5,5 @@ AUTHERR004: "Authentication failed"
 SUC001: "Success"
 
 SECURITYDECRYPTERR: "Request body could not be decoded."
+
+UNAUTHORISE: "Not Authorised Request"
