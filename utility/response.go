@@ -11,8 +11,10 @@ var once sync.Once
 var (
 	CLIENTERROR        = "CLI001"
 	AUTHERROR004       = "AUTHERR004"
-	SYSTEM001          = "SM001"
+	SYSTEM001          = "SUC001"
 	SECURITYDECRYPTERR = "SECURITYDECRYPTERR"
+	Authorization = "AuthERR001"
+	VALIDATIONERR = "VALIDATIONERR"
 )
 
 func GetCodeMsg(code string) string {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -59,7 +60,7 @@ func (m *Middleware) ClientValidation() gin.HandlerFunc {
 }
 
 // AuthorizeJWT
-func AuthorizeJWT() gin.HandlerFunc {
+func (m *Middleware) AuthorizeJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		const BearerSchema = "Bearer"
 		authHeader := c.GetHeader("Authorization")
@@ -80,11 +81,8 @@ func AuthorizeJWT() gin.HandlerFunc {
 func (m *Middleware) SecurityMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		response := utility.NewResponse()
-		ctx:=make(map[string]interface{})
-		for k, v := range c.Request.Header {
-			ctx[k] = v
-		}
-		log := m.Logger.NewContext(ctx)
+		log := m.Logger.NewContext()
+		log.AddContext("Header", c.Request.Header)
 
 		if strings.HasPrefix(c.Request.RequestURI, "/api/v1") {
 			client := &models.Client{}
@@ -127,4 +125,37 @@ func (m *Middleware) SecurityMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 
+}
+
+type bodyLogWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w bodyLogWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
+func (m *Middleware) TestMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log := m.Logger.NewContext()
+		//log.AddContext("Header", c.Request.Header)
+		log.Info("Sending request ...")
+		c.Set("LogID", uuid.New().String())
+		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		c.Writer = blw
+		//w := httptest.NewRecorder()
+
+		c.Params = []gin.Param{gin.Param{Key: "k", Value: "v"}}
+
+		//foo(c)
+
+		r:=strings.NewReader("someString")
+		b, _ := ioutil.ReadAll(r)
+		c.Writer.Write(b)
+		c.ShouldBindJSON(map[string]interface{}{"message": "Changed response body"})
+
+		log.Info("Sending response. %+v", blw.body.String())
+	}
 }

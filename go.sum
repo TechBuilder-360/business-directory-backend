@@ -55,8 +55,8 @@ github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tN
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV/sSk/8dngufqelfh6jnri85riMAaF/M=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
-github.com/Toflex/oris_log v0.0.0-20220211103751-b6b9403d96ec h1:BH7U74DZBukSHgfIzRwaNl9noLOXLUjUJgO30kT1dJw=
-github.com/Toflex/oris_log v0.0.0-20220211103751-b6b9403d96ec/go.mod h1:88ApXqs8tfiyzqaaNz2bioovWX7mSujSQNgebYLz3Y8=
+github.com/Toflex/oris_log v0.0.0-20220305122705-bb11021412ac h1:DFPJtotgahfiSjWDDY2WFnkOE0CLR3f7AltoZz+QGOU=
+github.com/Toflex/oris_log v0.0.0-20220305122705-bb11021412ac/go.mod h1:88ApXqs8tfiyzqaaNz2bioovWX7mSujSQNgebYLz3Y8=
 github.com/agiledragon/gomonkey/v2 v2.3.1 h1:k+UnUY0EMNYUFUAQVETGY9uUTxjMdnUkP0ARyJS1zzs=
 github.com/agiledragon/gomonkey/v2 v2.3.1/go.mod h1:ap1AmDzcVOAz1YpeJ3TCzIgstoaWLA6jbbgxfB4w2iY=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=

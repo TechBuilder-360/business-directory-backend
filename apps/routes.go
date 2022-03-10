@@ -2,7 +2,10 @@ package apps
 
 import (
 	"github.com/TechBuilder-360/business-directory-backend/controllers"
+	"github.com/TechBuilder-360/business-directory-backend/middlewares"
 	"github.com/TechBuilder-360/business-directory-backend/services"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"sync"
@@ -12,10 +15,24 @@ var once sync.Once
 
 func (a *App) SetupRoutes() {
 	once.Do(func() {
+
+		// middlewares ...
+		a.Router.SetTrustedProxies(a.Config.TrustedProxies)
+		//middlewares.New(a.Router.)
+		m := &middlewares.Middleware{}
+		m.Repo = a.Repo
+		m.Logger = a.Logger
+		m.Config = a.Config
+
+		a.Router.Use(cors.Default(), gin.Recovery(), m.TestMiddleware())
+		//a.Router.Use(m.ClientValidation())
+		//a.Router.Use(m.SecurityMiddleware())
+		//--- End middlewares
+
 		controller := controllers.DefaultController(a.Serv, a.Logger)
 		auth:= services.DefaultAuth(a.Repo)
 		jwt:=services.DefultJWTAuth()
-		authHandler := controllers.AuthHandler(auth, jwt, a.Logger)
+		authHandler := controllers.AuthHandler(auth, jwt, a.Repo, a.Logger)
 
 
 		if a.Config.DEBUG {
@@ -25,11 +42,17 @@ func (a *App) SetupRoutes() {
 
 		a.Router.GET("/ping", controller.Ping)
 
-		v1 := a.Router.Group("/api/v1")
+		// Groups routes that does not require authentication
+		preAuthentication := a.Router.Group("/api/v1")
 		{
-			v1.POST("/ping", controller.Ping)
-			v1.POST("/getLoginToken", authHandler.Login)
-			v1.POST("/create",controllers.CreateBook)
+			preAuthentication.POST("/get-login-token", authHandler.SendLoginToken)
+		}
+
+		// Group routes that requires authentication
+		authUrl := a.Router.Group("/api/v1")
+		{
+			authUrl.Use(m.AuthorizeJWT())
+			authUrl.POST("/getLoginToken", authHandler.Login)
 		}
 
 	})

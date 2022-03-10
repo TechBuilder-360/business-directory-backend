@@ -10,7 +10,6 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/repository"
 	"github.com/TechBuilder-360/business-directory-backend/services"
 	log "github.com/Toflex/oris_log"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
@@ -34,11 +33,11 @@ func main()  {
 	// APP config
 	APP:= &apps.App{}
 	APP.Config = configs.Configuration()
-	APP.Logger = log.New()
+	APP.Logger = log.New(log.Configuration{Output: log.CONSOLE, Name: "Business_Directory"})
 	if !APP.Config.DEBUG {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	
+
 	// Server
 	APP.Router = gin.New()
 
@@ -60,16 +59,6 @@ func main()  {
 	APP.Repo=repository.NewRepository(APP.Mongo, APP.Config)
 	APP.Serv=services.NewService(APP.Repo)
 
-	// middlewares ...
-	APP.Router.SetTrustedProxies(APP.Config.TrustedProxies)
-	//config := cors.DefaultConfig()
-	//config.AllowOrigins = APP.Config.AllowedOrigin
-	//config.AllowMethods = []string{"POST", "GET", "DELETE", "PATCH", "PUT"}
-	//config.AllowHeaders = []string{"*"}
-	//config.AllowAllOrigins = false
-	//APP.Router.Use(cors.New(config))
-	APP.Router.Use(cors.Default())
-	APP.SetupMiddlewares()
 
 	// Set up the routes
 	APP.SetupRoutes()
