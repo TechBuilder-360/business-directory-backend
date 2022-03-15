@@ -15,6 +15,7 @@ var (
 	SECURITYDECRYPTERR = "SECURITYDECRYPTERR"
 	Authorization = "AuthERR001"
 	VALIDATIONERR = "VALIDATIONERR"
+	UNAUTHORISE        = "UNAUTHORISE"
 )
 
 func GetCodeMsg(code string) string {

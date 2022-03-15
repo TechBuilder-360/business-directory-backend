@@ -3,7 +3,6 @@ package services
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"os"
 	"time"
 )
 
@@ -25,18 +24,14 @@ type jwtServices struct {
 }
 
 //auth-jwt
-func DefultJWTAuth() JWTService {
+func DefultJWTAuth(secret string) JWTService {
 	return &jwtServices{
-		secretKey: getSecretKey(),
+		secretKey: getSecretKey(secret),
 		issure:    "Bikash",
 	}
 }
 
-func getSecretKey() string {
-	secret := os.Getenv("SECRET")
-	if secret == "" {
-		secret = "secret"
-	}
+func getSecretKey(secret string) string {
 	return secret
 }
 
@@ -64,7 +59,6 @@ func (service *jwtServices) ValidateToken(encodedToken string) (*jwt.Token, erro
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
 			return nil, fmt.Errorf("Invalid token", token.Header["alg"])
-
 		}
 		return []byte(service.secretKey), nil
 	})

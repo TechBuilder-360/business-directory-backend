@@ -5,12 +5,12 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/repository"
 	"github.com/TechBuilder-360/business-directory-backend/services"
 	log "github.com/Toflex/oris_log"
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type App struct {
-	Router *gin.Engine
+	Router *mux.Router
 	Config *configs.Config
 	Logger log.Logger
 	Mongo  *mongo.Database

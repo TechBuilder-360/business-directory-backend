@@ -16,7 +16,7 @@ const (
 
 type Organization struct {
 	ID                 uuid.UUID `json:"id" bson:"_id"`
-	OrganizationName   string `json:"organization_name" bson:"organization_name"`
+	D   string `json:"organization_name" bson:"organization_name"`
 	LogoURL            string `json:"logo_url" bson:"logo_url"`
 	CreatorID          uuid.UUID `json:"creator_id" bson:"creator_id"`
 	GeoLocation        Location `json:"geo_location" bson:"geo_location"`

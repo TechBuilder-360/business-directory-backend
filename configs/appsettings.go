@@ -12,6 +12,8 @@ type Config struct {
 	Port             string `yaml:"Port"`
 	DEBUG            bool   `yaml:"DEBUG"`
 	MongoURI         string `yaml:"MongoURI"`
+	Secret			 string  `yaml:"Secret"`
+	URLPrefix        string  `yaml:"URLPrefix"`
 	AesKey           string `yaml:"AesKey"`
 	MongoDBName      string `yaml:"MongoDBName"`
 	ClientCollection string `yaml:"ClientCollection"`
