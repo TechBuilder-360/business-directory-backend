@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/utility"
+	"github.com/TechBuilder-360/business-directory-backend/utility"
 	"time"
 )
 

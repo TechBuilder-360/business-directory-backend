@@ -1,8 +1,13 @@
 AppName: "Business Directory"
 
+URLPrefix: "directory"
+
 Host: "localhost"
 
 Port: "8000"
+AesKey: "thisis32bitlongpassphraseimusing"
+
+Secret: "3bfe74e9805c0d479ebd04fc46b3955337624f9498f598b69052d1f43ae490b1"
 
 AllowedOrigin:
   - "http://localhost:8000"

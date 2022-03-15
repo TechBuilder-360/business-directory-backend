@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
 	log "github.com/Toflex/oris_log"
 	"io"
 	"net/http"
@@ -25,8 +25,9 @@ type Client struct {
 // ClientRequest returns response from an external server
 func (c *Client) ClientRequest() (interface{}, error) {
 
-	ctx := make(map[string]interface{})
-	l:=c.Logger.NewContext(ctx)
+	//ctx := make(map[string]interface{})
+	l:=c.Logger.NewContext()
+
 	defer l.Info("Service Log")
 
 	client := &http.Client{}

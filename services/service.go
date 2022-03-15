@@ -1,12 +1,12 @@
 package services
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
-	"github.com/TechBuilder-360/business-directory-backend.git/repository"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
+	"github.com/TechBuilder-360/business-directory-backend/repository"
 )
 
 
-//go:generate mockgen -destination=../mocks/service/mockService.go -package=service github.com/TechBuilder-360/business-directory-backend.git/services Service
+//go:generate mockgen -destination=../mocks/service/mockService.go -package=service github.com/TechBuilder-360/business-directory-backend/services Service
 type Service interface {
 	GetAuthor() (Person)
 }

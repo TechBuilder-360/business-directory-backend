@@ -2,17 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/TechBuilder-360/business-directory-backend.git/apps"
-	"github.com/TechBuilder-360/business-directory-backend.git/configs"
-	"github.com/TechBuilder-360/business-directory-backend.git/database"
-	"github.com/TechBuilder-360/business-directory-backend.git/docs"
-	"github.com/TechBuilder-360/business-directory-backend.git/repository"
-	"github.com/TechBuilder-360/business-directory-backend.git/services"
+	"github.com/TechBuilder-360/business-directory-backend/apps"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
+	"github.com/TechBuilder-360/business-directory-backend/database"
+	"github.com/TechBuilder-360/business-directory-backend/docs"
+	"github.com/TechBuilder-360/business-directory-backend/repository"
+	"github.com/TechBuilder-360/business-directory-backend/services"
 	log "github.com/Toflex/oris_log"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	_ "github.com/swaggo/files"
-	_ "github.com/swaggo/gin-swagger"
+	"net/http"
 )
 
 // @title           Business directory API
@@ -29,52 +28,40 @@ import (
 // @BasePath  /api/v1
 
 // @securityDefinitions.basic  BasicAuth
-func main()  {
+func main() {
 	// APP config
-	APP:= &apps.App{}
+	APP := &apps.App{}
 	APP.Config = configs.Configuration()
-	APP.Logger = log.New()
+	APP.Logger = log.New(log.Configuration{Output: log.CONSOLE, Name: "Business_Directory"})
 	if !APP.Config.DEBUG {
-		gin.SetMode(gin.ReleaseMode)
+
 	}
 
 	// Server
-	APP.Router = gin.New()
+	APP.Router = mux.NewRouter()
 
 	// programmatically set swagger info
 	docs.SwaggerInfo_swagger.Title = "Business directory API"
 	docs.SwaggerInfo_swagger.Description = "This is the API for business directory api."
 	docs.SwaggerInfo_swagger.Version = "1.0"
-	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s:%s", APP.Config.Host,APP.Config.Port)
+	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s:%s", APP.Config.Host, APP.Config.Port)
 	docs.SwaggerInfo_swagger.BasePath = "/api/v1"
 	docs.SwaggerInfo_swagger.Schemes = []string{"http", "https"}
 
 	// Database config
-	Database:=&database.Database{}
+	Database := &database.Database{}
 	Database.Config = APP.Config
 	Database.Logger = APP.Logger
 	Database.ConnectToMongo()
 
 	APP.Mongo = Database.Mongo
-	APP.Repo=repository.NewRepository(APP.Mongo, APP.Config)
-	APP.Serv=services.NewService(APP.Repo)
-
-	// middlewares ...
-	APP.Router.SetTrustedProxies(APP.Config.TrustedProxies)
-	//config := cors.DefaultConfig()
-	//config.AllowOrigins = APP.Config.AllowedOrigin
-	//config.AllowMethods = []string{"POST", "GET", "DELETE", "PATCH", "PUT"}
-	//config.AllowHeaders = []string{"*"}
-	//config.AllowAllOrigins = false
-	//APP.Router.Use(cors.New(config))
-	APP.Router.Use(cors.Default())
-	APP.SetupMiddlewares()
+	APP.Repo = repository.NewRepository(APP.Mongo, APP.Config)
+	APP.Serv = services.NewService(APP.Repo)
 
 	// Set up the routes
 	APP.SetupRoutes()
 
 	// Start the server
 	APP.Logger.Info("Server started on port %s", APP.Config.Port)
-	APP.Router.Run(fmt.Sprintf(":%s",APP.Config.Port))
-
+	http.ListenAndServe(fmt.Sprintf(":%s", APP.Config.Port), APP.Router)
 }

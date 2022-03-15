@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"github.com/TechBuilder-360/business-directory-backend.git/models"
+	"github.com/TechBuilder-360/business-directory-backend/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"time"
 )

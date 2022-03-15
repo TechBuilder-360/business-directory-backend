@@ -3,3 +3,9 @@ CLI001: "Client validation failed"
 AUTHERR004: "Authentication failed"
 
 SUC001: "Success"
+
+SECURITYDECRYPTERR: "Request body could not be decoded."
+
+VALIDATIONERR: "Validation failed for this request!"
+
+UNAUTHORISE: "Not Authorised Request"

@@ -5,24 +5,34 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"github.com/gin-gonic/gin"
 	"io"
 	"io/ioutil"
 )
 
-func ExtractRequestBody(c *gin.Context) (string, io.ReadCloser) {
+// ExtractRequestBody returns body and body reader
+func ExtractRequestBody(c io.ReadCloser) (string, io.ReadCloser) {
 	// Read the Body content
 	var bodyBytes []byte
-	if c.Request.Body != nil {
-		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+	if c != nil {
+		bodyBytes, _ = ioutil.ReadAll(c)
 	}
 	return string(bodyBytes), ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 }
-
 
 func ComputeHmac256(message string, secret string) string {
 	key, _ := base64.StdEncoding.DecodeString(secret)
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(message))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func UserHasRole(userRole, requiredRole []string) bool {
+	for _, v := range requiredRole {
+		for _, b := range userRole {
+			if v == b {
+				return true
+			}
+		}
+	}
+	return false
 }
