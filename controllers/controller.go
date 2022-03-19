@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/TechBuilder-360/business-directory-backend/repository"
+	"github.com/TechBuilder-360/business-directory-backend/utility"
 	"github.com/google/uuid"
 	"net/http"
 
@@ -20,6 +22,7 @@ type customClaims struct {
 }
 type NewController struct {
 	Service services.Service
+	Repo    repository.Repository
 	Logger  logger.Logger
 }
 
@@ -33,9 +36,15 @@ func DefaultController(serv services.Service, log logger.Logger) Controller {
 func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
 	log:= c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
+	apiResponse := utility.NewResponse()
 	log.Debug("Ping")
 	r.Header.Set("TraceID", uuid.New().String())
 
-	json.NewEncoder(w).Encode(map[string]interface{}{"message": "Hi"})
+	d:=c.Service.GetAuthor(log)
+	//_ := c.Repo.GetClientByID("sdd")
+
+	//json.NewEncoder(w).Encode(map[string]interface{}{"message": "Hi"})
+	json.NewEncoder(w).Encode(apiResponse.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), d))
 	return
 }
+

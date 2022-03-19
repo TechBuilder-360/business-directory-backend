@@ -37,7 +37,8 @@ func (a *App) SetupRoutes() {
 		}
 
 		apiRouter.HandleFunc("/ping", controller.Ping)
-		apiRouter2.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER")) // .HandleFunc("/a/ping", controller.Ping)
+
+		apiRouter2.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER"))
 
 		// Groups routes that does not require authentication
 		//preAuthentication := apiRouter ("/api/v1")
