@@ -16,6 +16,8 @@ var (
 	Authorization = "AuthERR001"
 	VALIDATIONERR = "VALIDATIONERR"
 	UNAUTHORISE        = "UNAUTHORISE"
+	BAD_REQUEST = "BAD_REQUEST"
+	SERVER_ERROR = "SERVER_ERROR"
 )
 
 func GetCodeMsg(code string) string {

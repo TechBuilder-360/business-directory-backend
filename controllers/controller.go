@@ -1,17 +1,23 @@
 package controllers
 
 import (
+	//"context"
 	"encoding/json"
-	"github.com/google/uuid"
+
 	"net/http"
 
+	
+	"github.com/TechBuilder-360/business-directory-backend/repository"
 	"github.com/TechBuilder-360/business-directory-backend/services"
+	
 	logger "github.com/Toflex/oris_log"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 )
 
 type Controller interface {
 	Ping(w http.ResponseWriter, r *http.Request)
+	CreateOrganisation(w http.ResponseWriter, r *http.Request)
 }
 type customClaims struct {
 	Username string `json:"username"`
@@ -21,12 +27,14 @@ type customClaims struct {
 type NewController struct {
 	Service services.Service
 	Logger  logger.Logger
+	Repo   repository.Repository
 }
 
-func DefaultController(serv services.Service, log logger.Logger) Controller {
+func DefaultController(serv services.Service, log logger.Logger,repo repository.Repository) Controller {
 	return &NewController{
 		Service: serv,
 		Logger:  log,
+		Repo : repo,
 	}
 }
 
@@ -39,3 +47,4 @@ func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"message": "Hi"})
 	return
 }
+

@@ -17,7 +17,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/Toflex/oris_log v0.0.0-20220305122705-bb11021412ac // indirect
+	github.com/Toflex/oris_log v0.0.0-20220305122705-bb11021412ac
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
@@ -40,7 +40,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
-	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -64,7 +64,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
-	github.com/swaggo/http-swagger v1.2.5 // indirect
+	github.com/swaggo/http-swagger v1.2.5
 	github.com/toqueteos/webbrowser v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

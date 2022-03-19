@@ -2,8 +2,9 @@ package apps
 
 import (
 	"fmt"
-	httpSwagger "github.com/swaggo/http-swagger"
 	"sync"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/TechBuilder-360/business-directory-backend/controllers"
 	"github.com/TechBuilder-360/business-directory-backend/middlewares"
@@ -23,7 +24,7 @@ func (a *App) SetupRoutes() {
 		//a.Router.Use(m.SecurityMiddleware())
 		//--- End middlewares
 
-		controller := controllers.DefaultController(a.Serv, a.Logger)
+		controller := controllers.DefaultController(a.Serv, a.Logger, a.Repo)
 		//auth:= services.DefaultAuth(a.Repo)
 		//jwt:=services.DefultJWTAuth(a.Config.Secret)
 		//authHandler := controllers.AuthHandler(auth, jwt, a.Repo, a.Logger)
@@ -38,7 +39,7 @@ func (a *App) SetupRoutes() {
 
 		apiRouter.HandleFunc("/ping", controller.Ping)
 		apiRouter2.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER")) // .HandleFunc("/a/ping", controller.Ping)
-
+		apiRouter2.HandleFunc("/organisation", controller.CreateOrganisation).Methods("POST")
 		// Groups routes that does not require authentication
 		//preAuthentication := apiRouter ("/api/v1")
 		//{

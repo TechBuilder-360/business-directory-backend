@@ -30,16 +30,16 @@ Manages user information and serves API to the front-end mobile
 2. Login code gets sent to email address.
 3. User enters code and gets redirected to dashboard.
 
-## Organization 
-Payment is a way to track the proof of life of an organization. 
+## Organisation 
+Payment is a way to track the proof of life of an organisation. 
 ### Creation 
-1. A registered user can create an organization and by default become the owner of that organization.
-2. Organization has 6 months free enrollment before they become inactive (not visible on search).
-3. An organization running a free trial will be given a bronze star to indicate that it was registered less than 6 months on the platform.
-4. Organization running free trial would have access to limited features.
-5. An organization can opt to pay monthly or yearly subscription, notification would be sent 1 month before an account would be turned inactive if payment isn't made before then.
+1. A registered user can create an organisation and by default become the owner of that organisation.
+2. Organisation has 6 months free enrollment before they become inactive (not visible on search).
+3. An organisation running a free trial will be given a bronze star to indicate that it was registered less than 6 months on the platform.
+4. Organisation running free trial would have access to limited features.
+5. An organisation can opt to pay monthly or yearly subscription, notification would be sent 1 month before an account would be turned inactive if payment isn't made before then.
 
-### Organization features
+### Organisation features
 1. Has a minimum of one branch (HQ)
 2. Location is optional
-3. An organization without location cannot create a branch.
+3. An organisation without location cannot create a branch.

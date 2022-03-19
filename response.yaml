@@ -9,3 +9,7 @@ SECURITYDECRYPTERR: "Request body could not be decoded."
 VALIDATIONERR: "Validation failed for this request!"
 
 UNAUTHORISE: "Not Authorised Request"
+
+BAD_REQUEST: "Bad Request"
+
+SERVER_ERROR: "Server Error"
