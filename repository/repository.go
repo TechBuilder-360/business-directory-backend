@@ -10,7 +10,7 @@ import (
 //go:generate mockgen -destination=../mocks/repository/mockRepo.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository Repository
 type Repository interface {
 	GetClientByID(string)( *models.Client , error)
-	CreateOrganisation(*dto.CreateOrganisation)(string,error)
+	CreateOrganisation(req *dto.CreateOrgReq)(*dto.CreateOrgResponse,error)
 }
 
 type DefaultRepo struct {

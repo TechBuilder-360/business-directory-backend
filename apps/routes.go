@@ -38,20 +38,8 @@ func (a *App) SetupRoutes() {
 		}
 
 		apiRouter.HandleFunc("/ping", controller.Ping)
-		apiRouter2.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER")) // .HandleFunc("/a/ping", controller.Ping)
+		apiRouter2.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER"))
 		apiRouter2.HandleFunc("/organisation", controller.CreateOrganisation).Methods("POST")
-		// Groups routes that does not require authentication
-		//preAuthentication := apiRouter ("/api/v1")
-		//{
-		//	preAuthentication.POST("/get-login-token", authHandler.SendLoginToken)
-		//}
-		//
-		//// Group routes that requires authentication
-		//authUrl := a.Router.Group("/api/v1")
-		//{
-		//	//authUrl.Use(m.AuthorizeJWT())
-		//	authUrl.POST("/getLoginToken", authHandler.Login)
-		//}
 
 	})
 	a.Logger.Info("Routes have been initialized")

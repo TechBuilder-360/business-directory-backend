@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrganisation) (string, error) {
+func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateOrgResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
@@ -25,8 +25,8 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrganisation) (string
 
 	result, err := r.Organisation.InsertOne(ctx, &org)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return result.InsertedID.(string), nil
+	return &dto.CreateOrgResponse{OrganisationID: result.InsertedID.(string)}, nil
 }

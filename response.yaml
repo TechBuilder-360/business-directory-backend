@@ -13,3 +13,5 @@ UNAUTHORISE: "Not Authorised Request"
 BAD_REQUEST: "Bad Request"
 
 SERVER_ERROR: "Server Error"
+
+SMMERROR: "Request could not be processed at the moment. Please try again!"
