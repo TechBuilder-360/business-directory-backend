@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -23,6 +24,12 @@ type Middleware struct {
 	Config *configs.Config
 }
 
+// Response send encrypted response
+type Response struct {
+	Data string `json:"data"`
+}
+
+
 func (m *Middleware) ClientValidationMiddleware (next http.Handler) http.Handler {
 	m.Logger.Info("ClientValidationMiddleware successfully registered")
 
@@ -30,7 +37,7 @@ func (m *Middleware) ClientValidationMiddleware (next http.Handler) http.Handler
 		m.Logger.Info("Client Validation middleware is active")
 		response := utility.NewResponse()
 
-		if strings.HasPrefix(r.RequestURI, "/api/v1") {
+		if strings.Contains(r.RequestURI, "/api/v1") {
 			if r.Method != http.MethodGet && r.Method != http.MethodDelete {
 				client := &models.Client{}
 				client.ClientID = r.Header.Get("CID")
@@ -76,10 +83,6 @@ func (m *Middleware) ClientValidationMiddleware (next http.Handler) http.Handler
 //	}
 //}
 
-// Response send encrypted response
-type Response struct {
-	Data string `json:"data"`
-}
 
 //SecurityMiddleware performs encryption of response and decrypt request
 func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
@@ -90,14 +93,14 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 		log := m.Logger.NewContext()
 		log.AddContext("Header", r.Header)
 
-		if strings.HasPrefix(r.RequestURI, "/api/v1") {
+		if strings.Contains(r.RequestURI, "/api/v1") {
 			client := &models.Client{}
 			client.ClientID = r.Header.Get("CID")
 			client, err := m.Repo.GetClientByID(client.ClientID)
 			if err != nil {
 				log.Error("Client not found. %s", err.Error())
 				json.NewEncoder(w).Encode(response.Error(utility.CLIENTERROR, utility.GetCodeMsg(utility.CLIENTERROR)))
-				w.WriteHeader(403)
+				w.WriteHeader(http.StatusOK)
 				return
 			}
 
@@ -111,26 +114,67 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 					encrypt, err := utility.Encrypt(client.AESKey, string(resp))
 					if err != nil {
 						json.NewEncoder(w).Encode(response.Error(utility.SECURITYDECRYPTERR, utility.GetCodeMsg(utility.SECURITYDECRYPTERR)))
-						w.WriteHeader(200)
+						w.WriteHeader(http.StatusOK)
 						return
 					}
 					json.NewEncoder(w).Encode(Response{Data: encrypt})
-					w.WriteHeader(200)
+					w.WriteHeader(http.StatusOK)
 					return
 				}
 				r.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(decrypt)))
 			}
-			rr := httptest.NewRecorder()
+			rec := httptest.NewRecorder()
 			// Proceed to next middleware
-			next.ServeHTTP(rr, r)
+			next.ServeHTTP(rec, r)
+			for k, v := range rec.Header() {
+				w.Header()[k] = v
+			}
+
+			switch w.Header().Get("Content-Encoding") {
+			case "gzip":
+				if reader, err := gzip.NewReader(rec.Result().Body); err != nil {
+					log.Error("%s: An error occurred while reading gzip > %s", r.RequestURI, err.Error())
+				} else {
+					json.NewDecoder(reader).Decode(&response)
+				}
+			default:
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					log.Error("%s: An error unmarshalling response body > %s", r.RequestURI, err.Error())
+				}
+			}
+			// Response to JSON format
+			js, _ := json.Marshal(response)
+			jsonResponse := string(js)
 			// Encrypt response
-			var obj interface{}
-			json.NewDecoder(r.Response.Body).Decode(&obj)
-			log.Debug("%+v\n", obj)
-			return
+			if encoded, err := utility.Encrypt(client.AESKey, jsonResponse); err != nil {
+				log.Error("%s: An error occurred while encrypting response > %s", r.RequestURI, err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(response.Error(utility.SMMERROR004, err.Error()))
+				return
+			} else {
+				resp, _:= json.Marshal(Response{Data: encoded})
+				w.WriteHeader(rec.Code)
+				var b bytes.Buffer
+				if w.Header().Get("Content-Encoding") == "gzip" {
+					gz := gzip.NewWriter(&b)
+					if _, err := gz.Write(resp); err != nil {
+						log.Error("%s: An error occurred while gzip response > %s", r.RequestURI, err.Error())
+						w.WriteHeader(http.StatusInternalServerError)
+						json.NewEncoder(w).Encode(response.Error(utility.SMMERROR004, err.Error()))
+					}
+					if err := gz.Close(); err != nil {
+						log.Error("%s: An error occurred while closing gzip response > %s", r.RequestURI, err.Error())
+					}
+					w.Write(b.Bytes())
+					return
+				}
+				w.Write(resp)
+				return
+			}
 		}
 
 		next.ServeHTTP(w, r)
+
 	})
 }
 
