@@ -13,3 +13,5 @@ UNAUTHORISE: "Not Authorised Request"
 BAD_REQUEST: "Bad Request"
 
 SERVER_ERROR: "Server Error"
+
+ALREADY_EXIST: "Name Already Exist"

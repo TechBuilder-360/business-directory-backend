@@ -18,6 +18,11 @@ import (
 type Controller interface {
 	Ping(w http.ResponseWriter, r *http.Request)
 	CreateOrganisation(w http.ResponseWriter, r *http.Request)
+	CreateBranch(w http.ResponseWriter, r *http.Request)
+	GetOrganisation(w http.ResponseWriter, r *http.Request)
+	GetBranch(w http.ResponseWriter, r *http.Request)
+	DeactivateOrganisation(w http.ResponseWriter, r *http.Request)
+
 }
 type customClaims struct {
 	Username string `json:"username"`

@@ -18,6 +18,7 @@ var (
 	UNAUTHORISE        = "UNAUTHORISE"
 	BAD_REQUEST = "BAD_REQUEST"
 	SERVER_ERROR = "SERVER_ERROR"
+	ALREADY_EXIST = "ALREADY_EXIST"
 )
 
 func GetCodeMsg(code string) string {

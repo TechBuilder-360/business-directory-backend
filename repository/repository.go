@@ -11,22 +11,32 @@ import (
 type Repository interface {
 	GetClientByID(string)( *models.Client , error)
 	CreateOrganisation(*dto.CreateOrganisation)(string,error)
+	CreateBranch(*dto.CreateBranch)(string,error)
+	GetOrganisation() (*mongo.Cursor, error)
+	GetBranch(organisation string) (*mongo.Cursor, error)
+	AlreadyOrganisation(*dto.CreateOrganisation) (bool) 
+	AlreadyBranch(*dto.CreateBranch) (bool) 
+	DeactivateOrganisation(id string,value bool) (*mongo.UpdateResult, error)
+
 }
 
 type DefaultRepo struct {
 	Config  *configs.Config
 	Client	*mongo.Collection
 	Organisation *mongo.Collection
+	Branch *mongo.Collection
  
 }
 
 func NewRepository(mdb *mongo.Database, config *configs.Config) Repository {
-	client:= mdb.Collection(config.ClientCollection)
-	Organisation:= mdb.Collection(config.OrganisationCollection)
+	client:= mdb.Collection("Clients")
+	organisation:= mdb.Collection("Organisations")
+	branch:= mdb.Collection("Branch")
 	return &DefaultRepo{
 		Client: client,
 		Config: config,
-		Organisation: Organisation,
+		Organisation: organisation,
+		Branch:branch,
 	}
 }
 
