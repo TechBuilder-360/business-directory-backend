@@ -1,4 +1,5 @@
 package models
+
 //
 //import (
 //	"time"
@@ -9,10 +10,10 @@ package models
 //)
 //
 //const (
-//	OrganizationCollectionName       = "organizations"
+//	OrganisationCollectionName       = "organisations"
 //	TokenTransactionCollectionName   = "token_transaction"
 //	InstalledPluginsCollectionName   = "installed_plugins"
-//	OrganizationInviteCollectionName = "organizations_invites"
+//	OrganisationInviteCollectionName = "organisations_invites"
 //	MemberCollectionName             = "members"
 //	CardCollectionName               = "cards"
 //	UserCollectionName               = "users"
@@ -20,21 +21,21 @@ package models
 //)
 //
 //const (
-//	CreateOrganizationMember              = "CreateOrganizationMember"
-//	UpdateOrganizationName                = "UpdateOrganizationName"
-//	UpdateOrganizationMemberPic           = "UpdateOrganizationMemberPic"
-//	UpdateOrganizationURL                 = "UpdateOrganizationUrl"
-//	UpdateOrganizationLogo                = "UpdateOrganizationLogo"
-//	DeactivateOrganizationMember          = "DeactivateOrganizationMember"
-//	ReactivateOrganizationMember          = "ReactivateOrganizationMember"
-//	UpdateOrganizationMemberStatus        = "UpdateOrganizationMemberStatus"
-//	UpdateOrganizationMemberProfile       = "UpdateOrganizationMemberProfile"
-//	UpdateOrganizationMemberPresence      = "UpdateOrganizationMemberPresence"
-//	UpdateOrganizationMemberSettings      = "UpdateOrganizationMemberSettings"
-//	UpdateOrganizationMemberRole          = "UpdateOrganizationMemberRole"
-//	UpdateOrganizationMemberStatusCleared = "UpdateOrganizationMemberStatusCleared"
-//	UpdateOrganizationBillingSettings     = "UpdateOrganizationBillingSettings"
-//	UpdateOrganizationMemberFiles         = "UpdateOrganizationMemberFiles"
+//	CreateOrganisationMember              = "CreateOrganisationMember"
+//	UpdateOrganisationName                = "UpdateOrganisationName"
+//	UpdateOrganisationMemberPic           = "UpdateOrganisationMemberPic"
+//	UpdateOrganisationURL                 = "UpdateOrganisationUrl"
+//	UpdateOrganisationLogo                = "UpdateOrganisationLogo"
+//	DeactivateOrganisationMember          = "DeactivateOrganisationMember"
+//	ReactivateOrganisationMember          = "ReactivateOrganisationMember"
+//	UpdateOrganisationMemberStatus        = "UpdateOrganisationMemberStatus"
+//	UpdateOrganisationMemberProfile       = "UpdateOrganisationMemberProfile"
+//	UpdateOrganisationMemberPresence      = "UpdateOrganisationMemberPresence"
+//	UpdateOrganisationMemberSettings      = "UpdateOrganisationMemberSettings"
+//	UpdateOrganisationMemberRole          = "UpdateOrganisationMemberRole"
+//	UpdateOrganisationMemberStatusCleared = "UpdateOrganisationMemberStatusCleared"
+//	UpdateOrganisationBillingSettings     = "UpdateOrganisationBillingSettings"
+//	UpdateOrganisationMemberFiles         = "UpdateOrganisationMemberFiles"
 //)
 //
 //const (
@@ -79,7 +80,7 @@ package models
 //	Password string `bson:"password"`
 //}
 //
-//type Organization1 struct {
+//type Organisation1 struct {
 //	ID           string `json:"_id,omitempty" bson:"_id,omitempty"`
 //	Name         string `json:"name" bson:"name"`
 //	CreatorEmail string `json:"creator_email" bson:"creator_email"`
@@ -87,7 +88,7 @@ package models
 //	// Plugins      []map[string]interface{} `json:"plugins" bson:"plugins"`
 //	Plugins      map[string]interface{} `json:"plugins" bson:"plugins"`
 //	Admins       []string               `json:"admins" bson:"admins"`
-//	Settings     OrganizationPreference `json:"settings" bson:"settings"`
+//	Settings     OrganisationPreference `json:"settings" bson:"settings"`
 //	Customize    Customize              `json:"customize" bson:"customize"`
 //	LogoURL      string                 `json:"logo_url" bson:"logo_url"`
 //	WorkspaceURL string                 `json:"workspace_url" bson:"workspace_url"`
@@ -165,9 +166,9 @@ package models
 //	Emails []string `json:"emails" bson:"emails"`
 //}
 //
-//type OrganizationAdmin struct {
+//type OrganisationAdmin struct {
 //	ID             primitive.ObjectID `bson:"id"`
-//	OrganizationID string             `bson:"organization_id"`
+//	OrganisationID string             `bson:"organisation_id"`
 //	UserID         string             `bson:"user_id"`
 //	CreatedAt      time.Time          `bson:"created_at"`
 //	UpdatedAt      time.Time          `bson:"updated_at"`
@@ -283,7 +284,7 @@ package models
 //	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 //}
 //
-//type OrganizationPreference struct {
+//type OrganisationPreference struct {
 //	Settings       OrgSettings       `json:"settings" bson:"settings"`
 //	Permissions    OrgPermissions    `json:"permissions" bson:"permissions"`
 //	Authentication OrgAuthentication `json:"authentication" bson:"authentication"`
@@ -298,8 +299,8 @@ package models
 //}
 //
 //type OrgSettings struct {
-//	OrganizationIcon   string                 `json:"workspaceicon" bson:"workspaceicon"`
-//	DeleteOrganization map[string]interface{} `json:"deleteorganization" bson:"deleteorganization"`
+//	OrganisationIcon   string                 `json:"workspaceicon" bson:"workspaceicon"`
+//	DeleteOrganisation map[string]interface{} `json:"deleteorganisation" bson:"deleteorganisation"`
 //	WorkspaceLanguage  string                 `json:"workspacelanguage" bson:"workspacelanguage"`
 //	DefaultChannels    []string               `json:"defaultchannels" bson:"defaultchannels"`
 //	ShowDisplayName    bool                   `json:"showdisplayname" bson:"showdisplayname"`
@@ -499,7 +500,7 @@ package models
 //	Plugin      string `json:"plugin" bson:"plugin" validate:"required"`
 //	AccessLevel string `json:"access_level" bson:"access_level" validate:"required"`
 //}
-//type OrganizationHandler struct {
+//type OrganisationHandler struct {
 //	configs     *utils.Configurations
 //	mailService service.MailService
 //}
@@ -524,7 +525,7 @@ package models
 //}
 //
 //type EnterLeaveMessage struct {
-//	OrganizationID string `json:"organization_id" bson:"organization_id"`
+//	OrganisationID string `json:"organisation_id" bson:"organisation_id"`
 //	MemberID       string `json:"member_id" bson:"member_id"`
 //}
 //

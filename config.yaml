@@ -18,8 +18,10 @@ TrustedProxies:
 
 DEBUG: true
 
-MongoURI: "mongodb://localhost:27017"
+MongoURI: "mongodb+srv://shola:hZjvRbdWPllAY7fR@oriscluster.uy936.mongodb.net"
 
-MongoDBName: "Directory"
+MongoDBName: "directory"
 
 ClientCollection: "Clients"
+
+OrganisationCollection: "Organisations"

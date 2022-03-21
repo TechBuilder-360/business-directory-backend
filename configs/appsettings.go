@@ -17,6 +17,7 @@ type Config struct {
 	AesKey           string `yaml:"AesKey"`
 	MongoDBName      string `yaml:"MongoDBName"`
 	ClientCollection string `yaml:"ClientCollection"`
+	OrganisationCollection string `yaml:"OrganisationCollection"`
 	AllowedOrigin    []string `yaml:"AllowedOrigin"`
 	TrustedProxies   []string `yaml:"TrustedProxies"`
 }
