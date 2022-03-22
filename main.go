@@ -14,28 +14,12 @@ import (
 	"net/http"
 )
 
-// @title           Business directory API
-// @version         1.0
-// @description     This is the API for business directory api.
 
-// @contact.name   Techbuilder Support
-// @contact.email  tech.builder.cirle@gmail.com
-
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host      localhost:8080
-// @BasePath  /api/v1
-
-// @securityDefinitions.basic  BasicAuth
 func main() {
 	// APP config
 	APP := &apps.App{}
 	APP.Config = configs.Configuration()
 	APP.Logger = log.New(log.Configuration{Output: log.CONSOLE, Name: "Business_Directory"})
-	if !APP.Config.DEBUG {
-
-	}
 
 	// Server
 	APP.Router = mux.NewRouter()
@@ -45,7 +29,7 @@ func main() {
 	docs.SwaggerInfo_swagger.Description = "This is the API for business directory api."
 	docs.SwaggerInfo_swagger.Version = "1.0"
 	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s:%s", APP.Config.Host, APP.Config.Port)
-	docs.SwaggerInfo_swagger.BasePath = "/api/v1"
+	docs.SwaggerInfo_swagger.BasePath = fmt.Sprintf("/%s/api/v1", APP.Config.URLPrefix)
 	docs.SwaggerInfo_swagger.Schemes = []string{"http", "https"}
 
 	// Database config
