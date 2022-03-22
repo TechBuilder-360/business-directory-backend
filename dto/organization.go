@@ -1,43 +1,34 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/TechBuilder-360/business-directory-backend/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 
-type CreateOrganisation struct {
-	OrganisationName string    `json:"organisation_name"`
-	OrganisationSize string    `json:"organisation_size"`
-	Description      string    `json:"description"`
-	FoundingDate     time.Time `json:"founding_date" `
-	Active bool 	`json:"active"`
-	OrganisationID string    `json:"organisation_id"`
-}
+
 
 
 
 type CreateBranch struct {
 	
-	OrganisationID string   `json:"organisation_id"`
-	BranchName     string      `json:"branch_name"`
-	Contact        models.Contact     `json:"contact"`
+	OrganisationID string   `json:"organisation_id" validate:"required"`
+	BranchName     string      `json:"branch_name" validate:"required"`
+	Contact        models.Contact     `json:"contact" `
 	Address        models.Address     `json:"address"`
-	IsHQ           bool        `json:"IsHQ"`
 }
 
 
 
 type Contact struct {
-	Email        string         `json:"email" `
+	Email        string         `json:"email" validate:"required"`
 	PhoneNumbers []PhoneDetails `json:"phone_numbers"`
 }
 
 type PhoneDetails struct {
-	Type        string `json:"type"`
-	PhoneNumber string `json:"phone_number" `
-	CountryCode string `json:"country_code"`
+	Type        string `json:"type" validate:"required"`
+	PhoneNumber string `json:"phone_number" validate:"required"`
+	CountryCode string `json:"country_code" validate:"required"`
 }
 
 type Location struct {
@@ -59,9 +50,24 @@ type CreateOrgReq struct {
 	OrganisationSize string `json:"organisation_size" validate:"required"`
 	Description      string `json:"description" validate:"required"`
 	FoundingDate     string `json:"founding_date" validate:"required"`
+	
 }
 
 // CreateOrgResponse ...
 type CreateOrgResponse struct {
 	OrganisationID string `json:"organisation_id"`
+}
+
+type DeReactivateOrgReq struct {
+	
+	OrganisationID  string   `json:"organisation_id"`
+	Active bool `json:"active" `
+}
+
+type DataView struct {
+	Page int `json:"page"`
+	Perpage int64 `json:"perpage"`
+	Total int64 `json:"total"`
+	LastPage float64 `json:"last_page"`
+	Data []primitive.M `json:"data"`
 }

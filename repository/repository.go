@@ -10,13 +10,13 @@ import (
 //go:generate mockgen -destination=../mocks/repository/mockRepo.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository Repository
 type Repository interface {
 	GetClientByID(string)( *models.Client , error)
-	CreateOrganisation(req *dto.CreateOrgReq)(*dto.CreateOrgResponse,error)
+	CreateOrganisation(*dto.CreateOrgReq)(*dto.CreateOrgResponse,error)
 	CreateBranch(*dto.CreateBranch)(string,error)
-	GetOrganisation() (*mongo.Cursor, error)
-	GetBranch(organisation string) (*mongo.Cursor, error)
-	AlreadyOrganisation(*dto.CreateOrganisation) (bool) 
+	GetOrganisation(page string) (*dto.DataView, error)
+	GetBranch(organisation string,page string) (*dto.DataView,  error)
+	AlreadyOrganisation(*dto.CreateOrgReq) (bool) 
 	AlreadyBranch(*dto.CreateBranch) (bool) 
-	DeactivateOrganisation(id string,value bool) (*mongo.UpdateResult, error)
+	DeactivateOrganisation(*dto.DeReactivateOrgReq) (*mongo.UpdateResult, error)
 
 	
 }
