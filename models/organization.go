@@ -29,7 +29,7 @@ type Organisation struct {
 	Description        string      `json:"description" bson:"description"`
 	RegistrationNumber string      `json:"registration_number" bson:"registration_number"`
 	Rating             float64     `json:"rating" bson:"rating"`
-	FoundingDate       time.Time   `json:"founding_date" bson:"founding_date"`
+	FoundingDate       string      `json:"founding_date" bson:"founding_date"`
 	Contact            Contact     `json:"contact" bson:"contact"`
 	Products           []string    `json:"products" bson:"products"`
 	Services           []string    `json:"services" bson:"services"`

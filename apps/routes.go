@@ -20,31 +20,36 @@ func (a *App) SetupRoutes() {
 		m.Logger = a.Logger
 		m.Config = a.Config
 
-		
+		if !a.Config.DEBUG{
+			//a.Router.Use(m.ClientValidationMiddleware)
+			a.Router.Use(m.SecurityMiddleware)
+		}
 		//--- End middlewares
 
 		controller := controllers.DefaultController(a.Serv, a.Logger, a.Repo)
-		
-		baseURL := fmt.Sprintf("/%s", a.Config.URLPrefix)
+		//auth:= services.DefaultAuth(a.Repo)
+		//jwt:=services.DefultJWTAuth(a.Config.Secret)
+		//authHandler := controllers.AuthHandler(auth, jwt, a.Repo, a.Logger)
+
+		baseURL := fmt.Sprintf("/%s/api/v1", a.Config.URLPrefix)
 		apiRouter := a.Router.PathPrefix(baseURL).Subrouter()
-		apiRouter2 := a.Router.PathPrefix(baseURL).Subrouter()
 
 		if a.Config.DEBUG {
 			a.Router.PathPrefix(baseURL).Handler(httpSwagger.WrapHandler)
 		}
 
 		apiRouter.HandleFunc("/ping", controller.Ping)
-		apiRouter2.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER")) 
+		apiRouter.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER")) 
 		//organisation
-		apiRouter2.HandleFunc("/organisation", controller.CreateOrganisation).Methods("POST")
-		apiRouter2.HandleFunc("/get_organisation", controller.GetOrganisation).Methods("GET")
+		apiRouter.HandleFunc("/organisation", controller.CreateOrganisation).Methods("POST")
+		apiRouter.HandleFunc("/get_organisation", controller.GetOrganisation).Methods("GET")
 
 		//branch api
-		apiRouter2.HandleFunc("/branch", controller.CreateBranch).Methods("POST")
-		apiRouter2.HandleFunc("/branch/{organisationId}", controller.GetBranch).Methods("GET")
+		apiRouter.HandleFunc("/branch", controller.CreateBranch).Methods("POST")
+		apiRouter.HandleFunc("/branch/{organisationId}", controller.GetBranch).Methods("GET")
 
 		//activation or deactivaion of organisation
-		apiRouter2.HandleFunc("/de_activate_organisation/", controller.DeactivateOrganisation).Methods("POST")
+		apiRouter.HandleFunc("/de_activate_organisation/", controller.DeactivateOrganisation).Methods("POST")
 		
 		
 

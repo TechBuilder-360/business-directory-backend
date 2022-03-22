@@ -14,4 +14,4 @@ BAD_REQUEST: "Bad Request"
 
 SERVER_ERROR: "Server Error"
 
-ALREADY_EXIST: "Name Already Exist"
+SMMERROR: "Request could not be processed at the moment. Please try again!"
