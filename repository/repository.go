@@ -14,8 +14,8 @@ type Repository interface {
 	CreateBranch(*dto.CreateBranch)(string,error)
 	GetOrganisation(page string) (*dto.DataView, error)
 	GetBranch(organisation string,page string) (*dto.DataView,  error)
-	AlreadyOrganisation(*dto.CreateOrgReq) (bool) 
-	AlreadyBranch(*dto.CreateBranch) (bool) 
+	OrganisationExist(*dto.CreateOrgReq) (bool) 
+	BranchExist(*dto.CreateBranch) (bool) 
 	DeactivateOrganisation(*dto.DeReactivateOrgReq) (*mongo.UpdateResult, error)
 
 	

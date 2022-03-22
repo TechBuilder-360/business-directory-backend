@@ -11,9 +11,19 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	
+	
 )
 
-//CreateOrganisation ...
+
+// @Summary      Add an organisation
+// @Description  add by json organisation
+// @Tags         organisation
+// @Accept       json
+// @Produce      json
+// @Param        default  body	dto.CreateOrgReq  true  "Add add organisation"
+// @Success      200      {object}  utility.ResponseObj
+// @Router       /organisation [post]
 func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
@@ -48,7 +58,7 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 		json.NewEncoder(w).Encode(apiResponse.Error(utility.BAD_REQUEST, errMsg))
 		return
 	}
-	val := c.Repo.AlreadyOrganisation(requestData)
+	val := c.Repo.OrganisationExist(requestData)
 	if val == true {
 		log.Error("Organisation name Already Exist")
 		json.NewEncoder(w).Encode(apiResponse.Error(utility.ALREADY_EXIST, utility.GetCodeMsg(utility.ALREADY_EXIST)))
@@ -69,6 +79,14 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(apiResponse.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), response))
 }
 
+// @Summary      Add an Branch
+// @Description  add by json Branch
+// @Tags         branch
+// @Accept       json
+// @Produce      json
+// @Param        default  body	dto.CreateBranch  true  "Add add branch"
+// @Success      200      {object}  utility.ResponseObj
+// @Router       /branch [post]
 func (c *NewController) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
@@ -92,9 +110,9 @@ func (c *NewController) CreateBranch(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response.ValidationError(utility.VALIDATIONERR, utility.GetCodeMsg(utility.VALIDATIONERR), validationErrors.Error()))
 		return
 	}
-	val := c.Repo.AlreadyBranch(br)
+	val := c.Repo.BranchExist(br)
 	if val == true {
-		log.Error("Organisation name Already Exist")
+		log.Error("Branch name Already Exist")
 		json.NewEncoder(w).Encode(response.Error(utility.ALREADY_EXIST, utility.GetCodeMsg(utility.ALREADY_EXIST)))
 
 		return
@@ -112,6 +130,13 @@ func (c *NewController) CreateBranch(w http.ResponseWriter, r *http.Request) {
 
 }
 
+
+// @Summary      Get list of organisation
+// @Description  Get the list of organisation with pagination
+// @Tags         organisation
+// @Param        page  query	int    false  "int valid"
+// @Success      200      {object}  models.Organisation
+// @Router       /get_organisation [get]
 func (c *NewController) GetOrganisation(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
@@ -135,6 +160,13 @@ func (c *NewController) GetOrganisation(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
 }
 
+// @Summary      Get list of branches
+// @Description  Get the list of branches with pagination
+// @Tags         branch
+// @Param        page  query	int    false  "int valid"
+// @Param        organisationId path	string    false  "string valid"
+// @Success      200      {object}  models.Branch
+// @Router       /branch/{organisationId} [get]
 func (c *NewController) GetBranch(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
@@ -158,6 +190,15 @@ func (c *NewController) GetBranch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
 }
 
+
+// @Summary      Deactivate or Activate Organisation
+// @Description  Deactivate or Activate Organisation Operation
+// @Tags         organisation
+// @Accept       json
+// @Produce      json
+// @Param        default  body	dto.DeReactivateOrgReq  true  "activate or deactivate"
+// @Success      200      {object}  utility.ResponseObj
+// @Router       /de_activate_organisation/ [post]
 func (c *NewController) DeactivateOrganisation(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.Info("deactivating and activating organisation")

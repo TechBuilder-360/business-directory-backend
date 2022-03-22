@@ -127,7 +127,7 @@ func (r *DefaultRepo) GetBranch(organisation string,page string) (*dto.DataView,
 	return data, err
 }
 
-func (r *DefaultRepo) AlreadyOrganisation(br *dto.CreateOrgReq) bool {
+func (r *DefaultRepo) OrganisationExist(br *dto.CreateOrgReq) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
@@ -140,7 +140,7 @@ func (r *DefaultRepo) AlreadyOrganisation(br *dto.CreateOrgReq) bool {
 	return true
 }
 
-func (r *DefaultRepo) AlreadyBranch(br *dto.CreateBranch) bool {
+func (r *DefaultRepo) BranchExist(br *dto.CreateBranch) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 

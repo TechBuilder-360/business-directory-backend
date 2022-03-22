@@ -71,3 +71,4 @@ type DataView struct {
 	LastPage float64 `json:"last_page"`
 	Data []primitive.M `json:"data"`
 }
+
