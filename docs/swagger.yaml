@@ -30,7 +30,7 @@ definitions:
     - organisation_name
     - organisation_size
     type: object
-  dto.DeReactivateOrgReq:
+  dto.OrganStatus:
     properties:
       active:
         type: boolean
@@ -172,6 +172,28 @@ info:
   title: Business directory API
   version: "1.0"
 paths:
+  /active-status:
+    post:
+      consumes:
+      - application/json
+      description: Setting the Status for an  Organisation Operation
+      parameters:
+      - description: activate or deactivate
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OrganStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utility.ResponseObj'
+      summary: Setting the Status for an  Organisation
+      tags:
+      - organisation
   /branch:
     post:
       consumes:
@@ -194,7 +216,23 @@ paths:
       summary: Add an Branch
       tags:
       - branch
-  /branch/{organisationId}:
+  /branch/{branchId}:
+    get:
+      description: Get a single branch
+      parameters:
+      - description: string valid
+        in: path
+        name: branchId
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Organisation'
+      summary: Get branch
+      tags:
+      - branch
+  /branches/{organisationId}:
     get:
       description: Get the list of branches with pagination
       parameters:
@@ -210,33 +248,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Branch'
+            items:
+              $ref: '#/definitions/models.Branch'
+            type: array
       summary: Get list of branches
       tags:
       - branch
-  /de_activate_organisation/:
-    post:
-      consumes:
-      - application/json
-      description: Deactivate or Activate Organisation Operation
-      parameters:
-      - description: activate or deactivate
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/dto.DeReactivateOrgReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utility.ResponseObj'
-      summary: Deactivate or Activate Organisation
-      tags:
-      - organisation
-  /get_organisation:
+  /get-organisations:
     get:
       description: Get the list of organisation with pagination
       parameters:
@@ -248,7 +266,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Organisation'
+            items:
+              $ref: '#/definitions/models.Organisation'
+            type: array
       summary: Get list of organisation
       tags:
       - organisation
@@ -272,6 +292,22 @@ paths:
           schema:
             $ref: '#/definitions/utility.ResponseObj'
       summary: Add an organisation
+      tags:
+      - organisation
+  /organisation/{organisationId}:
+    get:
+      description: Get a single organisation
+      parameters:
+      - description: string valid
+        in: path
+        name: organisationId
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Organisation'
+      summary: Get organisation
       tags:
       - organisation
 securityDefinitions:

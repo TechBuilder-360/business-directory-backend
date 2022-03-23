@@ -11,10 +11,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	
-	
 )
-
 
 // @Summary      Add an organisation
 // @Description  add by json organisation
@@ -130,26 +127,49 @@ func (c *NewController) CreateBranch(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
 // @Summary      Get list of organisation
 // @Description  Get the list of organisation with pagination
 // @Tags         organisation
 // @Param        page  query	int    false  "int valid"
-// @Success      200      {object}  models.Organisation
-// @Router       /get_organisation [get]
-func (c *NewController) GetOrganisation(w http.ResponseWriter, r *http.Request) {
+// @Success      200      {array}  models.Organisation
+// @Router       /get-organisations [get]
+func (c *NewController) GetOrganisations(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
-	log.Info("getting organisation")  
-	query:=r.URL.Query()
-        page:=query.Get("page")
+	log.Info("getting organisation")
+	query := r.URL.Query()
+	page := query.Get("page")
 
-	if page==""{
-		page="1"
+	if page == "" {
+		page = "1"
 	}
 	response := utility.NewResponse()
 
-	data, err := c.Repo.GetOrganisation(page)
+	data, err := c.Repo.GetOrganisations(page)
+	if err != nil {
+		log.Error("Error occured while getting list of organisations, %s", err.Error())
+		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
+}
+
+// @Summary      Get organisation
+// @Description  Get a single organisation
+// @Tags         organisation
+// @Param        organisationId  path	string    false  "string valid"
+// @Success      200      {object}  models.Organisation
+// @Router       /organisation/{organisationId} [get]
+func (c *NewController) GetSingleOrganisation(w http.ResponseWriter, r *http.Request) {
+	log := c.Logger.NewContext()
+	log.SetLogID(r.Header.Get("LogID"))
+	log.Info("getting single organisation")
+	response := utility.NewResponse()
+	params := mux.Vars(r)
+	organisationID := params["organisationId"]
+	data, err := c.Repo.GetSingleOrganisation(organisationID)
 	if err != nil {
 		log.Error("Error occured while getting organisation, %s", err.Error())
 		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
@@ -165,21 +185,21 @@ func (c *NewController) GetOrganisation(w http.ResponseWriter, r *http.Request) 
 // @Tags         branch
 // @Param        page  query	int    false  "int valid"
 // @Param        organisationId path	string    false  "string valid"
-// @Success      200      {object}  models.Branch
-// @Router       /branch/{organisationId} [get]
-func (c *NewController) GetBranch(w http.ResponseWriter, r *http.Request) {
+// @Success      200      {array}  models.Branch
+// @Router       /branches/{organisationId} [get]
+func (c *NewController) GetBranches(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
 	log.Info("getting organisation")
-	query:=r.URL.Query()
-        page:=query.Get("page")
-	if page==""{
-		page="1"
+	query := r.URL.Query()
+	page := query.Get("page")
+	if page == "" {
+		page = "1"
 	}
 	response := utility.NewResponse()
 	params := mux.Vars(r)
 	organisationID := params["organisationId"]
-	data, err := c.Repo.GetBranch(organisationID,page)
+	data, err := c.Repo.GetBranches(organisationID, page)
 	if err != nil {
 		log.Error("Error occured while getting organisation branches, %s", err.Error())
 		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
@@ -190,20 +210,43 @@ func (c *NewController) GetBranch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
 }
 
+// @Summary      Get branch
+// @Description  Get a single branch
+// @Tags         branch
+// @Param        branchId  path	string    false  "string valid"
+// @Success      200      {object}  models.Organisation
+// @Router       /branch/{branchId} [get]
+func (c *NewController) GetSingleBranch(w http.ResponseWriter, r *http.Request) {
+	log := c.Logger.NewContext()
+	log.SetLogID(r.Header.Get("LogID"))
+	log.Info("getting single branch")
+	response := utility.NewResponse()
+	params := mux.Vars(r)
+	branchID := params["branchId"]
+	data, err := c.Repo.GetSingleBranch(branchID)
+	if err != nil {
+		log.Error("Error occured while getting branch, %s", err.Error())
+		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-// @Summary      Deactivate or Activate Organisation
-// @Description  Deactivate or Activate Organisation Operation
+	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
+}
+
+// @Summary      Setting the Status for an  Organisation
+// @Description  Setting the Status for an  Organisation Operation
 // @Tags         organisation
 // @Accept       json
 // @Produce      json
-// @Param        default  body	dto.DeReactivateOrgReq  true  "activate or deactivate"
+// @Param        default  body	dto.OrganStatus  true  "activate or deactivate"
 // @Success      200      {object}  utility.ResponseObj
-// @Router       /de_activate_organisation/ [post]
-func (c *NewController) DeactivateOrganisation(w http.ResponseWriter, r *http.Request) {
+// @Router       /active-status [post]
+func (c *NewController) OrganisationStatus(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.Info("deactivating and activating organisation")
 	response := utility.NewResponse()
-	var Organs *dto.DeReactivateOrgReq
+	var Organs *dto.OrganStatus
 	err := json.NewDecoder(r.Body).Decode(&Organs)
 	if err != nil {
 		log.Error("Error occured while parsing the request body, %s", err.Error())
@@ -211,7 +254,7 @@ func (c *NewController) DeactivateOrganisation(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
-	_, err = c.Repo.DeactivateOrganisation(Organs)
+	_, err = c.Repo.OrganisationStatus(Organs)
 
 	if err != nil {
 		log.Error("Error occured while deactivating or activating organisation, %s", err.Error())

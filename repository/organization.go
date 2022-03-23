@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	// "encoding/json"
+	// "fmt"
 	"math"
 	"strconv"
 
@@ -11,50 +13,63 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/models"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-
-
-
-
 func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateOrgResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-
-	org := models.Organisation{
-		ID:               uuid.New().String(),
-		OrganisationName: Organs.OrganisationName,
-		OrganisationSize: Organs.OrganisationSize,
-		FoundingDate:     Organs.FoundingDate,
-		Description:      Organs.Description,
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-		Active: true,
-	}
-	result, err := r.Organisation.InsertOne(ctx, &org)
+ var client mongo.Client
+	returnID := ""
+	session, err := client.StartSession()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
+	defer session.EndSession(ctx)
+	// transaction
+	err = client.UseSession(ctx, func(sessionContext mongo.SessionContext) error {
+		err := sessionContext.StartTransaction()
+		if err != nil {
+			return err
+		}
+		org := models.Organisation{
+			ID:               uuid.New().String(),
+			OrganisationName: Organs.OrganisationName,
+			OrganisationSize: Organs.OrganisationSize,
+			FoundingDate:     Organs.FoundingDate,
+			Description:      Organs.Description,
+			CreatedAt:        time.Now().UTC(),
+			UpdatedAt:        time.Now().UTC(),
+			Active:           true,
+		}
+		result, err := r.Organisation.InsertOne(ctx, &org)
+		if err != nil {
+			return err
+		}
 
-	br:= models.Branch{
-		ID:               uuid.New().String(),
-		OrganisationID: result.InsertedID.(string),
-		BranchName: Organs.OrganisationName,
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
-		IsHQ: true,
+		br := models.Branch{
+			ID:             uuid.New().String(),
+			OrganisationID: result.InsertedID.(string),
+			BranchName:     Organs.OrganisationName,
+			CreatedAt:      time.Now().UTC(),
+			UpdatedAt:      time.Now().UTC(),
+			IsHQ:           true,
+		}
 
-	}
-	
-	_, err = r.Branch.InsertOne(ctx, &br)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.CreateOrgResponse{OrganisationID: result.InsertedID.(string)}, nil
+		_, err = r.Branch.InsertOne(ctx, &br)
+		if err != nil {
+			sessionContext.AbortTransaction(sessionContext)
+			return err
+		}
+		if err = session.CommitTransaction(sessionContext); err != nil {
+			return err
+		}
+		returnID = result.InsertedID.(string)
+		return nil
+	})
+	return &dto.CreateOrgResponse{OrganisationID: returnID}, nil
 }
 
 func (r *DefaultRepo) CreateBranch(br *dto.CreateBranch) (string, error) {
@@ -62,15 +77,15 @@ func (r *DefaultRepo) CreateBranch(br *dto.CreateBranch) (string, error) {
 	defer cancel()
 
 	org := models.Branch{
-		ID:               uuid.New().String(),
+		ID:             uuid.New().String(),
 		OrganisationID: br.OrganisationID,
-		BranchName: br.BranchName,
-		Contact: br.Contact,   
-		Address: br.Address,
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
+		BranchName:     br.BranchName,
+		Contact:        br.Contact,
+		Address:        br.Address,
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
 	}
-	
+
 	result, err := r.Branch.InsertOne(ctx, &org)
 	if err != nil {
 		return "", err
@@ -79,50 +94,77 @@ func (r *DefaultRepo) CreateBranch(br *dto.CreateBranch) (string, error) {
 	return result.InsertedID.(string), nil
 }
 
-func (r *DefaultRepo) GetOrganisation(page string) (*dto.DataView, error) {
+func (r *DefaultRepo) GetOrganisations(page string) (*dto.DataView, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	var br []bson.M
 
-	findOptions:=options.Find()
-	pageP,_:=strconv.Atoi(page)
-	total,_:=r.Organisation.CountDocuments(ctx,bson.M{})
-	var perPage int64=10
+	findOptions := options.Find()
+	pageP, _ := strconv.Atoi(page)
+	total, _ := r.Organisation.CountDocuments(ctx, bson.M{})
+	var perPage int64 = 10
+	findOptions.SetProjection(bson.M{
+		"active":0,
+		"admins":0,
+		"creator_id":0,
+		
+	})
 	findOptions.SetLimit(int64(perPage))
-	findOptions.SetSkip((int64(pageP)-1)* perPage)
-	cursor, err := r.Organisation.Find(ctx,bson.M{},findOptions)
-	err = cursor.All(ctx, &br)
-	data:=&dto.DataView{
-		Page:pageP,
-		Perpage:perPage,
-		Total:total,
-		LastPage: math.Ceil(float64(total / perPage)),
-                Data:br,
+	findOptions.SetSkip((int64(pageP) - 1) * perPage)
+	
+	cursor, err := r.Organisation.Find(ctx, bson.M{}, findOptions)
+	err = cursor.All(ctx,&br)
 
+	data := &dto.DataView{
+		Page:     pageP,
+		Perpage:  perPage,
+		Total:    total,
+		LastPage: math.Ceil(float64(total / perPage)),
+		Data:     br,
 	}
 	return data, err
 }
 
-func (r *DefaultRepo) GetBranch(organisation string,page string) (*dto.DataView,  error){
+func (r *DefaultRepo) GetSingleOrganisation(id string) (primitive.M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	var br bson.M
+	err := r.Organisation.FindOne(ctx, bson.M{"_id": id}).Decode(&br)
+
+	return br, err
+}
+
+func (r *DefaultRepo) GetSingleBranch(id string) (primitive.M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	var br bson.M
+	err := r.Branch.FindOne(ctx, bson.M{"_id": id}).Decode(&br)
+	return br, err
+}
+func (r *DefaultRepo) GetBranches(organisation string, page string) (*dto.DataView, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 	var br []bson.M
-	findOptions:=options.Find()
-	pageP,_:=strconv.Atoi(page)
-	total,_:=r.Branch.CountDocuments(ctx,bson.M{})
-	var perPage int64=10
+	findOptions := options.Find()
+	pageP, _ := strconv.Atoi(page)
+	total, _ := r.Branch.CountDocuments(ctx, bson.M{})
+	var perPage int64 = 10
+	findOptions.SetProjection(bson.M{
+		"IsHQ":0,
+		"admins":0,
+	})
 	findOptions.SetLimit(int64(perPage))
-	findOptions.SetSkip((int64(pageP)-1)* perPage)
-	cursor, err := r.Branch.Find(ctx,bson.M{"organisation_id":organisation},findOptions)
-	_= cursor.All(ctx, &br)
-	data:=&dto.DataView{
-		Page:pageP,
-		Perpage:perPage,
-		Total:total,
+	findOptions.SetSkip((int64(pageP) - 1) * perPage)
+	cursor, err := r.Branch.Find(ctx, bson.M{"organisation_id": organisation}, findOptions)
+	_ = cursor.All(ctx, &br)
+	data := &dto.DataView{
+		Page:     pageP,
+		Perpage:  perPage,
+		Total:    total,
 		LastPage: math.Ceil(float64(total / perPage)),
-                Data:br,
-
+		 Data:     br,
 	}
 	return data, err
 }
@@ -131,8 +173,7 @@ func (r *DefaultRepo) OrganisationExist(br *dto.CreateOrgReq) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-
-	err := r.Organisation.FindOne(ctx,bson.M{"organisation_name":br.OrganisationName}).Decode(&br)
+	err := r.Organisation.FindOne(ctx, bson.M{"organisation_name": br.OrganisationName}).Decode(&br)
 	if err != nil {
 		return false
 	}
@@ -144,8 +185,7 @@ func (r *DefaultRepo) BranchExist(br *dto.CreateBranch) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-
-	err := r.Branch.FindOne(ctx,bson.M{"branch_name":br.BranchName}).Decode(&br)
+	err := r.Branch.FindOne(ctx, bson.M{"branch_name": br.BranchName}).Decode(&br)
 	if err != nil {
 		return false
 	}
@@ -153,12 +193,12 @@ func (r *DefaultRepo) BranchExist(br *dto.CreateBranch) bool {
 	return true
 }
 
-func (r *DefaultRepo) DeactivateOrganisation(br *dto.DeReactivateOrgReq) (*mongo.UpdateResult, error) {
+func (r *DefaultRepo) OrganisationStatus(br *dto.OrganStatus) (*mongo.UpdateResult, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	filter:=bson.M{"_id": br.OrganisationID}
-	update := bson.M{"$set":bson.M{"active": br.Active}}
-        result, err := r.Organisation.UpdateOne(ctx,filter , update)
+	filter := bson.M{"_id": br.OrganisationID}
+	update := bson.M{"$set": bson.M{"active": br.Active}}
+	result, err := r.Organisation.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return nil, err
 	}

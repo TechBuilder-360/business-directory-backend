@@ -24,6 +24,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/active-status": {
+            "post": {
+                "description": "Setting the Status for an  Organisation Operation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organisation"
+                ],
+                "summary": "Setting the Status for an  Organisation",
+                "parameters": [
+                    {
+                        "description": "activate or deactivate",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.OrganStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ResponseObj"
+                        }
+                    }
+                }
+            }
+        },
         "/branch": {
             "post": {
                 "description": "add by json Branch",
@@ -58,7 +92,32 @@ const docTemplate = `{
                 }
             }
         },
-        "/branch/{organisationId}": {
+        "/branch/{branchId}": {
+            "get": {
+                "description": "Get a single branch",
+                "tags": [
+                    "branch"
+                ],
+                "summary": "Get branch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "string valid",
+                        "name": "branchId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organisation"
+                        }
+                    }
+                }
+            }
+        },
+        "/branches/{organisationId}": {
             "get": {
                 "description": "Get the list of branches with pagination",
                 "tags": [
@@ -83,47 +142,16 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Branch"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Branch"
+                            }
                         }
                     }
                 }
             }
         },
-        "/de_activate_organisation/": {
-            "post": {
-                "description": "Deactivate or Activate Organisation Operation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "organisation"
-                ],
-                "summary": "Deactivate or Activate Organisation",
-                "parameters": [
-                    {
-                        "description": "activate or deactivate",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.DeReactivateOrgReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ResponseObj"
-                        }
-                    }
-                }
-            }
-        },
-        "/get_organisation": {
+        "/get-organisations": {
             "get": {
                 "description": "Get the list of organisation with pagination",
                 "tags": [
@@ -142,7 +170,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Organisation"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Organisation"
+                            }
                         }
                     }
                 }
@@ -177,6 +208,31 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/utility.ResponseObj"
+                        }
+                    }
+                }
+            }
+        },
+        "/organisation/{organisationId}": {
+            "get": {
+                "description": "Get a single organisation",
+                "tags": [
+                    "organisation"
+                ],
+                "summary": "Get organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "string valid",
+                        "name": "organisationId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organisation"
                         }
                     }
                 }
@@ -228,7 +284,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.DeReactivateOrgReq": {
+        "dto.OrganStatus": {
             "type": "object",
             "properties": {
                 "active": {
