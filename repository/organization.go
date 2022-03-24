@@ -66,7 +66,7 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateO
 		}
 
 		if err = session.CommitTransaction(sessionContext); err != nil {
-			fmt.Print(result.InsertedID.(string))
+		
 		    return err
 		}
 		returnID = result.InsertedID.(string)
