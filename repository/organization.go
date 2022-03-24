@@ -2,9 +2,7 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
-
 	// "encoding/json"
 	// "fmt"
 	"math"
@@ -31,7 +29,7 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateO
 		return nil,err
 	}
 	defer session.EndSession(ctx)
-	err = r.Cli.UseSession(ctx, func(sessionContext mongo.SessionContext) error {
+	err = mongo.WithSession(ctx, session, func(sessionContext mongo.SessionContext) error {
 		if err := session.StartTransaction(); err != nil {
 		    return err
 		}
@@ -41,8 +39,8 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateO
 			OrganisationSize: Organs.OrganisationSize,
 			FoundingDate:     Organs.FoundingDate,
 			Description:      Organs.Description,
-			CreatedAt:        time.Now().UTC(),
-			UpdatedAt:        time.Now().UTC(),
+			CreatedAt:        time.Now().Local(),
+			UpdatedAt:        time.Now().Local(),
 			Active:           true,
 		}
 		result, err := r.Organisation.InsertOne(sessionContext, &org)
@@ -50,17 +48,13 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateO
 			
 			return err
 		}
-		fmt.Println(result.InsertedID.(string))
-		session.AbortTransaction(ctx)
-		return errors.New("ERRRRRIRI")
-
 
 		br := models.Branch{
 			ID:             uuid.New().String(),
 			OrganisationID: result.InsertedID.(string),
 			BranchName:     Organs.OrganisationName,
-			CreatedAt:      time.Now().UTC(),
-			UpdatedAt:      time.Now().UTC(),
+			CreatedAt:      time.Now().Local(),
+			UpdatedAt:      time.Now().Local(),
 			IsHQ:           true,
 		}
 
@@ -78,6 +72,7 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateO
 		returnID = result.InsertedID.(string)
 		return nil
 	    })
+
 	   if err != nil {
 		   return nil,err
 	   }
@@ -97,8 +92,8 @@ func (r *DefaultRepo) CreateBranch(br *dto.CreateBranch) (string, error) {
 		BranchName:     br.BranchName,
 		Contact:        br.Contact,
 		Address:        br.Address,
-		CreatedAt:      time.Now().UTC(),
-		UpdatedAt:      time.Now().UTC(),
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
 
 	result, err := r.Branch.InsertOne(ctx, &org)
