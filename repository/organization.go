@@ -2,6 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
+
 	// "encoding/json"
 	// "fmt"
 	"math"
@@ -21,18 +24,16 @@ import (
 func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateOrgResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
- var client mongo.Client
+	
 	returnID := ""
-	session, err := client.StartSession()
+	session, err :=r.Cli.StartSession()
 	if err != nil {
-		panic(err)
+		return nil,err
 	}
 	defer session.EndSession(ctx)
-	// transaction
-	err = client.UseSession(ctx, func(sessionContext mongo.SessionContext) error {
-		err := sessionContext.StartTransaction()
-		if err != nil {
-			return err
+	err = r.Cli.UseSession(ctx, func(sessionContext mongo.SessionContext) error {
+		if err := session.StartTransaction(); err != nil {
+		    return err
 		}
 		org := models.Organisation{
 			ID:               uuid.New().String(),
@@ -44,10 +45,15 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateO
 			UpdatedAt:        time.Now().UTC(),
 			Active:           true,
 		}
-		result, err := r.Organisation.InsertOne(ctx, &org)
+		result, err := r.Organisation.InsertOne(sessionContext, &org)
 		if err != nil {
+			
 			return err
 		}
+		fmt.Println(result.InsertedID.(string))
+		session.AbortTransaction(ctx)
+		return errors.New("ERRRRRIRI")
+
 
 		br := models.Branch{
 			ID:             uuid.New().String(),
@@ -58,19 +64,28 @@ func (r *DefaultRepo) CreateOrganisation(Organs *dto.CreateOrgReq) (*dto.CreateO
 			IsHQ:           true,
 		}
 
-		_, err = r.Branch.InsertOne(ctx, &br)
+		_, err = r.Branch.InsertOne(sessionContext, &br)
 		if err != nil {
-			sessionContext.AbortTransaction(sessionContext)
+			
+			session.AbortTransaction(sessionContext)
 			return err
 		}
+
 		if err = session.CommitTransaction(sessionContext); err != nil {
-			return err
+			fmt.Print(result.InsertedID.(string))
+		    return err
 		}
 		returnID = result.InsertedID.(string)
 		return nil
-	})
-	return &dto.CreateOrgResponse{OrganisationID: returnID}, nil
-}
+	    })
+	   if err != nil {
+		   return nil,err
+	   }
+	   
+		return &dto.CreateOrgResponse{OrganisationID: returnID}, nil
+
+	}
+	
 
 func (r *DefaultRepo) CreateBranch(br *dto.CreateBranch) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
@@ -108,7 +123,7 @@ func (r *DefaultRepo) GetOrganisations(page string) (*dto.DataView, error) {
 		"active":0,
 		"admins":0,
 		"creator_id":0,
-		
+
 	})
 	findOptions.SetLimit(int64(perPage))
 	findOptions.SetSkip((int64(pageP) - 1) * perPage)

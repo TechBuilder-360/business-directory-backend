@@ -30,14 +30,16 @@ type DefaultRepo struct {
 	Cli *mongo.Client
 }
 
-func NewRepository(mdb *mongo.Database, config *configs.Config) Repository {
-	client := mdb.Collection("Clients")
-	organisation := mdb.Collection("Organisations")
-	branch := mdb.Collection("Branch")
+func NewRepository(mdb *mongo.Client, config *configs.Config) Repository {
+	database := mdb.Database(config.MongoDBName)
+	client := database.Collection("Clients")
+	organisation := database.Collection("Organisations")
+	branch := database.Collection("Branch")
 	return &DefaultRepo{
 		Client:       client,
 		Config:       config,
 		Organisation: organisation,
 		Branch:       branch,
+		Cli :mdb,
 	}
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type Database struct {
-	Mongo *mongo.Database
+	Mongo *mongo.Client
 	Logger log.Logger
 	Config *configs.Config
 }
@@ -24,7 +24,7 @@ func (d *Database) ConnectToMongo() {
 		d.Logger.Fatal("An error occurred when connection to mongo DB %s", err.Error())
 	}
 
-	d.Logger.Info("Connected to mongodb successfully")
-	d.Mongo = client.Database(d.Config.MongoDBName)
+	d.Logger.Info("Connected to mongodb client successfully")
+	d.Mongo = client
 	return
 }
