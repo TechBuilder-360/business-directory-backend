@@ -4,15 +4,16 @@ package docs
 
 import "github.com/swaggo/swag"
 
-const docTemplate_swagger = `{
+const docTemplate = `{
     "schemes": {{ marshal .Schemes }},
     "swagger": "2.0",
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "Techbuilder Support",
-            "email": "tech.builder.cirle@gmail.com"
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
         },
         "license": {
             "name": "Apache 2.0",
@@ -22,26 +23,484 @@ const docTemplate_swagger = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {},
+    "paths": {
+        "/active-status": {
+            "post": {
+                "description": "Setting the Status for an  Organisation Operation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organisation"
+                ],
+                "summary": "Setting the Status for an  Organisation",
+                "parameters": [
+                    {
+                        "description": "activate or deactivate",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.OrganStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ResponseObj"
+                        }
+                    }
+                }
+            }
+        },
+        "/branch": {
+            "post": {
+                "description": "add by json Branch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "branch"
+                ],
+                "summary": "Add an Branch",
+                "parameters": [
+                    {
+                        "description": "Add add branch",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateBranch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ResponseObj"
+                        }
+                    }
+                }
+            }
+        },
+        "/branch/{branchId}": {
+            "get": {
+                "description": "Get a single branch",
+                "tags": [
+                    "branch"
+                ],
+                "summary": "Get branch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "string valid",
+                        "name": "branchId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organisation"
+                        }
+                    }
+                }
+            }
+        },
+        "/branches/{organisationId}": {
+            "get": {
+                "description": "Get the list of branches with pagination",
+                "tags": [
+                    "branch"
+                ],
+                "summary": "Get list of branches",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "int valid",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "string valid",
+                        "name": "organisationId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Branch"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get-organisations": {
+            "get": {
+                "description": "Get the list of organisation with pagination",
+                "tags": [
+                    "organisation"
+                ],
+                "summary": "Get list of organisation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "int valid",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Organisation"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/organisation": {
+            "post": {
+                "description": "add by json organisation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organisation"
+                ],
+                "summary": "Add an organisation",
+                "parameters": [
+                    {
+                        "description": "Add add organisation",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateOrgReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ResponseObj"
+                        }
+                    }
+                }
+            }
+        },
+        "/organisation/{organisationId}": {
+            "get": {
+                "description": "Get a single organisation",
+                "tags": [
+                    "organisation"
+                ],
+                "summary": "Get organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "string valid",
+                        "name": "organisationId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organisation"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.CreateBranch": {
+            "type": "object",
+            "required": [
+                "branch_name",
+                "organisation_id"
+            ],
+            "properties": {
+                "address": {
+                    "$ref": "#/definitions/models.Address"
+                },
+                "branch_name": {
+                    "type": "string"
+                },
+                "contact": {
+                    "$ref": "#/definitions/models.Contact"
+                },
+                "organisation_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateOrgReq": {
+            "type": "object",
+            "required": [
+                "description",
+                "founding_date",
+                "organisation_name",
+                "organisation_size"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "founding_date": {
+                    "type": "string"
+                },
+                "organisation_name": {
+                    "type": "string"
+                },
+                "organisation_size": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.OrganStatus": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "organisation_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Address": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "country_code": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "zip_code": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Branch": {
+            "type": "object",
+            "properties": {
+                "IsHQ": {
+                    "type": "boolean"
+                },
+                "address": {
+                    "$ref": "#/definitions/models.Address"
+                },
+                "admins": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "branch_name": {
+                    "type": "string"
+                },
+                "contact": {
+                    "$ref": "#/definitions/models.Contact"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "geo_location": {
+                    "$ref": "#/definitions/models.Location"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "organisation_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Contact": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "phone_numbers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PhoneDetails"
+                    }
+                }
+            }
+        },
+        "models.Location": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.Organisation": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "admins": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "contact": {
+                    "$ref": "#/definitions/models.Contact"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "type": "string"
+                },
+                "founding_date": {
+                    "type": "string"
+                },
+                "geo_location": {
+                    "$ref": "#/definitions/models.Location"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "organisation_name": {
+                    "type": "string"
+                },
+                "organisation_size": {
+                    "type": "string"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "registration_number": {
+                    "type": "string"
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PhoneDetails": {
+            "type": "object",
+            "properties": {
+                "country_code": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "utility.ResponseObj": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
-        "BasicAuth": {
+        "ApiKeyAuth": {
             "type": "basic"
         }
     }
 }`
 
-// SwaggerInfo_swagger holds exported Swagger Info so clients can modify it
-var SwaggerInfo_swagger = &swag.Spec{
+// SwaggerInfo holds exported Swagger Info so clients can modify it
+var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "",
-	BasePath:         "",
+	Host:             "localhost:8000",
+	BasePath:         "/directory/api/v1",
 	Schemes:          []string{},
 	Title:            "Business directory API",
-	Description:      "This is the API for business directory api.",
+	Description:      "This is the API for business directory api..",
 	InfoInstanceName: "swagger",
-	SwaggerTemplate:  docTemplate_swagger,
+	SwaggerTemplate:  docTemplate,
 }
 
 func init() {
-	swag.Register(SwaggerInfo_swagger.InstanceName(), SwaggerInfo_swagger)
+	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
 }

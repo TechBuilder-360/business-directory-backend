@@ -14,6 +14,23 @@ import (
 	"net/http"
 )
 
+// @title           Business directory API
+// @version         1.0
+// @description     This is the API for business directory api..
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8000
+// @BasePath  /directory/api/v1
+
+// @Security ApiKeyAuth
+// @securityDefinitions.basic  ApiKeyAuth
+
 
 func main() {
 	// APP config
@@ -25,12 +42,12 @@ func main() {
 	APP.Router = mux.NewRouter()
 
 	// programmatically set swagger info
-	docs.SwaggerInfo_swagger.Title = "Business directory API"
-	docs.SwaggerInfo_swagger.Description = "This is the API for business directory api."
-	docs.SwaggerInfo_swagger.Version = "1.0"
-	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s:%s", APP.Config.Host, APP.Config.Port)
-	docs.SwaggerInfo_swagger.BasePath = fmt.Sprintf("/%s/api/v1", APP.Config.URLPrefix)
-	docs.SwaggerInfo_swagger.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo.Title = "Business directory API"
+	docs.SwaggerInfo.Description = "This is the API for business directory api."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", APP.Config.Host, APP.Config.Port)
+	docs.SwaggerInfo.BasePath = fmt.Sprintf("/%s/api/v1", APP.Config.URLPrefix)
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	// Database config
 	Database := &database.Database{}

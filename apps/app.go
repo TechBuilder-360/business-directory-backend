@@ -13,7 +13,7 @@ type App struct {
 	Router *mux.Router
 	Config *configs.Config
 	Logger log.Logger
-	Mongo  *mongo.Database
+	Mongo  *mongo.Client
 	Repo   repository.Repository
 	Serv   services.Service
 

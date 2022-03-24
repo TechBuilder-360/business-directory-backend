@@ -2,6 +2,7 @@ package apps
 
 import (
 	"fmt"
+	"net/http"
 	"sync"
 
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -20,7 +21,7 @@ func (a *App) SetupRoutes() {
 		m.Logger = a.Logger
 		m.Config = a.Config
 
-		if !a.Config.DEBUG{
+		if !a.Config.DEBUG {
 			//a.Router.Use(m.ClientValidationMiddleware)
 			a.Router.Use(m.SecurityMiddleware)
 		}
@@ -39,8 +40,19 @@ func (a *App) SetupRoutes() {
 		}
 
 		apiRouter.HandleFunc("/ping", controller.Ping)
-		//apiRouter.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER"))
-		apiRouter.HandleFunc("/organisation", controller.CreateOrganisation).Methods("POST")
+		apiRouter.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER"))
+		//organisation
+		apiRouter.HandleFunc("/organisation", controller.CreateOrganisation).Methods(http.MethodPost)
+		apiRouter.HandleFunc("/get-organisations", controller.GetOrganisations).Methods(http.MethodGet)
+		apiRouter.HandleFunc("/organisation/{organisationId}", controller.GetSingleOrganisation).Methods(http.MethodGet)
+
+		//branch api
+		apiRouter.HandleFunc("/branch", controller.CreateBranch).Methods(http.MethodPost)
+		apiRouter.HandleFunc("/branch/{branchId}", controller.GetSingleBranch).Methods(http.MethodGet)
+		apiRouter.HandleFunc("/branches/{organisationId}", controller.GetBranches).Methods(http.MethodGet)
+
+		//activation or deactivaion of organisation
+		apiRouter.HandleFunc("/active-status", controller.OrganisationStatus).Methods(http.MethodPost)
 
 	})
 	a.Logger.Info("Routes have been initialized")

@@ -22,6 +22,3 @@ MongoURI: "mongodb+srv://shola:hZjvRbdWPllAY7fR@oriscluster.uy936.mongodb.net"
 
 MongoDBName: "directory"
 
-ClientCollection: "Clients"
-
-OrganisationCollection: "Organisations"

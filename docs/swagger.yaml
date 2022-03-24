@@ -1,15 +1,316 @@
+basePath: /directory/api/v1
+definitions:
+  dto.CreateBranch:
+    properties:
+      address:
+        $ref: '#/definitions/models.Address'
+      branch_name:
+        type: string
+      contact:
+        $ref: '#/definitions/models.Contact'
+      organisation_id:
+        type: string
+    required:
+    - branch_name
+    - organisation_id
+    type: object
+  dto.CreateOrgReq:
+    properties:
+      description:
+        type: string
+      founding_date:
+        type: string
+      organisation_name:
+        type: string
+      organisation_size:
+        type: string
+    required:
+    - description
+    - founding_date
+    - organisation_name
+    - organisation_size
+    type: object
+  dto.OrganStatus:
+    properties:
+      active:
+        type: boolean
+      organisation_id:
+        type: string
+    type: object
+  models.Address:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      country_code:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      zip_code:
+        type: integer
+    type: object
+  models.Branch:
+    properties:
+      IsHQ:
+        type: boolean
+      address:
+        $ref: '#/definitions/models.Address'
+      admins:
+        items:
+          type: string
+        type: array
+      branch_name:
+        type: string
+      contact:
+        $ref: '#/definitions/models.Contact'
+      created_at:
+        type: string
+      geo_location:
+        $ref: '#/definitions/models.Location'
+      id:
+        type: string
+      organisation_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Contact:
+    properties:
+      email:
+        type: string
+      phone_numbers:
+        items:
+          $ref: '#/definitions/models.PhoneDetails'
+        type: array
+    type: object
+  models.Location:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    type: object
+  models.Organisation:
+    properties:
+      active:
+        type: boolean
+      admins:
+        items:
+          type: string
+        type: array
+      contact:
+        $ref: '#/definitions/models.Contact'
+      created_at:
+        type: string
+      creator_id:
+        type: string
+      description:
+        type: string
+      expiry_date:
+        type: string
+      founding_date:
+        type: string
+      geo_location:
+        $ref: '#/definitions/models.Location'
+      id:
+        type: string
+      logo_url:
+        type: string
+      organisation_name:
+        type: string
+      organisation_size:
+        type: string
+      products:
+        items:
+          type: string
+        type: array
+      rating:
+        type: number
+      registration_number:
+        type: string
+      services:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      website:
+        type: string
+    type: object
+  models.PhoneDetails:
+    properties:
+      country_code:
+        type: string
+      phone_number:
+        type: string
+      type:
+        type: string
+    type: object
+  utility.ResponseObj:
+    properties:
+      code:
+        type: string
+      data: {}
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+host: localhost:8000
 info:
   contact:
-    email: tech.builder.cirle@gmail.com
-    name: Techbuilder Support
-  description: This is the API for business directory api.
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API for business directory api..
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Business directory API
   version: "1.0"
-paths: {}
+paths:
+  /active-status:
+    post:
+      consumes:
+      - application/json
+      description: Setting the Status for an  Organisation Operation
+      parameters:
+      - description: activate or deactivate
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OrganStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utility.ResponseObj'
+      summary: Setting the Status for an  Organisation
+      tags:
+      - organisation
+  /branch:
+    post:
+      consumes:
+      - application/json
+      description: add by json Branch
+      parameters:
+      - description: Add add branch
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBranch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utility.ResponseObj'
+      summary: Add an Branch
+      tags:
+      - branch
+  /branch/{branchId}:
+    get:
+      description: Get a single branch
+      parameters:
+      - description: string valid
+        in: path
+        name: branchId
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Organisation'
+      summary: Get branch
+      tags:
+      - branch
+  /branches/{organisationId}:
+    get:
+      description: Get the list of branches with pagination
+      parameters:
+      - description: int valid
+        in: query
+        name: page
+        type: integer
+      - description: string valid
+        in: path
+        name: organisationId
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Branch'
+            type: array
+      summary: Get list of branches
+      tags:
+      - branch
+  /get-organisations:
+    get:
+      description: Get the list of organisation with pagination
+      parameters:
+      - description: int valid
+        in: query
+        name: page
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Organisation'
+            type: array
+      summary: Get list of organisation
+      tags:
+      - organisation
+  /organisation:
+    post:
+      consumes:
+      - application/json
+      description: add by json organisation
+      parameters:
+      - description: Add add organisation
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateOrgReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utility.ResponseObj'
+      summary: Add an organisation
+      tags:
+      - organisation
+  /organisation/{organisationId}:
+    get:
+      description: Get a single organisation
+      parameters:
+      - description: string valid
+        in: path
+        name: organisationId
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Organisation'
+      summary: Get organisation
+      tags:
+      - organisation
 securityDefinitions:
-  BasicAuth:
+  ApiKeyAuth:
     type: basic
 swagger: "2.0"

@@ -19,6 +19,7 @@ var (
 	BAD_REQUEST = "BAD_REQUEST"
 	SERVER_ERROR = "SERVER_ERROR"
 	SMMERROR004 = "SMMERR"
+	ALREADY_EXIST = "ALREADY_EXIST"
 )
 
 func GetCodeMsg(code string) string {
