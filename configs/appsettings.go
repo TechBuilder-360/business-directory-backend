@@ -2,6 +2,7 @@ package configs
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -16,8 +17,6 @@ type Config struct {
 	URLPrefix        string  `yaml:"URLPrefix"`
 	AesKey           string `yaml:"AesKey"`
 	MongoDBName      string `yaml:"MongoDBName"`
-	ClientCollection string `yaml:"ClientCollection"`
-	OrganisationCollection string `yaml:"OrganisationCollection"`
 	AllowedOrigin    []string `yaml:"AllowedOrigin"`
 	TrustedProxies   []string `yaml:"TrustedProxies"`
 }
@@ -35,5 +34,16 @@ func Configuration() *Config {
 	if err != nil {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
+
+	conf.MongoURI = os.Getenv("MongoURI")
+	conf.Secret = os.Getenv("Secret")
+
+	envKey := []string{"Secret", "MongoURI"}
+	for _, k := range envKey {
+		if os.Getenv(k) == "" {
+			panic(fmt.Sprintf("Environment variable '%s' not set.", k))
+		}
+	}
+
 	return conf
 }

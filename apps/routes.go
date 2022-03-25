@@ -2,6 +2,7 @@ package apps
 
 import (
 	"fmt"
+	"net/http"
 	"sync"
 
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -35,14 +36,26 @@ func (a *App) SetupRoutes() {
 		apiRouter := a.Router.PathPrefix(baseURL).Subrouter()
 
 		if a.Config.DEBUG {
-			a.Router.PathPrefix(baseURL).Handler(httpSwagger.WrapHandler)
+			a.Router.PathPrefix("/").Handler(httpSwagger.WrapHandler)
 		}
 
 		apiRouter.HandleFunc("/ping", controller.Ping)
-		//apiRouter.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER"))
-		apiRouter.HandleFunc("/organisation", controller.CreateOrganisation).Methods("POST")
+		apiRouter.Handle("/a/ping", m.RoleWrapper(controller.Ping, "OWNER"))
+		//organisation
+		apiRouter.HandleFunc("/organisation", controller.CreateOrganisation).Methods(http.MethodPost)
+		apiRouter.HandleFunc("/get-organisations", controller.GetOrganisations).Methods(http.MethodGet)
+		apiRouter.HandleFunc("/organisation/{organisationId}", controller.GetSingleOrganisation).Methods(http.MethodGet)
+
+		//branch api
+		apiRouter.HandleFunc("/branch", controller.CreateBranch).Methods(http.MethodPost)
+		apiRouter.HandleFunc("/branch/{branchId}", controller.GetSingleBranch).Methods(http.MethodGet)
+		apiRouter.HandleFunc("/branches/{organisationId}", controller.GetBranches).Methods(http.MethodGet)
+
+		//activation or deactivaion of organisation
+		apiRouter.HandleFunc("/active-status", controller.OrganisationStatus).Methods(http.MethodPost)
+
+		apiRouter.HandleFunc("/user-registration", controller.RegisterUser).Methods(http.MethodPost)
 
 	})
 	a.Logger.Info("Routes have been initialized")
-
 }

@@ -19,3 +19,4 @@ mocks/
 
 .air.toml
 tmp/
+.env

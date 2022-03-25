@@ -19,9 +19,9 @@ type Organisation struct {
 	ID                 string   `json:"id" bson:"_id"`
 	OrganisationName   string      `json:"organisation_name" bson:"organisation_name"`
 	LogoURL            string      `json:"logo_url" bson:"logo_url"`
-	CreatorID          uuid.UUID   `json:"creator_id" bson:"creator_id"`
+	CreatorID          string   `json:"creator_id" bson:"creator_id"`
 	GeoLocation        Location    `json:"geo_location" bson:"geo_location"`
-	Admins             []uuid.UUID `json:"admins" bson:"admins"`
+	Admins             []string `json:"admins" bson:"admins"`
 	CreatedAt          time.Time   `json:"created_at" bson:"created_at"`
 	UpdatedAt          time.Time   `json:"updated_at" bson:"updated_at"`
 	Website            string      `json:"website" bson:"website"`
@@ -38,14 +38,15 @@ type Organisation struct {
 }
 
 type Branch struct {
-	ID             uuid.UUID   `json:"id" bson:"_id"`
-	OrganisationID uuid.UUID   `json:"organisation_id" bson:"organisation_id"`
+	ID             string   `json:"id" bson:"_id"`
+	OrganisationID string   `json:"organisation_id" bson:"organisation_id"`
 	BranchName     string      `json:"branch_name" bson:"branch_name"`
-	Admins         []uuid.UUID `json:"admins" bson:"admins"`
+	Admins         []string `json:"admins" bson:"admins"`
 	Contact        Contact     `json:"contact" bson:"contact"`
 	GeoLocation    Location    `json:"geo_location" bson:"geo_location"`
 	Address        Address     `json:"address" bson:"address"`
 	CreatedAt      time.Time   `json:"created_at" bson:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at" bson:"updated_at"`
 	IsHQ           bool        `json:"IsHQ" bson:"IsHQ"`
 }
 

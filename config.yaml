@@ -1,13 +1,10 @@
 AppName: "Business Directory"
 
 URLPrefix: "directory"
-localhost:8000/directory/api/v1/login
+
 Host: "localhost"
 
 Port: "8000"
-AesKey: "thisis32bitlongpassphraseimusing"
-
-Secret: "3bfe74e9805c0d479ebd04fc46b3955337624f9498f598b69052d1f43ae490b1"
 
 AllowedOrigin:
   - "http://localhost:8000"
@@ -18,10 +15,5 @@ TrustedProxies:
 
 DEBUG: true
 
-MongoURI: "mongodb+srv://shola:hZjvRbdWPllAY7fR@oriscluster.uy936.mongodb.net"
-
 MongoDBName: "directory"
 
-ClientCollection: "Clients"
-
-OrganisationCollection: "Organisations"

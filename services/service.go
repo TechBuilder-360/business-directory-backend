@@ -19,8 +19,3 @@ type DefaultService struct {
 func NewService(repo repository.Repository) Service {
 	return DefaultService{repo: repo}
 }
-
-type Person struct {
-	Name string
-	ID   int
-}

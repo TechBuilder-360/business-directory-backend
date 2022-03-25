@@ -14,12 +14,29 @@ import (
 	"net/http"
 )
 
+// @title           Business directory API
+// @version         1.0
+// @description     This is the API for business directory api..
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8000
+// @BasePath  /directory/api/v1
+
+// @Security ApiKeyAuth
+// @securityDefinitions.basic  ApiKeyAuth
+
 
 func main() {
 	// APP config
 	APP := &apps.App{}
 	APP.Config = configs.Configuration()
-	APP.Logger = log.New(log.Configuration{Output: log.CONSOLE, Name: "Business_Directory"})
+	APP.Logger = log.New(log.Configuration{Output: log.CONSOLE, Name: APP.Config.AppName})
 
 	// Server
 	APP.Router = mux.NewRouter()
