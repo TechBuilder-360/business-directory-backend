@@ -18,9 +18,9 @@ type Notification struct {
 }
 
 type Token struct {
-	ID uuid.UUID `json:"id" bson:"_id"`
-	UserID uuid.UUID `json:"user_id" bson:"user_id"`
+	ID string `json:"id" bson:"_id"`
+	EmailAddress string `json:"user_id" bson:"user_id"`
 	Token string `json:"token" bson:"token"`
-	ExpireAt int `json:"expire_at" bson:"expire_at"`
+	ExpireAt int64 `json:"expire_at" bson:"expire_at"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 }

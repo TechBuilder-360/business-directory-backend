@@ -58,6 +58,7 @@ func main() {
 	APP.Mongo = Database.Mongo
 	APP.Repo = repository.NewRepository(APP.Mongo, APP.Config)
 	APP.Serv = services.NewService(APP.Repo)
+	APP.JWTServ = services.DefaultJWTAuth(APP.Config.Secret, APP.Config.AppName)
 
 	// Set up the routes
 	APP.SetupRoutes()

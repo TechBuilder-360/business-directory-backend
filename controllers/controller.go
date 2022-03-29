@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/TechBuilder-360/business-directory-backend/configs"
 	"github.com/TechBuilder-360/business-directory-backend/repository"
 	"github.com/TechBuilder-360/business-directory-backend/services"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
 	"net/http"
 
 	logger "github.com/Toflex/oris_log"
-	"github.com/dgrijalva/jwt-go"
 )
 
 type Controller interface {
@@ -21,24 +21,25 @@ type Controller interface {
 	GetSingleBranch(w http.ResponseWriter, r *http.Request)
 	OrganisationStatus(w http.ResponseWriter, r *http.Request)
 	RegisterUser(w http.ResponseWriter, r *http.Request)
+	AuthenticateEmail(w http.ResponseWriter, r *http.Request)
+	Login(w http.ResponseWriter, r *http.Request)
 }
 
-type customClaims struct {
-	Username string `json:"username"`
-	Role     string ` json:"role"`
-	jwt.StandardClaims
-}
 type NewController struct {
-	Service services.Service
-	Repo    repository.Repository
-	Logger  logger.Logger
+	Service    services.Service
+	JWTService services.JWTService
+	Repo       repository.Repository
+	Logger     logger.Logger
+	Config     *configs.Config
 }
 
-func DefaultController(serv services.Service, log logger.Logger, repo repository.Repository) Controller {
+func DefaultController(serv services.Service, auth services.JWTService, log logger.Logger, repo repository.Repository, config *configs.Config) Controller {
 	return &NewController{
-		Service: serv,
-		Logger:  log,
-		Repo:    repo,
+		Service:    serv,
+		JWTService: auth,
+		Logger:     log,
+		Repo:       repo,
+		Config:     config,
 	}
 }
 

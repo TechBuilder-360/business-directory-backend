@@ -6,10 +6,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/models"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"net/http"
-	"strings"
-	"time"
 )
 
 // RegisterUser @Summary     Register a new user
@@ -34,14 +31,11 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	validationRes := validator.New()
 	if err := validationRes.Struct(requestData); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		c.Logger.Error("Validation failed on some fields : %+v", validationErrors)
+		log.Error("Validation failed on some fields : %+v", validationErrors)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, utility.GetCodeMsg(utility.VALIDATIONERR), validationErrors.Error()))
 		return
 	}
-
-	// Convert email address to lower case letters
-	requestData.EmailAddress = strings.ToLower(requestData.EmailAddress)
 
 	// Check if email address exist
 	ok,err:=c.Repo.DoesUserEmailExist(requestData.EmailAddress)
@@ -53,8 +47,8 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 	if ok {
 		log.Info("Email address already exist. '%s'", requestData.EmailAddress)
-		w.WriteHeader(http.StatusFailedDependency)
-		json.NewEncoder(w).Encode(apiResponse.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(apiResponse.Error(utility.EMAILALREADYEXIST, utility.GetCodeMsg(utility.EMAILALREADYEXIST)))
 		return
 	}
 
@@ -68,7 +62,7 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Activity log
-	activity := &models.Activity{ID: uuid.New().String(), By: userId, Message: "Registered",CreatedAt: time.Now().Local()}
+	activity := &models.Activity{By: userId, Message: "Registered"}
 	go func() {
 		if err = c.Repo.AddActivity(activity); err!=nil {
 			log.Error("User activity failed to log")
@@ -78,8 +72,9 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: Send Activate email
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(apiResponse.PlainSuccess(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001)))
 	return
 
 }
+

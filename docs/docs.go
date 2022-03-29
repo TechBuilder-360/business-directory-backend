@@ -36,7 +36,6 @@ const docTemplate_swagger = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Setting the Status for an  Organisation",
                 "parameters": [
                     {
                         "description": "activate or deactivate",
@@ -97,7 +96,6 @@ const docTemplate_swagger = `{
                 "tags": [
                     "branch"
                 ],
-                "summary": "Get branch",
                 "parameters": [
                     {
                         "type": "string",
@@ -122,7 +120,6 @@ const docTemplate_swagger = `{
                 "tags": [
                     "branch"
                 ],
-                "summary": "Get list of branches",
                 "parameters": [
                     {
                         "type": "integer",
@@ -156,7 +153,6 @@ const docTemplate_swagger = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Get list of organisation",
                 "parameters": [
                     {
                         "type": "integer",
@@ -178,6 +174,39 @@ const docTemplate_swagger = `{
                 }
             }
         },
+        "/login": {
+            "post": {
+                "description": "Authenticate user and get jwt token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "description": "Login to account",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.JWTResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/organisation": {
             "post": {
                 "description": "add by json organisation",
@@ -190,7 +219,6 @@ const docTemplate_swagger = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Add an organisation",
                 "parameters": [
                     {
                         "description": "Add add organisation",
@@ -218,7 +246,6 @@ const docTemplate_swagger = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Get organisation",
                 "parameters": [
                     {
                         "type": "string",
@@ -232,6 +259,39 @@ const docTemplate_swagger = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Organisation"
+                        }
+                    }
+                }
+            }
+        },
+        "/request-login-token": {
+            "post": {
+                "description": "Request to authentication token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "description": "Authenticate existing user",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utility.Response"
                         }
                     }
                 }
@@ -251,7 +311,7 @@ const docTemplate_swagger = `{
                 ],
                 "parameters": [
                     {
-                        "description": "Add new user",
+                        "description": "Add a new user",
                         "name": "default",
                         "in": "body",
                         "required": true,
@@ -264,7 +324,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utility.ResponseObj"
+                            "$ref": "#/definitions/utility.Response"
                         }
                     }
                 }
@@ -272,6 +332,21 @@ const docTemplate_swagger = `{
         }
     },
     "definitions": {
+        "dto.AuthRequest": {
+            "type": "object",
+            "required": [
+                "email_address",
+                "token"
+            ],
+            "properties": {
+                "email_address": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateBranch": {
             "type": "object",
             "required": [
@@ -316,6 +391,28 @@ const docTemplate_swagger = `{
                 }
             }
         },
+        "dto.EmailRequest": {
+            "type": "object",
+            "required": [
+                "email_address"
+            ],
+            "properties": {
+                "email_address": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.JWTResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "profile": {
+                    "$ref": "#/definitions/dto.UserProfile"
+                }
+            }
+        },
         "dto.OrganStatus": {
             "type": "object",
             "properties": {
@@ -342,6 +439,35 @@ const docTemplate_swagger = `{
                     "type": "string"
                 },
                 "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserProfile": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "email_address": {
+                    "type": "string"
+                },
+                "email_verified": {
+                    "type": "boolean"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_login": {
                     "type": "string"
                 },
                 "last_name": {
@@ -520,6 +646,20 @@ const docTemplate_swagger = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "utility.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
                 }
             }
         },

@@ -6,7 +6,7 @@ import (
 )
 
 
-//go:generate mockgen -destination=../mocks/service/mockService.go -package=service github.com/TechBuilder-360/business-directory-backend/services Service
+//go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services Service
 type Service interface {
 }
 

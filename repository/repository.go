@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/TechBuilder-360/business-directory-backend/configs"
 	"github.com/TechBuilder-360/business-directory-backend/dto"
+	"github.com/TechBuilder-360/business-directory-backend/errs"
 	"github.com/TechBuilder-360/business-directory-backend/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,6 +25,9 @@ type Repository interface {
 	DoesUserEmailExist(string) (bool, error)
 	RegisterUser(*dto.Registration) (string, error)
 	AddActivity(activity *models.Activity) error
+	CreateUserToken(string) (string, error)
+	IsTokenValid(request *dto.AuthRequest) (bool, *errs.AppError)
+	GetUserInformation(string) (dto.UserProfile, error)
 }
 
 type DefaultRepo struct {
@@ -32,17 +36,19 @@ type DefaultRepo struct {
 	Organisation,
 	Branch,
 	User,
-	Activities *mongo.Collection
+	Activities,
+	Token *mongo.Collection
 	Cli *mongo.Client
 }
 
 func NewRepository(mdb *mongo.Client, config *configs.Config) Repository {
 	database := mdb.Database(config.MongoDBName)
-	client := database.Collection("Clients")
-	organisation := database.Collection("Organisations")
-	branch := database.Collection("Branch")
-	user := database.Collection("Users")
-	activity := database.Collection("Activities")
+	client := database.Collection(config.ClientCol)
+	organisation := database.Collection(config.OrganCol)
+	branch := database.Collection(config.BranchCol)
+	user := database.Collection(config.BranchCol)
+	activity := database.Collection(config.ActivityCol)
+	token := database.Collection(config.TokenCol)
 	return &DefaultRepo{
 		Client:       client,
 		Config:       config,
@@ -50,6 +56,7 @@ func NewRepository(mdb *mongo.Client, config *configs.Config) Repository {
 		Branch:       branch,
 		User:         user,
 		Activities:   activity,
+		Token: 		  token,
 		Cli:          mdb,
 	}
 }

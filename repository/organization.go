@@ -120,7 +120,7 @@ func (r *DefaultRepo) GetOrganisations(page string) (*dto.DataView, error) {
 		"creator_id":0,
 
 	})
-	findOptions.SetLimit(int64(perPage))
+	findOptions.SetLimit(perPage)
 	findOptions.SetSkip((int64(pageP) - 1) * perPage)
 	
 	cursor, err := r.Organisation.Find(ctx, bson.M{}, findOptions)

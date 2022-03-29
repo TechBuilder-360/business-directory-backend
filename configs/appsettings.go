@@ -8,17 +8,24 @@ import (
 )
 
 type Config struct {
-	AppName          string `yaml:"AppName"`
-	Host             string `yaml:"Host"`
-	Port             string `yaml:"Port"`
-	DEBUG            bool   `yaml:"DEBUG"`
-	MongoURI         string `yaml:"MongoURI"`
-	Secret			 string  `yaml:"Secret"`
-	URLPrefix        string  `yaml:"URLPrefix"`
-	AesKey           string `yaml:"AesKey"`
-	MongoDBName      string `yaml:"MongoDBName"`
-	AllowedOrigin    []string `yaml:"AllowedOrigin"`
-	TrustedProxies   []string `yaml:"TrustedProxies"`
+	AppName        string   `yaml:"AppName"`
+	Host           string   `yaml:"Host"`
+	Port           string   `yaml:"Port"`
+	DEBUG          bool     `yaml:"DEBUG"`
+	MongoURI       string   `yaml:"MongoURI"`
+	Secret         string   `yaml:"Secret"`
+	URLPrefix      string   `yaml:"URLPrefix"`
+	AesKey         string   `yaml:"AesKey"`
+	MongoDBName    string   `yaml:"MongoDBName"`
+	AllowedOrigin  []string `yaml:"AllowedOrigin"`
+	TrustedProxies []string `yaml:"TrustedProxies"`
+	TOKENLIFESPAN  int      `yaml:"TOKENLIFESPAN"`
+	ClientCol      string   `yaml:"ClientCol"`
+	OrganCol       string   `yaml:"OrganCol"`
+	BranchCol      string   `yaml:"BranchCol"`
+	UserCol        string   `yaml:"UserCol"`
+	ActivityCol    string   `yaml:"ActivityCol"`
+	TokenCol       string   `yaml:"TokenCol"`
 }
 
 func Configuration() *Config {
@@ -26,6 +33,8 @@ func Configuration() *Config {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("..")
+	viper.AddConfigPath("../..")
 	err := viper.ReadInConfig()
 	if err != nil { // Handle errors reading the config file
 		panic(fmt.Errorf("Fatal error config file: %w \n", err))

@@ -10,10 +10,12 @@ import (
 	"github.com/zenazn/pkcs7pad"
 	"io"
 	random "math/rand"
+	"strings"
 	"time"
 )
 
 var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-)([]}{.?:><")
+var numeric = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 
 func GenerateRandomString(size uint) []byte {
 	random.Seed(time.Now().UnixNano())
@@ -24,6 +26,17 @@ func GenerateRandomString(size uint) []byte {
 	}
 
 	return b
+}
+
+func GenerateNumericToken(size int) string {
+	random.Seed(time.Now().UnixNano())
+
+	b := make([]string, size)
+	for i := range b {
+		b[i] = numeric[random.Intn(len(numeric))]
+	}
+
+	return strings.Join(b, "")
 }
 
 func Encrypt(key string, text string) (string, error) {

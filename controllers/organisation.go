@@ -43,7 +43,7 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 	validationRes := validator.New()
 	if err := validationRes.Struct(requestData); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		c.Logger.Error("Validation failed on some fields : %+v", validationErrors)
+		log.Error("Validation failed on some fields : %+v", validationErrors)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, utility.GetCodeMsg(utility.VALIDATIONERR), validationErrors.Error()))
 		return
@@ -75,7 +75,7 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 
 	// TODO: Add logged in user's ID to activity log
 	// Activity log
-	activity := &models.Activity{ID: uuid.New().String(), By: "", For: response.OrganisationID, Message: "Created an Organisation", CreatedAt: time.Now().Local()}
+	activity := &models.Activity{For: response.OrganisationID, Message: "Created an Organisation"}
 	go func() {
 		if err = c.Repo.AddActivity(activity); err!=nil {
 			log.Error("User activity failed to log")
@@ -113,7 +113,7 @@ func (c *NewController) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	validationRes := validator.New()
 	if err := validationRes.Struct(&br); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		c.Logger.Error("Validation failed on some fields : %+v", validationErrors)
+		log.Error("Validation failed on some fields : %+v", validationErrors)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response.ValidationError(utility.VALIDATIONERR, utility.GetCodeMsg(utility.VALIDATIONERR), validationErrors.Error()))
 		return

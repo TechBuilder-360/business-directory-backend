@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// UserProfile ...
 type UserProfile struct {
 	ID            string    `json:"id" bson:"_id"`
 	FirstName     string    `json:"first_name" bson:"first_name"`
@@ -15,4 +16,13 @@ type UserProfile struct {
 	LastLogin     time.Time `json:"last_login" bson:"last_login"`
 	CreatedAt     time.Time `json:"created_at" bson:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at" bson:"updated_at"`
+}
+
+// UserToken ...
+type UserToken struct {
+	ID string `bson:"_id"`
+	EmailAddress string `bson:"email_address"`
+	Token string `bson:"token"`
+	ExpiryAt string `bson:"expiry_at"`
+	CreatedAt time.Time `bson:"created_at"`
 }

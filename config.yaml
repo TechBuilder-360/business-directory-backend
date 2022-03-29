@@ -6,6 +6,9 @@ Host: "localhost"
 
 Port: "8000"
 
+# x minutes
+TOKENLIFESPAN: 15
+
 AllowedOrigin:
   - "http://localhost:8000"
   - "http://localhost:4001"
@@ -16,4 +19,11 @@ TrustedProxies:
 DEBUG: true
 
 MongoDBName: "directory"
+
+ClientCol: "Clients"
+OrganCol: "Organisations"
+BranchCol: "Branch"
+UserCol: "Users"
+ActivityCol: "Activities"
+TokenCol: "Token"
 
