@@ -4,7 +4,7 @@ package docs
 
 import "github.com/swaggo/swag"
 
-const docTemplate = `{
+const docTemplate_swagger = `{
     "schemes": {{ marshal .Schemes }},
     "swagger": "2.0",
     "info": {
@@ -36,7 +36,6 @@ const docTemplate = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Setting the Status for an  Organisation",
                 "parameters": [
                     {
                         "description": "activate or deactivate",
@@ -70,7 +69,6 @@ const docTemplate = `{
                 "tags": [
                     "branch"
                 ],
-                "summary": "Add an Branch",
                 "parameters": [
                     {
                         "description": "Add add branch",
@@ -98,7 +96,6 @@ const docTemplate = `{
                 "tags": [
                     "branch"
                 ],
-                "summary": "Get branch",
                 "parameters": [
                     {
                         "type": "string",
@@ -123,7 +120,6 @@ const docTemplate = `{
                 "tags": [
                     "branch"
                 ],
-                "summary": "Get list of branches",
                 "parameters": [
                     {
                         "type": "integer",
@@ -157,7 +153,6 @@ const docTemplate = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Get list of organisation",
                 "parameters": [
                     {
                         "type": "integer",
@@ -179,6 +174,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/login": {
+            "post": {
+                "description": "Authenticate user and get jwt token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "description": "Login to account",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.JWTResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/organisation": {
             "post": {
                 "description": "add by json organisation",
@@ -191,7 +219,6 @@ const docTemplate = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Add an organisation",
                 "parameters": [
                     {
                         "description": "Add add organisation",
@@ -219,7 +246,6 @@ const docTemplate = `{
                 "tags": [
                     "organisation"
                 ],
-                "summary": "Get organisation",
                 "parameters": [
                     {
                         "type": "string",
@@ -237,9 +263,90 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/request-login-token": {
+            "post": {
+                "description": "Request to authentication token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "description": "Authenticate existing user",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utility.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user-registration": {
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "description": "Add a new user",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.Registration"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utility.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dto.AuthRequest": {
+            "type": "object",
+            "required": [
+                "email_address",
+                "token"
+            ],
+            "properties": {
+                "email_address": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateBranch": {
             "type": "object",
             "required": [
@@ -284,6 +391,28 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.EmailRequest": {
+            "type": "object",
+            "required": [
+                "email_address"
+            ],
+            "properties": {
+                "email_address": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.JWTResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "profile": {
+                    "$ref": "#/definitions/dto.UserProfile"
+                }
+            }
+        },
         "dto.OrganStatus": {
             "type": "object",
             "properties": {
@@ -291,6 +420,60 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "organisation_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Registration": {
+            "type": "object",
+            "required": [
+                "email_address",
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "email_address": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserProfile": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "email_address": {
+                    "type": "string"
+                },
+                "email_verified": {
+                    "type": "boolean"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_login": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone_number": {
                     "type": "string"
                 }
             }
@@ -466,6 +649,20 @@ const docTemplate = `{
                 }
             }
         },
+        "utility.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
         "utility.ResponseObj": {
             "type": "object",
             "properties": {
@@ -489,8 +686,8 @@ const docTemplate = `{
     }
 }`
 
-// SwaggerInfo holds exported Swagger Info so clients can modify it
-var SwaggerInfo = &swag.Spec{
+// SwaggerInfo_swagger holds exported Swagger Info so clients can modify it
+var SwaggerInfo_swagger = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8000",
 	BasePath:         "/directory/api/v1",
@@ -498,9 +695,9 @@ var SwaggerInfo = &swag.Spec{
 	Title:            "Business directory API",
 	Description:      "This is the API for business directory api..",
 	InfoInstanceName: "swagger",
-	SwaggerTemplate:  docTemplate,
+	SwaggerTemplate:  docTemplate_swagger,
 }
 
 func init() {
-	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+	swag.Register(SwaggerInfo_swagger.InstanceName(), SwaggerInfo_swagger)
 }

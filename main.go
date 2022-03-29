@@ -36,18 +36,18 @@ func main() {
 	// APP config
 	APP := &apps.App{}
 	APP.Config = configs.Configuration()
-	APP.Logger = log.New(log.Configuration{Output: log.CONSOLE, Name: "Business_Directory"})
+	APP.Logger = log.New(log.Configuration{Output: log.CONSOLE, Name: APP.Config.AppName})
 
 	// Server
 	APP.Router = mux.NewRouter()
 
 	// programmatically set swagger info
-	docs.SwaggerInfo.Title = "Business directory API"
-	docs.SwaggerInfo.Description = "This is the API for business directory api."
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", APP.Config.Host, APP.Config.Port)
-	docs.SwaggerInfo.BasePath = fmt.Sprintf("/%s/api/v1", APP.Config.URLPrefix)
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo_swagger.Title = "Business directory API"
+	docs.SwaggerInfo_swagger.Description = "This is the API for business directory api."
+	docs.SwaggerInfo_swagger.Version = "1.0"
+	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s:%s", APP.Config.Host, APP.Config.Port)
+	docs.SwaggerInfo_swagger.BasePath = fmt.Sprintf("/%s/api/v1", APP.Config.URLPrefix)
+	docs.SwaggerInfo_swagger.Schemes = []string{"http", "https"}
 
 	// Database config
 	Database := &database.Database{}
@@ -58,6 +58,7 @@ func main() {
 	APP.Mongo = Database.Mongo
 	APP.Repo = repository.NewRepository(APP.Mongo, APP.Config)
 	APP.Serv = services.NewService(APP.Repo)
+	APP.JWTServ = services.DefaultJWTAuth(APP.Config.Secret, APP.Config.AppName)
 
 	// Set up the routes
 	APP.SetupRoutes()

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/base64"
+	"encoding/hex"
 	"io"
 	"io/ioutil"
 )
@@ -19,13 +19,15 @@ func ExtractRequestBody(c io.ReadCloser) (string, io.ReadCloser) {
 	return string(bodyBytes), ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 }
 
+// ComputeHmac256 ...
 func ComputeHmac256(message string, secret string) string {
-	key, _ := base64.StdEncoding.DecodeString(secret)
+	key, _ := hex.DecodeString(secret)
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(message))
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
+// UserHasRole ...
 func UserHasRole(userRole, requiredRole []string) bool {
 	for _, v := range requiredRole {
 		for _, b := range userRole {

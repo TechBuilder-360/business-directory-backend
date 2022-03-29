@@ -13,7 +13,7 @@ require (
 	go.mongodb.org/mongo-driver v1.8.4
 )
 
-require github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
+require github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -36,7 +36,7 @@ require (
 	github.com/go-openapi/validate v0.21.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.10.0 // indirect
+	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-swagger/go-swagger v0.29.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

@@ -1,20 +1,19 @@
 package services
 
 import (
-	"fmt"
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
-//go:generate mockgen -destination=../mocks/service/mockJWTService.go -package=service github.com/TechBuilder-360/business-directory-backend/services JWTService
+//go:generate mockgen -destination=../mocks/services/mockJWTService.go -package=services github.com/TechBuilder-360/business-directory-backend/services JWTService
 type JWTService interface {
-	GenerateToken(email string, isUser bool) string
-	ValidateToken(token string) (*jwt.Token, error)
+	GenerateToken(string) (string, error)
+	ValidateToken(string) (*jwt.Token, error)
 }
 
 type authCustomClaims struct {
-	Name string `json:"name"`
-	User bool   `json:"user"`
+	UserId string `json:"user_id"`
 	jwt.StandardClaims
 }
 
@@ -23,24 +22,19 @@ type jwtServices struct {
 	issure    string
 }
 
-//auth-jwt
-func DefultJWTAuth(secret string) JWTService {
+//DefaultJWTAuth ...
+func DefaultJWTAuth(secret, issuer string) JWTService {
 	return &jwtServices{
-		secretKey: getSecretKey(secret),
-		issure:    "Bikash",
+		secretKey: secret,
+		issure: issuer,
 	}
 }
 
-func getSecretKey(secret string) string {
-	return secret
-}
-
-func (service *jwtServices) GenerateToken(email string, isUser bool) string {
+func (service *jwtServices) GenerateToken(userId string) (string, error) {
 	claims := &authCustomClaims{
-		email,
-		isUser,
+		userId,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 48).Unix(),
+			//ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 			Issuer:    service.issure,
 			IssuedAt:  time.Now().Unix(),
 		},
@@ -50,15 +44,15 @@ func (service *jwtServices) GenerateToken(email string, isUser bool) string {
 	//encoded string
 	t, err := token.SignedString([]byte(service.secretKey))
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return t
+	return t, nil
 }
 
 func (service *jwtServices) ValidateToken(encodedToken string) (*jwt.Token, error) {
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
-			return nil, fmt.Errorf("Invalid token", token.Header["alg"])
+			return nil, errors.New("invalid token")
 		}
 		return []byte(service.secretKey), nil
 	})

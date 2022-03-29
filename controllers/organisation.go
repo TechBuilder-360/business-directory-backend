@@ -3,17 +3,19 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/models"
+	"github.com/google/uuid"
 	"net/http"
+	"time"
 
 	"github.com/TechBuilder-360/business-directory-backend/dto"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
 	"github.com/araddon/dateparse"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
-// @Summary      Add an organisation
+// CreateOrganisation @Summary      Add an organisation
 // @Description  add by json organisation
 // @Tags         organisation
 // @Accept       json
@@ -25,7 +27,7 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
 	log.Info("creating organisation")
-	r.Header.Set("TraceID", uuid.New().String())
+
 	apiResponse := utility.NewResponse()
 	requestData := &dto.CreateOrgReq{}
 	response := &dto.CreateOrgResponse{}
@@ -41,7 +43,7 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 	validationRes := validator.New()
 	if err := validationRes.Struct(requestData); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		c.Logger.Error("Validation failed on some fields : %+v", validationErrors)
+		log.Error("Validation failed on some fields : %+v", validationErrors)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, utility.GetCodeMsg(utility.VALIDATIONERR), validationErrors.Error()))
 		return
@@ -67,16 +69,25 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		log.Error("Error occurred while creating organisation, %s", err.Error())
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(apiResponse.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		json.NewEncoder(w).Encode(apiResponse.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
 		return
 	}
+
+	// TODO: Add logged in user's ID to activity log
+	// Activity log
+	activity := &models.Activity{For: response.OrganisationID, Message: "Created an Organisation"}
+	go func() {
+		if err = c.Repo.AddActivity(activity); err!=nil {
+			log.Error("User activity failed to log")
+		}
+	}()
 
 	log.Info("Response body: %+v", response)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(apiResponse.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), response))
 }
 
-// @Summary      Add an Branch
+// CreateBranch @Summary      Add an Branch
 // @Description  add by json Branch
 // @Tags         branch
 // @Accept       json
@@ -102,7 +113,7 @@ func (c *NewController) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	validationRes := validator.New()
 	if err := validationRes.Struct(&br); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		c.Logger.Error("Validation failed on some fields : %+v", validationErrors)
+		log.Error("Validation failed on some fields : %+v", validationErrors)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response.ValidationError(utility.VALIDATIONERR, utility.GetCodeMsg(utility.VALIDATIONERR), validationErrors.Error()))
 		return
@@ -118,16 +129,25 @@ func (c *NewController) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	branchId, err := c.Repo.CreateBranch(br)
 	if err != nil {
 		log.Error("Error occured while creating branch, %s", err.Error())
-		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// TODO: Add logged in user's ID to activity log
+	// Activity log
+	activity := &models.Activity{ID: uuid.New().String(), By: "", For: br.OrganisationID, Message: fmt.Sprintf("Added a branch '%s'", br.BranchName), CreatedAt: time.Now().Local()}
+	go func() {
+		if err = c.Repo.AddActivity(activity); err!=nil {
+			log.Error("User activity failed to log")
+		}
+	}()
 
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), branchId))
 
 }
 
-// @Summary      Get list of organisation
+// GetOrganisations @Summary      Get list of organisation
 // @Description  Get the list of organisation with pagination
 // @Tags         organisation
 // @Param        page  query	int    false  "int valid"
@@ -148,7 +168,7 @@ func (c *NewController) GetOrganisations(w http.ResponseWriter, r *http.Request)
 	data, err := c.Repo.GetOrganisations(page)
 	if err != nil {
 		log.Error("Error occured while getting list of organisations, %s", err.Error())
-		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -156,7 +176,7 @@ func (c *NewController) GetOrganisations(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
 }
 
-// @Summary      Get organisation
+// GetSingleOrganisation @Summary      Get organisation
 // @Description  Get a single organisation
 // @Tags         organisation
 // @Param        organisationId  path	string    false  "string valid"
@@ -172,7 +192,7 @@ func (c *NewController) GetSingleOrganisation(w http.ResponseWriter, r *http.Req
 	data, err := c.Repo.GetSingleOrganisation(organisationID)
 	if err != nil {
 		log.Error("Error occured while getting organisation, %s", err.Error())
-		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -180,7 +200,7 @@ func (c *NewController) GetSingleOrganisation(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
 }
 
-// @Summary      Get list of branches
+// GetBranches @Summary      Get list of branches
 // @Description  Get the list of branches with pagination
 // @Tags         branch
 // @Param        page  query	int    false  "int valid"
@@ -202,7 +222,7 @@ func (c *NewController) GetBranches(w http.ResponseWriter, r *http.Request) {
 	data, err := c.Repo.GetBranches(organisationID, page)
 	if err != nil {
 		log.Error("Error occured while getting organisation branches, %s", err.Error())
-		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -210,7 +230,7 @@ func (c *NewController) GetBranches(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
 }
 
-// @Summary      Get branch
+// GetSingleBranch @Summary      Get branch
 // @Description  Get a single branch
 // @Tags         branch
 // @Param        branchId  path	string    false  "string valid"
@@ -226,7 +246,7 @@ func (c *NewController) GetSingleBranch(w http.ResponseWriter, r *http.Request) 
 	data, err := c.Repo.GetSingleBranch(branchID)
 	if err != nil {
 		log.Error("Error occured while getting branch, %s", err.Error())
-		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -234,7 +254,7 @@ func (c *NewController) GetSingleBranch(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(response.Success(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001), data))
 }
 
-// @Summary      Setting the Status for an  Organisation
+// OrganisationStatus @Summary      Setting the Status for an  Organisation
 // @Description  Setting the Status for an  Organisation Operation
 // @Tags         organisation
 // @Accept       json
@@ -258,10 +278,19 @@ func (c *NewController) OrganisationStatus(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		log.Error("Error occured while deactivating or activating organisation, %s", err.Error())
-		json.NewEncoder(w).Encode(response.Error(utility.SERVER_ERROR, utility.GetCodeMsg(utility.SERVER_ERROR)))
+		json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// TODO: Add logged in user's ID to activity log
+	// Activity log
+	activity := &models.Activity{ID: uuid.New().String(), By: "", For: Organs.OrganisationID, Message: fmt.Sprintf("Changed organisation active status to %t", Organs.Active), CreatedAt: time.Now().Local()}
+	go func() {
+		if err = c.Repo.AddActivity(activity); err!=nil {
+			log.Error("User activity failed to log")
+		}
+	}()
 
 	json.NewEncoder(w).Encode(response.PlainSuccess(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001)))
 

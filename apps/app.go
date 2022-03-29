@@ -16,7 +16,5 @@ type App struct {
 	Mongo  *mongo.Client
 	Repo   repository.Repository
 	Serv   services.Service
-
-	//repo:= repository.NewRepository(a.Mongo, a.Config)
-	//service:= services.NewService(repo)
+	JWTServ   services.JWTService
 }
