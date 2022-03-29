@@ -1,17 +1,14 @@
 package controllers
 
 import (
-	//"context"
 	"encoding/json"
-
-	"net/http"
-
+	"github.com/TechBuilder-360/business-directory-backend/configs"
 	"github.com/TechBuilder-360/business-directory-backend/repository"
 	"github.com/TechBuilder-360/business-directory-backend/services"
+	"github.com/TechBuilder-360/business-directory-backend/utility"
+	"net/http"
 
 	logger "github.com/Toflex/oris_log"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/google/uuid"
 )
 
 type Controller interface {
@@ -23,32 +20,34 @@ type Controller interface {
 	GetBranches(w http.ResponseWriter, r *http.Request)
 	GetSingleBranch(w http.ResponseWriter, r *http.Request)
 	OrganisationStatus(w http.ResponseWriter, r *http.Request)
-}
-type customClaims struct {
-	Username string `json:"username"`
-	Role     string ` json:"role"`
-	jwt.StandardClaims
-}
-type NewController struct {
-	Service services.Service
-	Logger  logger.Logger
-	Repo    repository.Repository
+	RegisterUser(w http.ResponseWriter, r *http.Request)
+	AuthenticateEmail(w http.ResponseWriter, r *http.Request)
+	Login(w http.ResponseWriter, r *http.Request)
 }
 
-func DefaultController(serv services.Service, log logger.Logger, repo repository.Repository) Controller {
+type NewController struct {
+	Service    services.Service
+	JWTService services.JWTService
+	Repo       repository.Repository
+	Logger     logger.Logger
+	Config     *configs.Config
+}
+
+func DefaultController(serv services.Service, auth services.JWTService, log logger.Logger, repo repository.Repository, config *configs.Config) Controller {
 	return &NewController{
-		Service: serv,
-		Logger:  log,
-		Repo:    repo,
+		Service:    serv,
+		JWTService: auth,
+		Logger:     log,
+		Repo:       repo,
+		Config:     config,
 	}
 }
 
 func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
-	log.Debug("Ping")
-	r.Header.Set("TraceID", uuid.New().String())
+	apiResponse := utility.NewResponse()
 
-	json.NewEncoder(w).Encode(map[string]interface{}{"message": "Hi"})
+	json.NewEncoder(w).Encode(apiResponse.PlainSuccess(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001)))
 	return
 }

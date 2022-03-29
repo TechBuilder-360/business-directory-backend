@@ -1,5 +1,15 @@
 basePath: /directory/api/v1
 definitions:
+  dto.AuthRequest:
+    properties:
+      email_address:
+        type: string
+      token:
+        type: string
+    required:
+    - email_address
+    - token
+    type: object
   dto.CreateBranch:
     properties:
       address:
@@ -30,11 +40,61 @@ definitions:
     - organisation_name
     - organisation_size
     type: object
+  dto.EmailRequest:
+    properties:
+      email_address:
+        type: string
+    required:
+    - email_address
+    type: object
+  dto.JWTResponse:
+    properties:
+      access_token:
+        type: string
+      profile:
+        $ref: '#/definitions/dto.UserProfile'
+    type: object
   dto.OrganStatus:
     properties:
       active:
         type: boolean
       organisation_id:
+        type: string
+    type: object
+  dto.Registration:
+    properties:
+      display_name:
+        type: string
+      email_address:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - email_address
+    - first_name
+    - last_name
+    type: object
+  dto.UserProfile:
+    properties:
+      display_name:
+        type: string
+      email_address:
+        type: string
+      email_verified:
+        type: boolean
+      first_name:
+        type: string
+      id:
+        type: string
+      last_login:
+        type: string
+      last_name:
+        type: string
+      phone_number:
         type: string
     type: object
   models.Address:
@@ -149,6 +209,15 @@ definitions:
       type:
         type: string
     type: object
+  utility.Response:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
   utility.ResponseObj:
     properties:
       code:
@@ -191,7 +260,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/utility.ResponseObj'
-      summary: Setting the Status for an  Organisation
       tags:
       - organisation
   /branch:
@@ -213,7 +281,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/utility.ResponseObj'
-      summary: Add an Branch
       tags:
       - branch
   /branch/{branchId}:
@@ -229,7 +296,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Organisation'
-      summary: Get branch
       tags:
       - branch
   /branches/{organisationId}:
@@ -251,7 +317,6 @@ paths:
             items:
               $ref: '#/definitions/models.Branch'
             type: array
-      summary: Get list of branches
       tags:
       - branch
   /get-organisations:
@@ -269,9 +334,29 @@ paths:
             items:
               $ref: '#/definitions/models.Organisation'
             type: array
-      summary: Get list of organisation
       tags:
       - organisation
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and get jwt token
+      parameters:
+      - description: Login to account
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.JWTResponse'
+      tags:
+      - User
   /organisation:
     post:
       consumes:
@@ -291,7 +376,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/utility.ResponseObj'
-      summary: Add an organisation
       tags:
       - organisation
   /organisation/{organisationId}:
@@ -307,9 +391,50 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Organisation'
-      summary: Get organisation
       tags:
       - organisation
+  /request-login-token:
+    post:
+      consumes:
+      - application/json
+      description: Request to authentication token
+      parameters:
+      - description: Authenticate existing user
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utility.Response'
+      tags:
+      - User
+  /user-registration:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Add a new user
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Registration'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utility.Response'
+      tags:
+      - User
 securityDefinitions:
   ApiKeyAuth:
     type: basic

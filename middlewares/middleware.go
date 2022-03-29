@@ -149,7 +149,7 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 			if encoded, err := utility.Encrypt(client.AESKey, jsonResponse); err != nil {
 				log.Error("%s: An error occurred while encrypting response > %s", r.RequestURI, err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(response.Error(utility.SMMERROR004, err.Error()))
+				json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, err.Error()))
 				return
 			} else {
 				resp, _:= json.Marshal(Response{Data: encoded})
@@ -160,7 +160,7 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 					if _, err := gz.Write(resp); err != nil {
 						log.Error("%s: An error occurred while gzip response > %s", r.RequestURI, err.Error())
 						w.WriteHeader(http.StatusInternalServerError)
-						json.NewEncoder(w).Encode(response.Error(utility.SMMERROR004, err.Error()))
+						json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, err.Error()))
 					}
 					if err := gz.Close(); err != nil {
 						log.Error("%s: An error occurred while closing gzip response > %s", r.RequestURI, err.Error())

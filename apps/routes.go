@@ -21,13 +21,13 @@ func (a *App) SetupRoutes() {
 		m.Logger = a.Logger
 		m.Config = a.Config
 
-		if !a.Config.DEBUG {
-			//a.Router.Use(m.ClientValidationMiddleware)
+		if !a.Config.DEBUG{
+			a.Router.Use(m.ClientValidationMiddleware)
 			a.Router.Use(m.SecurityMiddleware)
 		}
 		//--- End middlewares
 
-		controller := controllers.DefaultController(a.Serv, a.Logger, a.Repo)
+		controller := controllers.DefaultController(a.Serv, a.JWTServ, a.Logger, a.Repo, a.Config)
 		//auth:= services.DefaultAuth(a.Repo)
 		//jwt:=services.DefultJWTAuth(a.Config.Secret)
 		//authHandler := controllers.AuthHandler(auth, jwt, a.Repo, a.Logger)
@@ -36,7 +36,7 @@ func (a *App) SetupRoutes() {
 		apiRouter := a.Router.PathPrefix(baseURL).Subrouter()
 
 		if a.Config.DEBUG {
-			a.Router.PathPrefix(baseURL).Handler(httpSwagger.WrapHandler)
+			a.Router.PathPrefix("/").Handler(httpSwagger.WrapHandler)
 		}
 
 		apiRouter.HandleFunc("/ping", controller.Ping)
@@ -54,7 +54,10 @@ func (a *App) SetupRoutes() {
 		//activation or deactivaion of organisation
 		apiRouter.HandleFunc("/active-status", controller.OrganisationStatus).Methods(http.MethodPost)
 
+		apiRouter.HandleFunc("/user-registration", controller.RegisterUser).Methods(http.MethodPost)
+		apiRouter.HandleFunc("/request-login-token", controller.AuthenticateEmail).Methods(http.MethodPost)
+		apiRouter.HandleFunc("/login", controller.Login).Methods(http.MethodPost)
+
 	})
 	a.Logger.Info("Routes have been initialized")
-
 }
