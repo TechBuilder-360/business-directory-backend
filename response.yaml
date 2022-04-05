@@ -19,3 +19,7 @@ EMAILDOESNOTEXIST: "Email address does not exist."
 
 SMMERROR: "Request could not be processed at the moment. Please try again!"
 
+USERNOTFOUND: "Users not found!"
+
+
+

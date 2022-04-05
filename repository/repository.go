@@ -14,7 +14,7 @@ type Repository interface {
 	GetClientByID(string) (*models.Client, error)
 	CreateOrganisation(*dto.CreateOrgReq) (*dto.CreateOrgResponse, error)
 	CreateBranch(*dto.CreateBranch) (string, error)
-	GetOrganisations(page string) (*dto.DataView, error)
+	GetOrganisations(page int) (*dto.DataView, error)
 	GetBranches(organisation string, page string) (*dto.DataView, error)
 	OrganisationExist(*dto.CreateOrgReq) bool
 	BranchExist(*dto.CreateBranch) bool

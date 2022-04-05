@@ -48,6 +48,6 @@ func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
 	log.SetLogID(r.Header.Get("LogID"))
 	apiResponse := utility.NewResponse()
 
-	json.NewEncoder(w).Encode(apiResponse.PlainSuccess(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001)))
+	json.NewEncoder(w).Encode(apiResponse.PlainSuccess(utility.SYSTEM001))
 	return
 }

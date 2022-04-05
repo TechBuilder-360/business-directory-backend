@@ -33,7 +33,7 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		validationErrors := err.(validator.ValidationErrors)
 		log.Error("Validation failed on some fields : %+v", validationErrors)
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, utility.GetCodeMsg(utility.VALIDATIONERR), validationErrors.Error()))
+		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, validationErrors.Error()))
 		return
 	}
 
@@ -42,13 +42,13 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error("An Error occurred while checking if user email exist. %s", err.Error())
 		w.WriteHeader(http.StatusFailedDependency)
-		json.NewEncoder(w).Encode(apiResponse.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
+		json.NewEncoder(w).Encode(apiResponse.Error(utility.SMMERROR))
 		return
 	}
 	if ok {
 		log.Info("Email address already exist. '%s'", requestData.EmailAddress)
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(apiResponse.Error(utility.EMAILALREADYEXIST, utility.GetCodeMsg(utility.EMAILALREADYEXIST)))
+		json.NewEncoder(w).Encode(apiResponse.Error(utility.EMAILALREADYEXIST))
 		return
 	}
 
@@ -57,7 +57,7 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error("Error occurred when saving new user. %s", err.Error())
 		w.WriteHeader(http.StatusFailedDependency)
-		json.NewEncoder(w).Encode(apiResponse.Error(utility.SMMERROR, utility.GetCodeMsg(utility.SMMERROR)))
+		json.NewEncoder(w).Encode(apiResponse.Error(utility.SMMERROR))
 		return
 	}
 
@@ -73,7 +73,7 @@ func (c *NewController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// TODO: Send Activate email
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(apiResponse.PlainSuccess(utility.SYSTEM001, utility.GetCodeMsg(utility.SYSTEM001)))
+	json.NewEncoder(w).Encode(apiResponse.PlainSuccess(utility.SYSTEM001))
 	return
 
 }

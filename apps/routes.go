@@ -44,7 +44,7 @@ func (a *App) SetupRoutes() {
 		//organisation
 		apiRouter.HandleFunc("/organisation", controller.CreateOrganisation).Methods(http.MethodPost)
 		apiRouter.HandleFunc("/get-organisations", controller.GetOrganisations).Methods(http.MethodGet)
-		apiRouter.HandleFunc("/organisation/{organisationId}", controller.GetSingleOrganisation).Methods(http.MethodGet)
+		apiRouter.HandleFunc("/organisation/{organisation_id}", controller.GetSingleOrganisation).Methods(http.MethodGet)
 
 		//branch api
 		apiRouter.HandleFunc("/branch", controller.CreateBranch).Methods(http.MethodPost)

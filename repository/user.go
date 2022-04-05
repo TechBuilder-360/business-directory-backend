@@ -94,7 +94,7 @@ func (r *DefaultRepo) IsTokenValid(data *dto.AuthRequest) (bool, *errs.AppError)
 	filter:=bson.M{"token": encodedToken, "email_address": data.Email}
 	err := r.Token.FindOne(ctx, filter).Decode(&tk)
 	if err != nil {
-		return false, errs.CustomError(utility.SMMERROR, http.StatusFailedDependency)
+		return false, errs.CustomError(http.StatusFailedDependency, utility.SMMERROR, nil)
 	}
 
 	presentTime := time.Now().UnixNano()
@@ -103,7 +103,7 @@ func (r *DefaultRepo) IsTokenValid(data *dto.AuthRequest) (bool, *errs.AppError)
 		return true, nil
 	}
 
-	return false, errs.CustomError("Token has expired, request new token", http.StatusBadRequest)
+	return false, errs.CustomError(http.StatusBadRequest, "Token has expired, request new token", nil)
 }
 
 // GetUserInformation ...
@@ -122,7 +122,7 @@ func (r *DefaultRepo) GetUserInformation(email string) (dto.UserProfile, error) 
 		})
 	err := r.User.FindOne(ctx, filter, opts).Decode(user)
 	if err != nil {
-		return user, errors.New("User profile could not be retrieved")
+		return user, errors.New("user profile could not be retrieved")
 	}
 
 	return user, nil
