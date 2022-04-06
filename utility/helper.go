@@ -38,3 +38,11 @@ func UserHasRole(userRole, requiredRole []string) bool {
 	}
 	return false
 }
+
+func StringPtrToString(str *string) string {
+	if str != nil {
+		return *str
+	}
+
+	return ""
+}

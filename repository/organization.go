@@ -104,15 +104,17 @@ func (r *DefaultRepo) CreateBranch(br *dto.CreateBranch) (string, error) {
 	return result.InsertedID.(string), nil
 }
 
-func (r *DefaultRepo) GetOrganisations(page string) (*dto.DataView, error) {
+func (r *DefaultRepo) GetOrganisations(page int) (*dto.DataView, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	var br []bson.M
 
 	findOptions := options.Find()
-	pageP, _ := strconv.Atoi(page)
-	total, _ := r.Organisation.CountDocuments(ctx, bson.M{})
+	total, err := r.Organisation.CountDocuments(ctx, bson.M{})
+	if err != nil {
+
+	}
 	var perPage int64 = 10
 	findOptions.SetProjection(bson.M{
 		"active":0,
@@ -121,13 +123,13 @@ func (r *DefaultRepo) GetOrganisations(page string) (*dto.DataView, error) {
 
 	})
 	findOptions.SetLimit(perPage)
-	findOptions.SetSkip((int64(pageP) - 1) * perPage)
+	findOptions.SetSkip((int64(page) - 1) * perPage)
 	
 	cursor, err := r.Organisation.Find(ctx, bson.M{}, findOptions)
 	err = cursor.All(ctx,&br)
 
 	data := &dto.DataView{
-		Page:     pageP,
+		Page:     page,
 		Perpage:  perPage,
 		Total:    total,
 		LastPage: math.Ceil(float64(total / perPage)),
