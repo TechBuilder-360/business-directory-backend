@@ -5,8 +5,13 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"io"
 	"io/ioutil"
+	"net/mail"
+	"strings"
+	"time"
 )
 
 // ExtractRequestBody returns body and body reader
@@ -37,4 +42,30 @@ func UserHasRole(userRole, requiredRole []string) bool {
 		}
 	}
 	return false
+}
+
+func StringPtrToString(str *string) string {
+	if str != nil {
+		return *str
+	}
+
+	return ""
+}
+
+// TitleCase ...
+func TitleCase(text string) string {
+	return strings.Title(text)
+}
+
+func FormatDate(date time.Time) string {
+	return date.Format("02-01-2006")
+}
+
+func ValidateEmail(email string) bool {
+	_, err := mail.ParseAddress(email)
+	return err == nil
+}
+
+func CapitalizeFirstCharacter(s string) string {
+	return cases.Title(language.AmericanEnglish, cases.NoLower).String(strings.ToLower(strings.TrimSpace(s)))
 }

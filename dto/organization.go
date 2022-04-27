@@ -6,13 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type CreateBranch struct {
-	OrganisationID string         `json:"organisation_id" validate:"required"`
-	BranchName     string         `json:"branch_name" validate:"required"`
-	Contact        models.Contact `json:"contact" `
-	Address        models.Address `json:"address"`
-}
-
 type Contact struct {
 	Email        string         `json:"email" validate:"required"`
 	PhoneNumbers []PhoneDetails `json:"phone_numbers"`
@@ -46,9 +39,38 @@ type CreateOrgReq struct {
 	FoundingDate     string `json:"founding_date" validate:"required"`
 }
 
-// CreateOrgResponse ...
-type CreateOrgResponse struct {
-	OrganisationID string `json:"organisation_id"`
+// Organisation ...
+type Organisation struct {
+	OrganisationID 	   string 	   `json:"organisation_id"`
+	OrganisationName   string      `json:"organisation_name"`
+	LogoURL            string      `json:"logo_url"`
+	Website            string      `json:"website"`
+	OrganisationSize   string      `json:"organisation_size"`
+	Description        string      `json:"description"`
+	RegistrationNumber string      `json:"registration_number"`
+	Rating             float64     `json:"rating"`
+	FoundingDate       string      `json:"founding_date"`
+}
+
+func (o *Organisation) ToDTO(organisation *models.Organisation) {
+	o.OrganisationID = organisation.ID
+	o.OrganisationName = organisation.OrganisationName
+	o.LogoURL = organisation.LogoURL
+	o.Website = organisation.Website
+	o.OrganisationSize = organisation.OrganisationSize
+	o.Description = organisation.Description
+	o.RegistrationNumber = organisation.RegistrationNumber
+	o.Rating = organisation.Rating
+	o.FoundingDate = organisation.FoundingDate
+}
+
+// Organisations ...
+type Organisations struct {
+	OrganisationID 	   string 	   `json:"organisation_id"`
+	OrganisationName   string      `json:"organisation_name"`
+	LogoURL            string      `json:"logo_url"`
+	Description        string      `json:"description"`
+	Rating             float64     `json:"rating"`
 }
 
 type OrganStatus struct {
@@ -63,5 +85,7 @@ type DataView struct {
 	LastPage float64       `json:"last_page"`
 	Data     []primitive.M `json:"data"` 
 }
+
+
 
 

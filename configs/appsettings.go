@@ -7,25 +7,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+var Instance *Config
+
 type Config struct {
 	AppName        string   `yaml:"AppName"`
 	Host           string   `yaml:"Host"`
 	Port           string   `yaml:"Port"`
+	Issuer	   	   string  	`yaml:"issuer"`
 	DEBUG          bool     `yaml:"DEBUG"`
-	MongoURI       string   `yaml:"MongoURI"`
 	Secret         string   `yaml:"Secret"`
 	URLPrefix      string   `yaml:"URLPrefix"`
-	AesKey         string   `yaml:"AesKey"`
-	MongoDBName    string   `yaml:"MongoDBName"`
 	AllowedOrigin  []string `yaml:"AllowedOrigin"`
 	TrustedProxies []string `yaml:"TrustedProxies"`
 	TOKENLIFESPAN  int      `yaml:"TOKENLIFESPAN"`
-	ClientCol      string   `yaml:"ClientCol"`
-	OrganCol       string   `yaml:"OrganCol"`
-	BranchCol      string   `yaml:"BranchCol"`
-	UserCol        string   `yaml:"UserCol"`
-	ActivityCol    string   `yaml:"ActivityCol"`
-	TokenCol       string   `yaml:"TokenCol"`
 }
 
 func Configuration() *Config {
@@ -44,10 +38,10 @@ func Configuration() *Config {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
 
-	conf.MongoURI = os.Getenv("MongoURI")
+	//conf.MongoURI = os.Getenv("MongoURI")
 	conf.Secret = os.Getenv("Secret")
 
-	envKey := []string{"Secret", "MongoURI"}
+	envKey := []string{"Secret"}
 	for _, k := range envKey {
 		if os.Getenv(k) == "" {
 			panic(fmt.Sprintf("Environment variable '%s' not set.", k))
@@ -56,3 +50,5 @@ func Configuration() *Config {
 
 	return conf
 }
+
+

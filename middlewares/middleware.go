@@ -45,7 +45,7 @@ func (m *Middleware) ClientValidationMiddleware (next http.Handler) http.Handler
 				client, err := m.Repo.GetClientByID(client.ClientID)
 				if err != nil {
 					m.Logger.Error("Client not found. %s", err.Error())
-					json.NewEncoder(w).Encode(response.Error(utility.CLIENTERROR, utility.GetCodeMsg(utility.CLIENTERROR)))
+					json.NewEncoder(w).Encode(response.Error(utility.CLIENTERROR))
 
 					return
 				}
@@ -55,7 +55,7 @@ func (m *Middleware) ClientValidationMiddleware (next http.Handler) http.Handler
 
 				if !client.ValidateClient(clientSecret, body) {
 					m.Logger.Error("Client validation failed!")
-					json.NewEncoder(w).Encode(response.Error(utility.CLIENTERROR, utility.GetCodeMsg(utility.CLIENTERROR)))
+					json.NewEncoder(w).Encode(response.Error(utility.CLIENTERROR))
 					w.WriteHeader(http.StatusUnauthorized)
 					return
 				}
@@ -99,7 +99,7 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 			client, err := m.Repo.GetClientByID(client.ClientID)
 			if err != nil {
 				log.Error("Client not found. %s", err.Error())
-				json.NewEncoder(w).Encode(response.Error(utility.CLIENTERROR, utility.GetCodeMsg(utility.CLIENTERROR)))
+				json.NewEncoder(w).Encode(response.Error(utility.CLIENTERROR))
 				w.WriteHeader(http.StatusOK)
 				return
 			}
@@ -110,10 +110,10 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 				decrypt, err := utility.Decrypt(client.AESKey, string(body))
 				if err != nil {
 					log.Error("Request body could not be decrypted. %s", err.Error())
-					resp, _ := json.Marshal(response.Error(utility.SECURITYDECRYPTERR, utility.GetCodeMsg(utility.SECURITYDECRYPTERR)))
+					resp, _ := json.Marshal(response.Error(utility.SECURITYDECRYPTERR))
 					encrypt, err := utility.Encrypt(client.AESKey, string(resp))
 					if err != nil {
-						json.NewEncoder(w).Encode(response.Error(utility.SECURITYDECRYPTERR, utility.GetCodeMsg(utility.SECURITYDECRYPTERR)))
+						json.NewEncoder(w).Encode(response.Error(utility.SECURITYDECRYPTERR))
 						w.WriteHeader(http.StatusOK)
 						return
 					}
@@ -149,7 +149,7 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 			if encoded, err := utility.Encrypt(client.AESKey, jsonResponse); err != nil {
 				log.Error("%s: An error occurred while encrypting response > %s", r.RequestURI, err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, err.Error()))
+				json.NewEncoder(w).Encode(response.Error(utility.SMMERROR))
 				return
 			} else {
 				resp, _:= json.Marshal(Response{Data: encoded})
@@ -160,7 +160,7 @@ func (m *Middleware) SecurityMiddleware (next http.Handler) http.Handler {
 					if _, err := gz.Write(resp); err != nil {
 						log.Error("%s: An error occurred while gzip response > %s", r.RequestURI, err.Error())
 						w.WriteHeader(http.StatusInternalServerError)
-						json.NewEncoder(w).Encode(response.Error(utility.SMMERROR, err.Error()))
+						json.NewEncoder(w).Encode(response.Error(utility.SMMERROR))
 					}
 					if err := gz.Close(); err != nil {
 						log.Error("%s: An error occurred while closing gzip response > %s", r.RequestURI, err.Error())
@@ -232,8 +232,8 @@ func (m *Middleware) RoleWrapper(controller http.HandlerFunc, roles ...string) h
 		response := utility.NewResponse()
 		var userRole []string
 		if utility.UserHasRole(userRole, roles) {
-			json.NewEncoder(w).Encode(response.Error(utility.AUTHERROR004, utility.GetCodeMsg(utility.AUTHERROR004)))
 			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(response.Error(utility.AUTHERROR004))
 			return
 		}
 
