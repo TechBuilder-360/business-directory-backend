@@ -1,53 +1,122 @@
 package services
 
 import (
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
+
 	"github.com/TechBuilder-360/business-directory-backend/dto"
-	"github.com/TechBuilder-360/business-directory-backend/errs"
 	"github.com/TechBuilder-360/business-directory-backend/models"
 	"github.com/TechBuilder-360/business-directory-backend/repository"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
+
 	log "github.com/Toflex/oris_log"
 	"github.com/araddon/dateparse"
 	"net/http"
 )
 
-func CreateOrganisation(request *dto.CreateOrgReq, repo repository.Repository, log log.Logger) (*dto.CreateOrgResponse, *errs.AppError) {
-	_, err := dateparse.ParseLocal(request.FoundingDate)
-	if err != nil {
-		errMsg := fmt.Sprintf("Founding date is not a valid date. %s %s", request.FoundingDate, err.Error())
-		log.Error(errMsg)
-		return nil, errs.CustomError(http.StatusBadRequest, utility.BAD_REQUEST, &errMsg)
-	}
-	val := repo.OrganisationExist(request)
-	if val == true {
-		log.Error("Organisation name Already Exist")
-		return nil, errs.CustomError(http.StatusBadRequest, utility.ALREADY_EXIST, nil)
 
-	}
+//go:generate mockgen -destination=../mocks/services/organisation.go -package=services github.com/TechBuilder-360/business-directory-backend/services OrganisationService
+type OrganisationService interface {
+	CreateOrganisation(body *dto.CreateOrgReq, user *models.UserProfile, logger log.Logger) (*dto.Organisation, error)
+	Create() error
+}
 
-	// Pass request to repo
-	response, err := repo.CreateOrganisation(request)
-	if err != nil {
-		log.Error("Error occurred while creating organisation, %s", err.Error())
-		return nil, errs.UnexpectedError(utility.SMMERROR)
-	}
 
-	// TODO: Add logged in user's ID to activity log
+type DefaultOrganisationService struct {
+	repo repository.OrganisationRepository
+	activity repository.ActivityRepository
+	db *gorm.DB
+}
 
-	// Activity log
-	activity := &models.Activity{For: response.OrganisationID, Message: "Created an Organisation"}
-	go func() {
-		if err = repo.AddActivity(activity); err!=nil {
-			log.Error("User activity failed to log")
+
+func NewOrganisationService(repo repository.OrganisationRepository, activity repository.ActivityRepository) OrganisationService {
+	return &DefaultOrganisationService{repo: repo, activity: activity}
+}
+
+func (d *DefaultOrganisationService) Create() error {
+
+
+
+
+}
+
+func (d *DefaultOrganisationService) CreateOrganisation(body *dto.CreateOrgReq, user *models.UserProfile, log log.Logger) (*dto.Organisation, error) {
+	uw := repository.NewGormUnitOfWork(d.db)
+	tx, err := uw.Begin()
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
 		}
 	}()
+
+	if err != nil {
+		return nil, err
+	}
+
+	founding, err := dateparse.ParseLocal(body.FoundingDate)
+	if err != nil {
+		errMsg := fmt.Sprintf("Founding date is not a valid date. %s %s", body.FoundingDate, err.Error())
+		return nil, errors.New(errMsg)
+	}
+
+	body.OrganisationName = utility.CapitalizeFirstCharacter(body.OrganisationName)
+
+	organisation := &models.Organisation{}
+	filter := map[string]interface{}{"organisation_name": body.OrganisationName}
+	err = d.repo.WithTx(tx).FindOrganisation(filter, organisation)
+	if err != nil {
+		return nil, err
+	}
+
+	if organisation.ID == "" {
+		return nil, errors.New("organisation name already exist")
+	}
+
+	organisation.CreatorID = user.ID
+	organisation.OrganisationName = body.OrganisationName
+	organisation.Description = utility.FormatDate(founding)
+	organisation.OrganisationSize = body.OrganisationSize
+	organisation.Description = body.Description
+
+	err = d.repo.WithTx(tx).Create(organisation)
+	if err != nil {
+		return nil, err
+	}
+
+	// Activity log
+	activity := &models.Activity{For: user.ID, Message: fmt.Sprintf("Created an organisation %s", organisation.OrganisationName)}
+	go d.activity.Create(activity)
+
+	response := &dto.Organisation{}
+	response.ToDTO(organisation)
+
+	if err = uw.Commit(tx); err!= nil{
+		return nil, err
+	}
 
 	return response, nil
 }
 
-func CreateBranch(request *dto.CreateBranch, repo repository.Repository, log log.Logger) *errs.AppError {
-	val := repo.BranchExist(request)
+func (d *DefaultOrganisationService) CreateBranch(body *dto.CreateBranch, organisation *models.Organisation, log log.Logger) (*dto.CreateBranch, error) {
+	uw := repository.NewGormUnitOfWork(d.db)
+	tx, err := uw.Begin()
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err != nil {
+		return nil, err
+	}
+
+	branch := &models.Branch{}
+	branch.OrganisationID = body.OrganisationID
+	filter := map[string]interface{}{"branch_name": body.BranchName, "organisation_id": body.OrganisationID}
+	err := d.repo.WithTx(tx).FindBranch(filter, )
 	if val == true {
 		log.Error("Branch name Already Exist")
 		return errs.CustomError(http.StatusNotAcceptable, utility.ALREADY_EXIST, nil)
@@ -68,7 +137,11 @@ func CreateBranch(request *dto.CreateBranch, repo repository.Repository, log log
 		}
 	}()
 
-	return nil
+	if err = uw.Commit(tx); err!= nil{
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func GetOrganisations(page int, repo repository.Repository, log log.Logger) (*dto.DataView, *errs.AppError) {

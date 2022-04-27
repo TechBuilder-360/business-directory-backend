@@ -45,12 +45,21 @@ func (r Response) PlainSuccess(code string) Response {
 }
 
 // Error returns error response
-func (r Response) Error(code string) Response {
+func (r Response) Error(message string) Response {
 	message:=GetCodeMsg(code)
-	return Response{
+	return Response {
 		Status: false,
 		Message: message,
 		Code: code,
+	}
+}
+
+// CustomError returns error response
+func (r Response) CustomError(message string) Response {
+	return Response {
+		Status: false,
+		Message: message,
+		Code: "ERR101",
 	}
 }
 

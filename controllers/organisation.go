@@ -5,28 +5,44 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/dto"
 	"github.com/TechBuilder-360/business-directory-backend/services"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
+	logger "github.com/Toflex/oris_log"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
 
+type OrganisationController interface {
+}
+
+type NewOrganisationController struct {
+	Service  services.OrganisationService
+	Logger     logger.Logger
+}
+
+func DefaultOrganisationController(serv services.OrganisationService, log logger.Logger) OrganisationController {
+	return &NewOrganisationController{
+		Service:    serv,
+		Logger:     log,
+	}
+}
+
 // CreateOrganisation @Summary      Add an organisation
 // @Description  add by json organisation
 // @Tags         organisation
 // @Accept       json
 // @Produce      json
-// @Param        default  body	dto.CreateOrgReq  true  "Add add organisation"
+// @Param        default  body	dto.CreateOrgReq  true  "Add organisation"
 // @Success      200      {object}  utility.ResponseObj
 // @Router       /organisation [post]
-func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
+func (c *NewOrganisationController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
 	log := c.Logger.NewContext()
 	log.SetLogID(r.Header.Get("LogID"))
 	log.Info("creating organisation")
 
 	apiResponse := utility.NewResponse()
 	requestData := &dto.CreateOrgReq{}
-	response := &dto.CreateOrgResponse{}
+	response := &dto.Organisation{}
 	err := json.NewDecoder(r.Body).Decode(&requestData)
 	if err != nil {
 		log.Error("Error occurred while parsing the request body, %s", err.Error())
@@ -45,10 +61,10 @@ func (c *NewController) CreateOrganisation(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	response, serviceErr := services.CreateOrganisation(requestData, c.Repo, log)
-	if serviceErr != nil {
-		w.WriteHeader(serviceErr.StatusCode)
-		json.NewEncoder(w).Encode(apiResponse.Error(serviceErr.ResponseCode))
+	response, err = c.Service.CreateOrganisation(requestData, nil, log)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(apiResponse.Error(err.Error()))
 		return
 	}
 

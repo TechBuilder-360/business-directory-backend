@@ -1,27 +1,35 @@
 package repository
 
 import (
-	"context"
 	"github.com/TechBuilder-360/business-directory-backend/models"
-	"github.com/google/uuid"
-	"time"
+	"gorm.io/gorm"
 )
 
-func (r *DefaultRepo) AddActivity(data *models.Activity) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
+//go:generate mockgen -destination=../mocks/repository/activity.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository ActivityRepository
+type ActivityRepository interface {
+	Create(activity *models.Activity) error
+	Get(activity *models.Activity) error
+	WithTx(tx *gorm.DB) ActivityRepository
+}
 
-	activity := &models.Activity{
-		ID:        uuid.New().String(),
-		Message:   data.Message,
-		By:        data.By,
-		For:       data.For,
-		CreatedAt: time.Now().Local(),
-	}
-	_, err := r.Activities.InsertOne(ctx, &activity)
-	if err != nil {
-		return err
-	}
+type DefaultActivityRepo struct {
+	db *gorm.DB
+}
 
-	return nil
+func (r *DefaultActivityRepo) Get(activity *models.Activity) error {
+	panic("implement me")
+}
+
+func (r *DefaultActivityRepo) WithTx(tx *gorm.DB) ActivityRepository {
+	panic("implement me")
+}
+
+func (r *DefaultActivityRepo) Create(activity *models.Activity) error {
+	panic("implement me")
+}
+
+func NewActivityRepository(db *gorm.DB) ActivityRepository {
+	return &DefaultActivityRepo{
+		db: db,
+	}
 }
