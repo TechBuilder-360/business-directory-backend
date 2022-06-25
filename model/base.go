@@ -1,4 +1,4 @@
-package models
+package model
 
 import (
 	"github.com/google/uuid"
@@ -7,8 +7,8 @@ import (
 )
 
 type Base struct {
-	ID        string           `gorm:"primaryKey"`
-	Counter   uint `json:"counter" gorm:"->;type:BIGSERIAL"`
+	ID        string `gorm:"primaryKey"`
+	Counter   uint   `json:"counter" gorm:"->;type:BIGSERIAL"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

@@ -1,83 +1,15 @@
 package utility
 
-
-// Response
-type Response struct {
-	Message string
-	Code string
-	Status bool
+// SuccessResponse ...
+type SuccessResponse struct {
+	Status  bool        `json:"status"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
-// ResponseObj
-type ResponseObj struct {
-	Response
-	Data interface{}
+// ErrorResponse ...
+type ErrorResponse struct {
+	Status  bool        `json:"status"`
+	Message string      `json:"message"`
+	Error   interface{} `json:"error,omitempty"`
 }
-
-// ValidationResponseObj ...
-type ValidationResponseObj struct {
-	Response
-	ValidationMsg string
-}
-
-// Success returns success response with data
-func (r Response) Success(code string, data interface{}) ResponseObj {
-	message:=GetCodeMsg(code)
-	res:=Response{}
-	res.Status= true
-	res.Message= message
-	res.Code= code
-
-	return ResponseObj{
-		Response: res,
-		Data: data,
-	}
-}
-
-//PlainSuccess returns success response without data
-func (r Response) PlainSuccess(code string) Response {
-	message:=GetCodeMsg(code)
-	return Response{
-		Status: true,
-		Message: message,
-		Code: code,
-	}
-}
-
-// Error returns error response
-func (r Response) Error(message string) Response {
-	message:=GetCodeMsg(code)
-	return Response {
-		Status: false,
-		Message: message,
-		Code: code,
-	}
-}
-
-// CustomError returns error response
-func (r Response) CustomError(message string) Response {
-	return Response {
-		Status: false,
-		Message: message,
-		Code: "ERR101",
-	}
-}
-
-// ValidationError return validation error
-func (r Response) ValidationError(code, error string) ValidationResponseObj {
-	message:=GetCodeMsg(code)
-	res:=Response{
-		Status: false,
-		Message: message,
-		Code: code,
-	}
-	return ValidationResponseObj{
-		Response:   res,
-		ValidationMsg: error,
-	}
-}
-
-func NewResponse() Response {
-	return Response{}
-}
-

@@ -2,32 +2,37 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/TechBuilder-360/business-directory-backend/common/consts"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
-	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"net/http"
-
-	logger "github.com/Toflex/oris_log"
 )
 
 type Controller interface {
 	Ping(w http.ResponseWriter, r *http.Request)
+	RegisterRoutes(router *mux.Router)
+}
+
+func (c *NewController) RegisterRoutes(router *mux.Router) {
+	api := router.PathPrefix("").Subrouter()
+
+	api.HandleFunc("/ping", c.Ping)
 }
 
 type NewController struct {
-	Logger     logger.Logger
 }
 
-func DefaultController(log logger.Logger) Controller {
-	return &NewController{
-		Logger:     log,
-	}
+func DefaultController() Controller {
+	return &NewController{}
 }
 
 func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
-	log := c.Logger.NewContext()
-	log.SetLogID(uuid.NewString())
-	apiResponse := utility.NewResponse()
+	log.WithFields(log.Fields{consts.RequestIdentifier: utility.GenerateUUID()})
 
-	json.NewEncoder(w).Encode(apiResponse.PlainSuccess("We are up and running 🚀"))
+	json.NewEncoder(w).Encode(utility.SuccessResponse{
+		Status:  true,
+		Message: "We are up and running 🚀",
+	})
 	return
 }

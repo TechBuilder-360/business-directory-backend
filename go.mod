@@ -10,7 +10,6 @@ require (
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/swag v1.8.0
 	github.com/zenazn/pkcs7pad v0.0.0-20170308005700-253a5b1f0e03
-	go.mongodb.org/mongo-driver v1.8.4
 )
 
 require github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
@@ -26,6 +25,7 @@ require (
 	github.com/jackc/pgx/v4 v4.16.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	gorm.io/driver/postgres v1.3.5 // indirect
 	gorm.io/gorm v1.23.4 // indirect
 )
@@ -34,7 +34,6 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/Toflex/oris_log v0.0.0-20220305122705-bb11021412ac
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect

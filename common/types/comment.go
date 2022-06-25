@@ -1,4 +1,4 @@
-package dto
+package types
 
 type Comment struct {
 	UserId     int    `db:"user_id"`

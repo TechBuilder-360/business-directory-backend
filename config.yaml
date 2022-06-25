@@ -18,12 +18,10 @@ TrustedProxies:
 
 DEBUG: true
 
-MongoDBName: "directory"
+DBNAME: "directory"
+DBUSER: "postgres"
+DBPASS: "postgres"
+DBHOST: "localhost"
+DBPORT: 5432
 
-ClientCol: "Clients"
-OrganCol: "Organisations"
-BranchCol: "Branch"
-UserCol: "Users"
-ActivityCol: "Activities"
-TokenCol: "Token"
 

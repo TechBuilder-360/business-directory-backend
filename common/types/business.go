@@ -1,9 +1,9 @@
-package dto
+package types
 
 type Business struct {
-	BusId		 int	`db:"business_id"`
+	BusId        int `db:"business_id"`
 	BusName      string
-	Services	 []string
+	Services     []string
 	GeoLat       float32
 	GeoLong      float32
 	ShowComments bool

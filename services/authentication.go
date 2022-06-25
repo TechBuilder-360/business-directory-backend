@@ -2,40 +2,39 @@ package services
 
 import (
 	"errors"
+	"github.com/TechBuilder-360/business-directory-backend/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/configs"
-	"github.com/TechBuilder-360/business-directory-backend/dto"
-	"github.com/TechBuilder-360/business-directory-backend/models"
+	"github.com/TechBuilder-360/business-directory-backend/model"
 	"github.com/TechBuilder-360/business-directory-backend/repository"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
-	log "github.com/Toflex/oris_log"
 	"github.com/dgrijalva/jwt-go"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
-
 //go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services UserService
 type AuthService interface {
-	RegisterUser(body *dto.Registration, log log.Logger) (*dto.UserProfile, error)
-	Login(body *dto.AuthRequest, log log.Logger) (*dto.JWTResponse, error)
-	AuthEmail(body *dto.EmailRequest, log log.Logger) error
-	GenerateToken(userID string, log log.Logger) (string, error)
-	ValidateToken(encodedToken string, log log.Logger) (*jwt.Token, error)
+	RegisterUser(body *types.Registration, log *log.Entry) (*types.UserProfile, error)
+	Login(body *types.AuthRequest, log *log.Entry) (*types.JWTResponse, error)
+	AuthEmail(body *types.EmailRequest, log *log.Entry) error
+	GenerateToken(userID string, log *log.Entry) (string, error)
+	ValidateToken(encodedToken string, log *log.Entry) (*jwt.Token, error)
 }
 
 type DefaultAuthService struct {
-	repo repository.AuthRepository
+	repo     repository.AuthRepository
 	userRepo repository.UserRepository
 	activity repository.ActivityRepository
 }
 
-func (d *DefaultAuthService) RegisterUser(body *dto.Registration, log log.Logger) (*dto.UserProfile, error) {
+func (d *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Entry) (*types.UserProfile, error) {
 	panic("implement me")
 }
 
 // Login
 // Handles authentication logic
-func (d *DefaultAuthService) Login(body *dto.AuthRequest, log log.Logger) (*dto.JWTResponse, error) {
-	response := &dto.JWTResponse{}
+func (d *DefaultAuthService) Login(body *types.AuthRequest, log *log.Entry) (*types.JWTResponse, error) {
+	response := &types.JWTResponse{}
 	// Validate user token
 	err := d.repo.IsTokenValid(body)
 	if err != nil {
@@ -43,7 +42,7 @@ func (d *DefaultAuthService) Login(body *dto.AuthRequest, log log.Logger) (*dto.
 		return nil, err
 	}
 
-	user := &models.UserProfile{}
+	user := &model.UserProfile{}
 	user.ID = body.UserId
 	err = d.userRepo.Get(user)
 	if err != nil {
@@ -58,7 +57,7 @@ func (d *DefaultAuthService) Login(body *dto.AuthRequest, log log.Logger) (*dto.
 		return nil, errors.New(utility.SMMERROR)
 	}
 
-	profile := dto.UserProfile{
+	profile := types.UserProfile{
 		ID:            user.ID,
 		FirstName:     user.FirstName,
 		LastName:      user.LastName,
@@ -72,9 +71,9 @@ func (d *DefaultAuthService) Login(body *dto.AuthRequest, log log.Logger) (*dto.
 	response.AccessToken = token
 
 	// Activity log
-	activity := &models.Activity{By: response.Profile.ID, Message: "Successful login"}
+	activity := &model.Activity{By: response.Profile.ID, Message: "Successful login"}
 	go func() {
-		if err := d.activity.Create(activity); err!=nil {
+		if err := d.activity.Create(activity); err != nil {
 			log.Error("User activity failed to log")
 		}
 	}()
@@ -82,13 +81,13 @@ func (d *DefaultAuthService) Login(body *dto.AuthRequest, log log.Logger) (*dto.
 	return response, nil
 }
 
-func (d *DefaultAuthService) AuthEmail(body *dto.EmailRequest, log log.Logger) error {
+func (d *DefaultAuthService) AuthEmail(body *types.EmailRequest, log *log.Entry) error {
 
 	if !utility.ValidateEmail(body.EmailAddress) {
 		return errors.New("invalid email address")
 	}
 
-	User:= &models.UserProfile{}
+	User := &model.UserProfile{}
 	User.EmailAddress = body.EmailAddress
 
 	// Check if email address exist
@@ -102,7 +101,7 @@ func (d *DefaultAuthService) AuthEmail(body *dto.EmailRequest, log log.Logger) e
 		return errors.New(utility.EMAILDOESNOTEXIST)
 	}
 
-	tk := &models.Token{}
+	tk := &model.Token{}
 	tk.UserID = User.ID
 	tk.Token = utility.GenerateNumericToken(6)
 	err = d.repo.CreateToken(tk)
@@ -114,9 +113,9 @@ func (d *DefaultAuthService) AuthEmail(body *dto.EmailRequest, log log.Logger) e
 	// TODO: Send Token to user email
 
 	// Activity log
-	activity := &models.Activity{Message: "Requested for sign in token"}
+	activity := &model.Activity{Message: "Requested for sign in token"}
 	go func() {
-		if err := d.activity.Create(activity); err!=nil {
+		if err := d.activity.Create(activity); err != nil {
 			log.Error("User activity failed to log")
 		}
 	}()
@@ -129,13 +128,13 @@ type authCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func (d *DefaultAuthService) GenerateToken(userId string, log log.Logger) (string, error) {
+func (d *DefaultAuthService) GenerateToken(userId string, log *log.Entry) (string, error) {
 	claims := &authCustomClaims{
 		userId,
 		jwt.StandardClaims{
 			//ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-			Issuer:    configs.Instance.Issuer,
-			IssuedAt:  time.Now().Unix(),
+			Issuer:   configs.Instance.Issuer,
+			IssuedAt: time.Now().Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -149,7 +148,7 @@ func (d *DefaultAuthService) GenerateToken(userId string, log log.Logger) (strin
 	return t, nil
 }
 
-func (d *DefaultAuthService) ValidateToken(encodedToken string, log log.Logger) (*jwt.Token, error) {
+func (d *DefaultAuthService) ValidateToken(encodedToken string, log *log.Entry) (*jwt.Token, error) {
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
 			return nil, errors.New("invalid token")
@@ -158,10 +157,8 @@ func (d *DefaultAuthService) ValidateToken(encodedToken string, log log.Logger) 
 	})
 }
 
-
-func NewAuthService(repo repository.AuthRepository, userRepo repository.UserRepository, activity repository.ActivityRepository) AuthService {
-	return &DefaultAuthService{repo: repo,
-		userRepo: userRepo,
-		activity: activity,
+func NewAuthService() AuthService {
+	return &DefaultAuthService{
+		repo: repository.NewAuthRepository(),
 	}
 }

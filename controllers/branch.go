@@ -2,26 +2,31 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/TechBuilder-360/business-directory-backend/dto"
+	"github.com/TechBuilder-360/business-directory-backend/common/consts"
+	"github.com/TechBuilder-360/business-directory-backend/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/services"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
-	logger "github.com/Toflex/oris_log"
-	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type BranchController interface {
+	CreateBranch(w http.ResponseWriter, r *http.Request)
+	RegisterRoutes(router *mux.Router)
 }
 
 type NewBranchController struct {
-	Service  services.BranchService
-	Logger     logger.Logger
+	Service services.BranchService
 }
 
-func DefaultBranchController(serv services.BranchService, log logger.Logger) BranchController {
+func (c *NewBranchController) RegisterRoutes(router *mux.Router) {
+	_ = router.PathPrefix("/branches").Subrouter()
+}
+
+func DefaultBranchController() BranchController {
 	return &NewBranchController{
-		Service:    serv,
-		Logger:     log,
+		Service: services.NewBranchService(),
 	}
 }
 
@@ -30,42 +35,28 @@ func DefaultBranchController(serv services.BranchService, log logger.Logger) Bra
 // @Tags         branch
 // @Accept       json
 // @Produce      json
-// @Param        default  body	dto.CreateOrgReq  true  "Add branch"
+// @Param        default  body	types.CreateOrgReq  true  "Add branch"
 // @Success      200      {object}  utility.ResponseObj
 // @Router       /organisation [post]
-func (c *NewOrganisationController) CreateBranch(w http.ResponseWriter, r *http.Request) {
-	log := c.Logger.NewContext()
-	log.SetLogID(r.Header.Get("LogID"))
+func (c *NewBranchController) CreateBranch(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utility.GenerateUUID()})
 
-	apiResponse := utility.NewResponse()
-	requestData := &dto.CreateOrgReq{}
-	response := &dto.Organisation{}
-	err := json.NewDecoder(r.Body).Decode(&requestData)
-	if err != nil {
-		log.Error("Error occurred while parsing the request body, %s", err.Error())
-		json.NewEncoder(w).Encode(apiResponse.Error(utility.BAD_REQUEST))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	log.Debug("Request body: %+v", requestData)
+	requestData := &types.CreateOrgReq{}
+	_ = &types.Organisation{}
+	_ = json.NewDecoder(r.Body).Decode(&requestData)
 
-	validationRes := validator.New()
-	if validateErr := validationRes.Struct(requestData); validateErr != nil {
-		validationErrors := validateErr.(validator.ValidationErrors)
-		log.Error("Validation failed on some fields : %+v", validationErrors)
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, validationErrors.Error()))
+	if utility.ValidateStruct(w, requestData, logger) {
 		return
 	}
 
-	response, err = c.Service.CreateOrganisation(requestData, nil, log)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(apiResponse.Error(err.Error()))
-		return
-	}
+	//response, err := nil, nil //c.Service.CreateOrganisation(requestData, nil, logger)
+	//if err != nil {
+	//	w.WriteHeader(http.StatusBadRequest)
+	//	json.NewEncoder(w).Encode(apiResponse.Error(err.Error()))
+	//	return
+	//}
 
-	log.Info("Response body: %+v", response)
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(apiResponse.Success(utility.SYSTEM001, response))
+	//logger.Info("Response body: %+v", response)
+	//w.WriteHeader(http.StatusOK)
+	//json.NewEncoder(w).Encode(apiResponse.Success(utility.SYSTEM001, response))
 }

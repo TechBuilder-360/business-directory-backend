@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/google/uuid"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"io"
@@ -68,4 +69,8 @@ func ValidateEmail(email string) bool {
 
 func CapitalizeFirstCharacter(s string) string {
 	return cases.Title(language.AmericanEnglish, cases.NoLower).String(strings.ToLower(strings.TrimSpace(s)))
+}
+
+func GenerateUUID() string {
+	return uuid.NewString()
 }

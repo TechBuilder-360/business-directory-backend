@@ -2,31 +2,33 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/TechBuilder-360/business-directory-backend/dto"
+	"github.com/TechBuilder-360/business-directory-backend/common/consts"
+	"github.com/TechBuilder-360/business-directory-backend/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/services"
 	"github.com/TechBuilder-360/business-directory-backend/utility"
-	logger "github.com/Toflex/oris_log"
-	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
-
 
 type AuthController interface {
 	RegisterUser(w http.ResponseWriter, r *http.Request)
 	AuthenticateEmail(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
+	RegisterRoutes(router *mux.Router)
 }
 
 type NewAuthController struct {
-	Service  services.AuthService
-	Logger     logger.Logger
+	Service services.AuthService
 }
 
-func DefaultAuthController(serv services.AuthService, log logger.Logger) AuthController {
+func (c *NewAuthController) RegisterRoutes(router *mux.Router) {
+	_ = router.PathPrefix("/auth").Subrouter()
+}
+
+func DefaultAuthController() AuthController {
 	return &NewAuthController{
-		Service:    serv,
-		Logger:     log,
+		Service: services.NewAuthService(),
 	}
 }
 
@@ -35,38 +37,38 @@ func DefaultAuthController(serv services.AuthService, log logger.Logger) AuthCon
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        default  body	dto.EmailRequest  true  "Authenticate existing user"
+// @Param        default  body	types.EmailRequest  true  "Authenticate existing user"
 // @Success      200      {object}  utility.Response
 // @Router       /request-login-token [post]
 func (c *NewAuthController) AuthenticateEmail(w http.ResponseWriter, r *http.Request) {
-	log := c.Logger.NewContext()
-	log.SetLogID(uuid.NewString())
-	log.Info("Verify User email and send login token.")
+	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utility.GenerateUUID()})
+	logger.Info("Verify user email and send login token.")
 
-	apiResponse := utility.NewResponse()
-	requestData := &dto.EmailRequest{}
+	requestData := &types.EmailRequest{}
 
 	json.NewDecoder(r.Body).Decode(requestData)
-	log.Info("Request data: %+v", requestData)
+	logger.Info("Request data: %+v", requestData)
 
-	validationRes := validator.New()
-	if err := validationRes.Struct(requestData); err != nil {
-		validationErrors := err.(validator.ValidationErrors)
-		log.Error("Validation failed on some fields : %+v", validationErrors)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, validationErrors.Error()))
+	if utility.ValidateStruct(w, requestData, logger) {
 		return
 	}
 
-	if err := c.Service.AuthEmail(requestData, log); err != nil {
+	if err := c.Service.AuthEmail(requestData, logger); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Error(err.Error())
-		json.NewEncoder(w).Encode(apiResponse.Error(err.Error()))
+		logger.Error(err.Error())
+		json.NewEncoder(w).Encode(utility.ErrorResponse{
+			Status:  false,
+			Message: "email authentication failed",
+			Error:   err.Error(),
+		})
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(apiResponse.PlainSuccess(utility.SYSTEM001))
+	json.NewEncoder(w).Encode(utility.SuccessResponse{
+		Status:  true,
+		Message: "Successful",
+	})
 
 }
 
@@ -75,41 +77,41 @@ func (c *NewAuthController) AuthenticateEmail(w http.ResponseWriter, r *http.Req
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        default  body	dto.AuthRequest  true  "Login to account"
-// @Success      200      {object}  dto.JWTResponse
+// @Param        default  body	types.AuthRequest  true  "Login to account"
+// @Success      200      {object}  types.JWTResponse
 // @Router       /login [post]
 func (c *NewAuthController) Login(w http.ResponseWriter, r *http.Request) {
-	log := c.Logger.NewContext()
-	log.SetLogID(uuid.NewString())
-	log.Info("Verify User email and send login token.")
+	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utility.GenerateUUID()})
+	logger.Info("Verify User email and send login token.")
 
-	apiResponse := utility.NewResponse()
-	requestData := &dto.AuthRequest{}
-	response := &dto.JWTResponse{}
+	requestData := &types.AuthRequest{}
+	response := &types.JWTResponse{}
 
 	json.NewDecoder(r.Body).Decode(requestData)
-	log.Info("Request data: %+v", requestData)
 
-	validationRes := validator.New()
-	if err := validationRes.Struct(requestData); err != nil {
-		validationErrors := err.(validator.ValidationErrors)
-		log.Error("Validation failed on some fields : %+v", validationErrors)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, validationErrors.Error()))
+	if utility.ValidateStruct(w, requestData, logger) {
 		return
 	}
 
-	response, err:=c.Service.Login(requestData, log)
+	response, err := c.Service.Login(requestData, logger)
 	if err != nil {
-		log.Error(err.Error())
+		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(apiResponse.Error(err.Error()))
+		json.NewEncoder(w).Encode(utility.ErrorResponse{
+			Status:  false,
+			Message: "login failed",
+			Error:   err.Error(),
+		})
 		return
 	}
 
-	log.Info("Response successful")
+	logger.Info("Response successful")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(apiResponse.Success(utility.SYSTEM001, response))
+	json.NewEncoder(w).Encode(utility.SuccessResponse{
+		Status:  true,
+		Message: "Successful",
+		Data:    response,
+	})
 
 }
 
@@ -118,40 +120,39 @@ func (c *NewAuthController) Login(w http.ResponseWriter, r *http.Request) {
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        default  body	dto.Registration  true  "Add a new user"
+// @Param        default  body	types.Registration  true  "Add a new user"
 // @Success      200      {object}  utility.Response
 // @Router       /user-registration [post]
 func (c *NewAuthController) RegisterUser(w http.ResponseWriter, r *http.Request) {
-	log := c.Logger.NewContext()
-	log.SetLogID(r.Header.Get("LogID"))
-	log.Info("Adding User")
+	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utility.GenerateUUID()})
+	logger.Info("Adding User")
 
-	apiResponse := utility.NewResponse()
-	requestData := &dto.Registration{}
+	requestData := &types.Registration{}
 
 	json.NewDecoder(r.Body).Decode(requestData)
-	log.Info("Request data: %+v", requestData)
 
-	validationRes := validator.New()
-	if err := validationRes.Struct(requestData); err != nil {
-		validationErrors := err.(validator.ValidationErrors)
-		log.Error("Validation failed on some fields : %+v", validationErrors)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(apiResponse.ValidationError(utility.VALIDATIONERR, validationErrors.Error()))
+	if utility.ValidateStruct(w, requestData, logger) {
 		return
 	}
 
-	profile, err := c.Service.RegisterUser(requestData, log)
+	profile, err := c.Service.RegisterUser(requestData, logger)
 	if err != nil {
-		log.Error(err.Error())
+		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(apiResponse.CustomError(err.Error()))
+		json.NewEncoder(w).Encode(utility.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+			Error:   err.Error(),
+		})
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(apiResponse.Success(utility.SYSTEM001, profile))
+	json.NewEncoder(w).Encode(utility.SuccessResponse{
+		Status:  true,
+		Message: "Successful",
+		Data:    profile,
+	})
 	return
 
 }
-

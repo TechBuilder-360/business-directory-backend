@@ -43,7 +43,7 @@ const docTemplate_swagger = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.OrganStatus"
+                            "$ref": "#/definitions/types.OrganStatus"
                         }
                     }
                 ],
@@ -76,7 +76,7 @@ const docTemplate_swagger = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateBranch"
+                            "$ref": "#/definitions/types.CreateBranch"
                         }
                     }
                 ],
@@ -108,7 +108,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Organisation"
+                            "$ref": "#/definitions/model.Organisation"
                         }
                     }
                 }
@@ -140,7 +140,7 @@ const docTemplate_swagger = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Branch"
+                                "$ref": "#/definitions/model.Branch"
                             }
                         }
                     }
@@ -167,7 +167,7 @@ const docTemplate_swagger = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Organisation"
+                                "$ref": "#/definitions/model.Organisation"
                             }
                         }
                     }
@@ -193,7 +193,7 @@ const docTemplate_swagger = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.AuthRequest"
+                            "$ref": "#/definitions/types.AuthRequest"
                         }
                     }
                 ],
@@ -201,7 +201,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.JWTResponse"
+                            "$ref": "#/definitions/types.JWTResponse"
                         }
                     }
                 }
@@ -226,7 +226,7 @@ const docTemplate_swagger = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateOrgReq"
+                            "$ref": "#/definitions/types.CreateOrgReq"
                         }
                     }
                 ],
@@ -258,7 +258,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Organisation"
+                            "$ref": "#/definitions/model.Organisation"
                         }
                     }
                 }
@@ -283,7 +283,7 @@ const docTemplate_swagger = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.EmailRequest"
+                            "$ref": "#/definitions/types.EmailRequest"
                         }
                     }
                 ],
@@ -316,7 +316,7 @@ const docTemplate_swagger = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.Registration"
+                            "$ref": "#/definitions/types.Registration"
                         }
                     }
                 ],
@@ -332,7 +332,7 @@ const docTemplate_swagger = `{
         }
     },
     "definitions": {
-        "dto.AuthRequest": {
+        "types.AuthRequest": {
             "type": "object",
             "required": [
                 "email_address",
@@ -347,7 +347,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "dto.CreateBranch": {
+        "types.CreateBranch": {
             "type": "object",
             "required": [
                 "branch_name",
@@ -355,20 +355,20 @@ const docTemplate_swagger = `{
             ],
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/models.Address"
+                    "$ref": "#/definitions/model.Address"
                 },
                 "branch_name": {
                     "type": "string"
                 },
                 "contact": {
-                    "$ref": "#/definitions/models.Contact"
+                    "$ref": "#/definitions/model.Contact"
                 },
                 "organisation_id": {
                     "type": "string"
                 }
             }
         },
-        "dto.CreateOrgReq": {
+        "types.CreateOrgReq": {
             "type": "object",
             "required": [
                 "description",
@@ -391,7 +391,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "dto.EmailRequest": {
+        "types.EmailRequest": {
             "type": "object",
             "required": [
                 "email_address"
@@ -402,18 +402,18 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "dto.JWTResponse": {
+        "types.JWTResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
                     "type": "string"
                 },
                 "profile": {
-                    "$ref": "#/definitions/dto.UserProfile"
+                    "$ref": "#/definitions/types.UserProfile"
                 }
             }
         },
-        "dto.OrganStatus": {
+        "types.OrganStatus": {
             "type": "object",
             "properties": {
                 "active": {
@@ -424,7 +424,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "dto.Registration": {
+        "types.Registration": {
             "type": "object",
             "required": [
                 "email_address",
@@ -449,7 +449,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "dto.UserProfile": {
+        "types.UserProfile": {
             "type": "object",
             "properties": {
                 "display_name": {
@@ -478,7 +478,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "models.Address": {
+        "model.Address": {
             "type": "object",
             "properties": {
                 "city": {
@@ -501,14 +501,14 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "models.Branch": {
+        "model.Branch": {
             "type": "object",
             "properties": {
                 "IsHQ": {
                     "type": "boolean"
                 },
                 "address": {
-                    "$ref": "#/definitions/models.Address"
+                    "$ref": "#/definitions/model.Address"
                 },
                 "admins": {
                     "type": "array",
@@ -520,13 +520,13 @@ const docTemplate_swagger = `{
                     "type": "string"
                 },
                 "contact": {
-                    "$ref": "#/definitions/models.Contact"
+                    "$ref": "#/definitions/model.Contact"
                 },
                 "created_at": {
                     "type": "string"
                 },
                 "geo_location": {
-                    "$ref": "#/definitions/models.Location"
+                    "$ref": "#/definitions/model.Location"
                 },
                 "id": {
                     "type": "string"
@@ -539,7 +539,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "models.Contact": {
+        "model.Contact": {
             "type": "object",
             "properties": {
                 "email": {
@@ -548,12 +548,12 @@ const docTemplate_swagger = `{
                 "phone_numbers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.PhoneDetails"
+                        "$ref": "#/definitions/model.PhoneDetails"
                     }
                 }
             }
         },
-        "models.Location": {
+        "model.Location": {
             "type": "object",
             "properties": {
                 "latitude": {
@@ -564,7 +564,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "models.Organisation": {
+        "model.Organisation": {
             "type": "object",
             "properties": {
                 "active": {
@@ -577,7 +577,7 @@ const docTemplate_swagger = `{
                     }
                 },
                 "contact": {
-                    "$ref": "#/definitions/models.Contact"
+                    "$ref": "#/definitions/model.Contact"
                 },
                 "created_at": {
                     "type": "string"
@@ -595,7 +595,7 @@ const docTemplate_swagger = `{
                     "type": "string"
                 },
                 "geo_location": {
-                    "$ref": "#/definitions/models.Location"
+                    "$ref": "#/definitions/model.Location"
                 },
                 "id": {
                     "type": "string"
@@ -635,7 +635,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "models.PhoneDetails": {
+        "model.PhoneDetails": {
             "type": "object",
             "properties": {
                 "country_code": {

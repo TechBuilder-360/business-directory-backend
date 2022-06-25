@@ -1,4 +1,4 @@
-package models
+package model
 
 //
 //import (
@@ -9,7 +9,7 @@ package models
 //	"zuri.chat/zccore/utils"
 //)
 //
-//const (
+//consts (
 //	OrganisationCollectionName       = "organisations"
 //	TokenTransactionCollectionName   = "token_transaction"
 //	InstalledPluginsCollectionName   = "installed_plugins"
@@ -20,7 +20,7 @@ package models
 //	PluginCollectionName             = "plugins"
 //)
 //
-//const (
+//consts (
 //	CreateOrganisationMember              = "CreateOrganisationMember"
 //	UpdateOrganisationName                = "UpdateOrganisationName"
 //	UpdateOrganisationMemberPic           = "UpdateOrganisationMemberPic"
@@ -38,7 +38,7 @@ package models
 //	UpdateOrganisationMemberFiles         = "UpdateOrganisationMemberFiles"
 //)
 //
-//const (
+//consts (
 //	OwnerRole  = "owner"
 //	AdminRole  = "admin"
 //	EditorRole = "editor"
@@ -55,20 +55,20 @@ package models
 //	GuestRole:  GuestRole,
 //}
 //
-//const (
+//consts (
 //	FreeVersion = "free"
 //	ProVersion  = "pro"
 //)
 //
-//const ProSubscriptionRate = 10
-//const StatusHistoryLimit = 6
+//consts ProSubscriptionRate = 10
+//consts StatusHistoryLimit = 6
 //
 //var ExpiryTime = make(chan int64, 1)
 //var ClearOld = make(chan bool, 1)
 //
 //var RequestData = make(map[string]string)
 //
-//const (
+//consts (
 //	logoWidth   = 111
 //	logoHeight  = 74
 //	imageWidth  = 170
@@ -179,7 +179,7 @@ package models
 //	Title string `json:"title" bson:"title"`
 //}
 //
-//const (
+//consts (
 //	DontClear  = "dont_clear"
 //	ThirtyMins = "thirty_mins"
 //	OneHr      = "one_hour"
@@ -360,7 +360,7 @@ package models
 //	Colors string `json:"colors"`
 //}
 //
-//const (
+//consts (
 //	ThemeClean   = "clean"
 //	ThemeCompact = "compact"
 //	NameFull     = "full & display names"
@@ -428,7 +428,7 @@ package models
 //	LanguagesZuriShouldSpellCheck []string `json:"languages_zuri_should_spell_check" bson:"languages_zuri_should_spell_check"`
 //}
 //
-//const (
+//consts (
 //	FocusOnLastMessage = "focus_on_last_message"
 //	EditLastMessage    = "edit_last_message"
 //)
@@ -469,7 +469,7 @@ package models
 //	WarnAgainstFiles  bool `json:"warn_against_files" bson:"warn_against_files"`
 //}
 //
-//const (
+//consts (
 //	SendMessage  = "send_message"
 //	StartNewLine = "start_new_line"
 //)
