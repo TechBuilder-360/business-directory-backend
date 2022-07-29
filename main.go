@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/TechBuilder-360/business-directory-backend/configs"
 	"github.com/TechBuilder-360/business-directory-backend/docs"
+	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
+	"github.com/TechBuilder-360/business-directory-backend/internal/database"
+	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
 	"github.com/TechBuilder-360/business-directory-backend/routers"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -42,18 +44,24 @@ func init() {
 }
 
 func main() {
-	configs.Configuration()
+	configs.Load()
 
 	// Generate swagger doc information
 	documentation()
+
+	// set up redis DB
+	redis.NewClient(configs.Instance.RedisURL, configs.Instance.RedisPassword, configs.Instance.Namespace)
 
 	// Set up the routes
 	router := mux.NewRouter()
 	routers.SetupRoutes(router)
 
+	// migrate db models
+	database.DBMigration()
+
 	// Start the server
-	log.Info("Server started on port %s", configs.Instance.Port)
-	err := http.ListenAndServe(fmt.Sprintf(":%s", configs.Instance.Port), router)
+	log.Info("Server started on port %s", configs.Instance.Host)
+	err := http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
 	if err != nil {
 		return
 	}
@@ -64,7 +72,7 @@ func documentation() {
 	docs.SwaggerInfo_swagger.Title = "Business directory API"
 	docs.SwaggerInfo_swagger.Description = "This is the API for business directory api."
 	docs.SwaggerInfo_swagger.Version = "1.0"
-	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s:%s", configs.Instance.Host, configs.Instance.Port)
+	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s", configs.Instance.Host)
 	docs.SwaggerInfo_swagger.BasePath = fmt.Sprintf("/%s/api/v1", configs.Instance.URLPrefix)
 	docs.SwaggerInfo_swagger.Schemes = []string{"http", "https"}
 }

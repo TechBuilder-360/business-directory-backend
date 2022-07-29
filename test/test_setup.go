@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend/controllers"
+	"github.com/TechBuilder-360/business-directory-backend/internal/controllers"
 	"github.com/gorilla/mux"
 )
 

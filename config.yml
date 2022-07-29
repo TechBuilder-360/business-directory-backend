@@ -1,0 +1,37 @@
+AppName: "Business Directory"
+
+Namespace: "directory"
+
+URLPrefix: "directory"
+
+Host: "localhost"
+
+Port: "8000"
+
+# x minutes
+TOKENLIFESPAN: 15
+
+AllowedOrigin:
+  - "http://localhost:8000"
+  - "http://localhost:4001"
+
+TrustedProxies:
+  - "192.168.1.2"
+
+DEBUG: true
+
+DBNAME: "directory"
+DBUSER: "postgres"
+DBPASS: "postgres"
+DBHOST: "localhost"
+DBPORT: 5432
+
+RedisURL: ${REDIS_URL}
+RedisPassword: ${REDIS_PASSWORD}
+
+RapidAPIKey: "c4f90b0732msh3cd29e42403ec86p1fbccfjsn1342a9de4353"
+RapidAPIHost: "rapidprod-sendgrid-v1.p.rapidapi.com"
+RapidAPIBaseURL: "https://rapidprod-sendgrid-v1.p.rapidapi.com"
+
+
+
