@@ -2,16 +2,15 @@ package model
 
 import (
 	"github.com/google/uuid"
-	"time"
 )
 
 // Activity ...
 type Activity struct {
-	ID        string    `bson:"_id"`
-	Message   string    `bson:"message"`
-	By        string    `bson:"by"`
-	For       string    `bson:"For"`
-	CreatedAt time.Time `bson:"createdAt"`
+	Base
+
+	Message string
+	By      string
+	For     string
 }
 
 type Notification struct {

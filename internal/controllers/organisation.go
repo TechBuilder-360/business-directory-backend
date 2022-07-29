@@ -22,7 +22,9 @@ type NewOrganisationController struct {
 }
 
 func (c *NewOrganisationController) RegisterRoutes(router *mux.Router) {
-	_ = router.PathPrefix("/organisations").Subrouter()
+	org := router.PathPrefix("/organisations").Subrouter()
+
+	org.HandleFunc("/:id", c.CreateOrganisation)
 }
 
 func DefaultOrganisationController() OrganisationController {

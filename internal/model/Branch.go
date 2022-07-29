@@ -8,5 +8,4 @@ type Branch struct {
 	IsHQ           bool   `gorm:"column:IsHQ"`
 	Address
 	Location
-	Contact
 }

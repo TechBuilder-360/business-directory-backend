@@ -1,5 +1,5 @@
 package types
 
-type ENVIRONMENT string
-
-type ()
+type (
+	ENVIRONMENT string
+)

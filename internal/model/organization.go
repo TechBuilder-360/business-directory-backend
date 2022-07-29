@@ -26,7 +26,7 @@ type Organisation struct {
 	OrganisationSize   *string
 	Description        string
 	RegistrationNumber *string
-	FoundingDate       time.Time
+	FoundingDate       string
 	Active             bool
 	ExpiryDate         time.Time
 	PublicKey          string

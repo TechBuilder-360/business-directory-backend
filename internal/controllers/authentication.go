@@ -54,7 +54,7 @@ func (c *NewAuthController) AuthenticateEmail(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := c.Service.AuthEmail(requestData, logger); err != nil {
+	if err := c.Service.AuthEmail(requestData); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		logger.Error(err.Error())
 		json.NewEncoder(w).Encode(utils.ErrorResponse{
@@ -94,7 +94,7 @@ func (c *NewAuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := c.Service.Login(requestData, logger)
+	response, err := c.Service.Login(requestData)
 	if err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
