@@ -31,7 +31,12 @@ type Config struct {
 	RedisURL      string `env:"REDIS_URL"`
 	RedisPassword string `env:"REDIS_PASSWORD"`
 
+	RapidAPIKey string `env:"RAPID_API_KEY"`
+	RapidAPIHost string `env:"RAPID_API_HOST"`
+	RapidAPIBaseURL string `env:"RAPID_API_BASE_URL"`
+
 	SendGridAPIKey string `env:"SENDGRID_API_KEY"`
+	AppMail       string `env:"APP_MAIL"`
 }
 
 func Load() {

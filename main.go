@@ -10,9 +10,9 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
-	"net/http"
+	// "net/http"
 	"os"
-	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
+	"github.com/TechBuilder-360/business-directory-backend/internal/infrastructure/sendgrid"
 )
 
 // @title           Business directory API
@@ -47,7 +47,7 @@ func init() {
 func main() {
 
 
-	res,err:= utils.SendMail("Activate your account","folayanshola@gmail.com","<h2 style='color:red;'> hello there</h2>","folayan adesola")
+	res,err:= sendgrid.SendMail("Activate your account","folayanshola@gmail.com","<h2 style='color:red;'> hello there</h2>","folayan adesola")
 	if err!=nil{
 		  log.Error("Error occurred when sending activation email. %s", err.Error())
 		  return 
@@ -72,7 +72,7 @@ func main() {
 
 	// // Start the server
 	 log.Info("Server started on port %s", configs.Instance.Host)
-	 err:= http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
+	//  err:= http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
 	 if err != nil {
 	 	return
 	 }

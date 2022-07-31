@@ -5,7 +5,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	
 
 	"io"
 	"io/ioutil"
@@ -14,11 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/google/uuid"
-	"github.com/sendgrid/rest"
-	"github.com/sendgrid/sendgrid-go"
-	m "github.com/sendgrid/sendgrid-go/helpers/mail"
+
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -81,21 +77,4 @@ func CapitalizeFirstCharacter(s string) string {
 
 func GenerateUUID() string {
 	return uuid.NewString()
-}
-
-func SendMail(subjectTop string, toMail string, bodyHtml string, toName string) (*rest.Response, error) {
-	from := m.NewEmail("TechBuilder Developer", "tech.builder.circle@gmail.com")
-	subject := subjectTop
-	to := m.NewEmail(toName, toMail)
-	htmlContent := bodyHtml
-	message := m.NewSingleEmail(from, subject, to,"", htmlContent)
-	client := sendgrid.NewSendClient(configs.Instance.SendGridAPIKey)
-	res,err := client.Send(message)
-	if err != nil {
-		
-		return res , err
-	} else {
-	
-		return res, nil
-	}
 }
