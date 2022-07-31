@@ -12,6 +12,7 @@ import (
 	_ "github.com/swaggo/files"
 	"net/http"
 	"os"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 )
 
 // @title           Business directory API
@@ -44,27 +45,37 @@ func init() {
 }
 
 func main() {
-	configs.Load()
 
-	// Generate swagger doc information
-	documentation()
 
-	// set up redis DB
-	redis.NewClient(configs.Instance.RedisURL, configs.Instance.RedisPassword, configs.Instance.Namespace)
+	res,err:= utils.SendMail("Activate your account","folayanshola@gmail.com","<h2 style='color:red;'> hello there</h2>","folayan adesola")
+	if err!=nil{
+		  log.Error("Error occurred when sending activation email. %s", err.Error())
+		  return 
+	}else{
+		log.Println(res.Body)
+  return 
+	}
+	 configs.Load()
 
-	// Set up the routes
+	// // Generate swagger doc information
+	 documentation()
+
+	// // set up redis DB
+	 redis.NewClient(configs.Instance.RedisURL, configs.Instance.RedisPassword, configs.Instance.Namespace)
+
+	// // Set up the routes
 	router := mux.NewRouter()
 	routers.SetupRoutes(router)
 
-	// migrate db models
-	database.DBMigration()
+	// // migrate db models
+	 database.DBMigration()
 
-	// Start the server
-	log.Info("Server started on port %s", configs.Instance.Host)
-	err := http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
-	if err != nil {
-		return
-	}
+	// // Start the server
+	 log.Info("Server started on port %s", configs.Instance.Host)
+	 err:= http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
+	 if err != nil {
+	 	return
+	 }
 }
 
 func documentation() {

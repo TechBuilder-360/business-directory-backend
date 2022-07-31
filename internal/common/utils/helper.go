@@ -5,14 +5,22 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/google/uuid"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
+	
+
 	"io"
 	"io/ioutil"
+
 	"net/mail"
 	"strings"
 	"time"
+
+	// "github.com/TechBuilder-360/business-directory-backend/internal/configs"
+	"github.com/google/uuid"
+	"github.com/sendgrid/rest"
+	"github.com/sendgrid/sendgrid-go"
+	m "github.com/sendgrid/sendgrid-go/helpers/mail"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // ExtractRequestBody returns body and body reader
@@ -73,4 +81,21 @@ func CapitalizeFirstCharacter(s string) string {
 
 func GenerateUUID() string {
 	return uuid.NewString()
+}
+
+func SendMail(subjectTop string, toMail string, bodyHtml string, toName string) (*rest.Response, error) {
+	from := m.NewEmail("TechBuilder Developer", "tech.builder.circle@gmail.com")
+	subject := subjectTop
+	to := m.NewEmail(toName, toMail)
+	htmlContent := bodyHtml
+	message := m.NewSingleEmail(from, subject, to,"", htmlContent)
+	client := sendgrid.NewSendClient("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")
+	res,err := client.Send(message)
+	if err != nil {
+		
+		return res , err
+	} else {
+	
+		return res, nil
+	}
 }

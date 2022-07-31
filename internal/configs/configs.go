@@ -21,7 +21,7 @@ type Config struct {
 	Secret        string            `env:"SECRET"`
 	URLPrefix     string            `env:"ISSUER"`
 	TOKENLIFESPAN uint              `env:"TOKEN_LIFE_SPAN"`
-
+        
 	DbName string `env:"DB_NAME"`
 	DbUser string `env:"DB_USER"`
 	DbPass string `env:"DB_PASS"`
@@ -30,6 +30,8 @@ type Config struct {
 
 	RedisURL      string `env:"REDIS_URL"`
 	RedisPassword string `env:"REDIS_PASSWORD"`
+
+	SendGridAPIKey string `env:"SENDGRID_API_KEY"`
 }
 
 func Load() {
