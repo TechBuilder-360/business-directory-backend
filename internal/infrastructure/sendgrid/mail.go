@@ -33,7 +33,7 @@ func Send(ctx context.Context, body string) error {
 }
 
 func SendMail(subjectTop string, toMail string, bodyHtml string, toName string) (*rest.Response, error) {
-	from := m.NewEmail("TechBuilder Developer", configs.Instance.AppMail)
+	from := m.NewEmail("TechBuilder Developer", configs.Instance.SendGridFromEmail)
 	subject := subjectTop
 	to := m.NewEmail(toName, toMail)
 	htmlContent := bodyHtml

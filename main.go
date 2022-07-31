@@ -12,7 +12,7 @@ import (
 	_ "github.com/swaggo/files"
 	// "net/http"
 	"os"
-	"github.com/TechBuilder-360/business-directory-backend/internal/infrastructure/sendgrid"
+	
 )
 
 // @title           Business directory API
@@ -45,16 +45,6 @@ func init() {
 }
 
 func main() {
-
-
-	res,err:= sendgrid.SendMail("Activate your account","folayanshola@gmail.com","<h2 style='color:red;'> hello there</h2>","folayan adesola")
-	if err!=nil{
-		  log.Error("Error occurred when sending activation email. %s", err.Error())
-		  return 
-	}else{
-		log.Println(res.Body)
-  return 
-	}
 	 configs.Load()
 
 	// // Generate swagger doc information

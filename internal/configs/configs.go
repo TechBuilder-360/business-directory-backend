@@ -36,7 +36,7 @@ type Config struct {
 	RapidAPIBaseURL string `env:"RAPID_API_BASE_URL"`
 
 	SendGridAPIKey string `env:"SENDGRID_API_KEY"`
-	AppMail       string `env:"APP_MAIL"`
+	SendGridFromEmail       string `env:"SendGridFromEmail"`
 }
 
 func Load() {
