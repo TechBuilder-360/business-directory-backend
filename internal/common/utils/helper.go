@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	// "github.com/TechBuilder-360/business-directory-backend/internal/configs"
+	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/google/uuid"
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
@@ -89,7 +89,7 @@ func SendMail(subjectTop string, toMail string, bodyHtml string, toName string) 
 	to := m.NewEmail(toName, toMail)
 	htmlContent := bodyHtml
 	message := m.NewSingleEmail(from, subject, to,"", htmlContent)
-	client := sendgrid.NewSendClient("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")
+	client := sendgrid.NewSendClient(configs.Instance.SendGridAPIKey)
 	res,err := client.Send(message)
 	if err != nil {
 		
