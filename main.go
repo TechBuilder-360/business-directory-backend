@@ -10,9 +10,10 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
+	"net/http"
+
 	// "net/http"
 	"os"
-	
 )
 
 // @title           Business directory API
@@ -45,27 +46,27 @@ func init() {
 }
 
 func main() {
-	 configs.Load()
+	configs.Load()
 
 	// // Generate swagger doc information
-	 documentation()
+	documentation()
 
 	// // set up redis DB
-	 redis.NewClient(configs.Instance.RedisURL, configs.Instance.RedisPassword, configs.Instance.Namespace)
+	redis.NewClient(configs.Instance.RedisURL, configs.Instance.RedisPassword, configs.Instance.Namespace)
 
 	// // Set up the routes
 	router := mux.NewRouter()
 	routers.SetupRoutes(router)
 
 	// // migrate db models
-	 database.DBMigration()
+	database.DBMigration()
 
 	// // Start the server
-	 log.Info("Server started on port %s", configs.Instance.Host)
-	//  err:= http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
-	 if err != nil {
-	 	return
-	 }
+	log.Info("Server started on port %s", configs.Instance.Host)
+	err := http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
+	if err != nil {
+		return
+	}
 }
 
 func documentation() {
