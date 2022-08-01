@@ -5,14 +5,18 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/google/uuid"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
+
 	"io"
 	"io/ioutil"
+
 	"net/mail"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // ExtractRequestBody returns body and body reader

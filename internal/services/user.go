@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
+	"github.com/TechBuilder-360/business-directory-backend/internal/infrastructure/sendgrid"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
 	log "github.com/sirupsen/logrus"
@@ -67,6 +68,10 @@ func (u *DefaultUserService) RegisterUser(body *types.Registration, log log.Entr
 	}()
 
 	// TODO: Send Activate email
-
+	err = sendgrid.SendMail("Activate your account", body.EmailAddress, "", body.DisplayName)
+	if err != nil {
+		log.Error("Error occurred when sending activation email. %s", err.Error())
+		return nil, err
+	}
 	return profile, nil
 }
