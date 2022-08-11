@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
+	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,6 +18,14 @@ func ConnectDB() *gorm.DB {
 	return db
 }
 
-func DBMigration() {
+func DBMigration(db *gorm.DB) error {
+	err := db.AutoMigrate(
+		model.User{},
+		model.Organisation{},
+		model.OrganisationService{},
+		model.OrganisationProduct{},
+		model.OrganisationMember{},
+	)
 
+	return err
 }

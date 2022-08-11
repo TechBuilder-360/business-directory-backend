@@ -123,14 +123,22 @@ func (c *NewAuthController) Login(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        default  body	types.Registration  true  "Add a new user"
 // @Success      200      {object}  utils.Response
-// @Router       /user-registration [post]
+// @Router       /registration [post]
 func (c *NewAuthController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Adding User")
 
 	requestData := &types.Registration{}
 
-	json.NewDecoder(r.Body).Decode(requestData)
+	if err := json.NewDecoder(r.Body).Decode(requestData); err != nil {
+		logger.Error(err.Error())
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: "Invalid request",
+			Error:   err.Error(),
+		})
+		return
+	}
 
 	if validation.ValidateStruct(w, requestData, logger) {
 		return

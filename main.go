@@ -42,7 +42,7 @@ func init() {
 	log.SetOutput(os.Stdout)
 
 	// Only log the warning severity or above.
-	log.SetLevel(log.WarnLevel)
+	log.SetLevel(log.InfoLevel)
 }
 
 func main() {
@@ -58,12 +58,16 @@ func main() {
 	router := mux.NewRouter()
 	routers.SetupRoutes(router)
 
-	// // migrate db models
-	database.DBMigration()
+	dbConnection := database.ConnectDB()
+	// migrate db models
+	err := database.DBMigration(dbConnection)
+	if err != nil {
+		panic(fmt.Sprintf("Migration Failed: %s", err.Error()))
+	}
 
-	// // Start the server
-	log.Info("Server started on port %s", configs.Instance.Host)
-	err := http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
+	// Start the server
+	log.Info("Server started on port ", configs.Instance.Host)
+	err = http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.Host), router)
 	if err != nil {
 		return
 	}

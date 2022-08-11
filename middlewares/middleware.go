@@ -251,3 +251,28 @@ func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
 //		controller(w, r)
 //	})
 //}
+
+func Recovery(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		//defer func() {
+		//	err := recover()
+		//	if err != nil {
+		//		log.Error(err) // May be log this error? Send to sentry?
+		//
+		//		jsonBody, _ := json.Marshal(utils.ErrorResponse{
+		//			Status:  false,
+		//			Message: "internal server error",
+		//		})
+		//
+		//		w.Header().Set("Content-Type", "application/json")
+		//		w.WriteHeader(http.StatusInternalServerError)
+		//		w.Write(jsonBody)
+		//	}
+		//
+		//}()
+
+		next.ServeHTTP(w, r)
+
+	})
+}
