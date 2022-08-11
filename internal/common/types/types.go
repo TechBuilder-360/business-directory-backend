@@ -1,5 +1,4 @@
 package types
 
-type (
-	ENVIRONMENT string
-)
+type ENVIRONMENT string
+type OrganisationSize string

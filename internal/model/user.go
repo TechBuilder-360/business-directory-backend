@@ -15,6 +15,4 @@ type User struct {
 	PhoneNumber   string     `json:"phone_number"`
 	EmailVerified bool       `json:"email_verified"`
 	LastLogin     *time.Time `json:"last_login"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
 }

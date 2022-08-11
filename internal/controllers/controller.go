@@ -30,6 +30,7 @@ func DefaultController() Controller {
 func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
 		Message: "We are up and running 🚀",

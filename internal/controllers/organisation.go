@@ -1,12 +1,9 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/consts"
-	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/services"
-	"github.com/TechBuilder-360/business-directory-backend/internal/validation"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -24,7 +21,7 @@ type NewOrganisationController struct {
 func (c *NewOrganisationController) RegisterRoutes(router *mux.Router) {
 	org := router.PathPrefix("/organisations").Subrouter()
 
-	org.HandleFunc("/:id", c.CreateOrganisation)
+	org.HandleFunc("/{id}", c.CreateOrganisation)
 }
 
 func DefaultOrganisationController() OrganisationController {
@@ -42,34 +39,35 @@ func DefaultOrganisationController() OrganisationController {
 // @Success      200      {object}  utils.ResponseObj
 // @Router       /organisation [post]
 func (c *NewOrganisationController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
-	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
-	logger.Info("creating organisation")
+	panic("not implemented")
+	//logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
+	//logger.Info("creating organisation")
+	//
+	//requestData := &types.CreateOrgReq{}
+	//response := &types.Organisation{}
+	//_ = json.NewDecoder(r.Body).Decode(&requestData)
+	//
+	//if validation.ValidateStruct(w, requestData, logger) {
+	//	return
+	//}
 
-	requestData := &types.CreateOrgReq{}
-	response := &types.Organisation{}
-	_ = json.NewDecoder(r.Body).Decode(&requestData)
-
-	if validation.ValidateStruct(w, requestData, logger) {
-		return
-	}
-
-	response, err := c.Service.CreateOrganisation(requestData, nil, logger)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ErrorResponse{
-			Status:  false,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	logger.Info("Response body: %+v", response)
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(utils.SuccessResponse{
-		Status:  true,
-		Message: "Successful",
-		Data:    response,
-	})
+	//response, err := c.Service.CreateOrganisation(requestData, nil, logger)
+	//if err != nil {
+	//	w.WriteHeader(http.StatusBadRequest)
+	//	json.NewEncoder(w).Encode(utils.ErrorResponse{
+	//		Status:  false,
+	//		Message: err.Error(),
+	//	})
+	//	return
+	//}
+	//
+	//logger.Info("Response body: %+v", response)
+	//w.WriteHeader(http.StatusOK)
+	//json.NewEncoder(w).Encode(utils.SuccessResponse{
+	//	Status:  true,
+	//	Message: "Successful",
+	//	Data:    response,
+	//})
 }
 
 // GetOrganisations @Summary      Get list of organisation

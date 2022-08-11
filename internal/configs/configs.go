@@ -21,7 +21,7 @@ type Config struct {
 	Secret        string            `env:"SECRET"`
 	URLPrefix     string            `env:"ISSUER"`
 	TOKENLIFESPAN uint              `env:"TOKEN_LIFE_SPAN"`
-        
+
 	DbName string `env:"DB_NAME"`
 	DbUser string `env:"DB_USER"`
 	DbPass string `env:"DB_PASS"`
@@ -31,12 +31,8 @@ type Config struct {
 	RedisURL      string `env:"REDIS_URL"`
 	RedisPassword string `env:"REDIS_PASSWORD"`
 
-	RapidAPIKey string `env:"RAPID_API_KEY"`
-	RapidAPIHost string `env:"RAPID_API_HOST"`
-	RapidAPIBaseURL string `env:"RAPID_API_BASE_URL"`
-
-	SendGridAPIKey string `env:"SENDGRID_API_KEY"`
-	SendGridFromEmail       string `env:"SEND_GRID_FROM_EMAIL"`
+	SendGridAPIKey    string `env:"SENDGRID_API_KEY"`
+	SendGridFromEmail string `env:"SEND_GRID_FROM_EMAIL"`
 }
 
 func Load() {
