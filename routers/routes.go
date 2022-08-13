@@ -11,7 +11,7 @@ func SetupRoutes(router *mux.Router) {
 	var (
 		organisationController = controllers.DefaultOrganisationController()
 		branchController       = controllers.DefaultBranchController()
-		controller             = controllers.DefaultController()
+		controller             = controllers.DefaultAuthController()
 	)
 
 	router.Use(middlewares.Recovery)

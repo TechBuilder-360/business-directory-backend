@@ -11,7 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
 	"net/http"
-
 	// "net/http"
 	"os"
 )
@@ -53,17 +52,15 @@ func main() {
 
 	// // set up redis DB
 	redis.NewClient(configs.Instance.RedisURL, configs.Instance.RedisPassword, configs.Instance.Namespace)
-
-	// // Set up the routes
-	router := mux.NewRouter()
-	routers.SetupRoutes(router)
-
 	dbConnection := database.ConnectDB()
 	// migrate db models
 	err := database.DBMigration(dbConnection)
 	if err != nil {
 		panic(fmt.Sprintf("Migration Failed: %s", err.Error()))
 	}
+	// // Set up the routes
+	router := mux.NewRouter()
+	routers.SetupRoutes(router)
 
 	// Start the server
 	log.Info("Server started on port ", configs.Instance.Host)

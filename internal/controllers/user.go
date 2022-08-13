@@ -15,6 +15,7 @@ type NewUserController struct {
 
 func (n NewUserController) RegisterRoutes(router *mux.Router) {
 	_ = router.PathPrefix("/users").Subrouter()
+
 }
 
 func DefaultUserController() UserController {

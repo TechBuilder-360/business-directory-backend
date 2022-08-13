@@ -1,29 +1,79 @@
 package repository
 
 import (
+	"context"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
+	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"gorm.io/gorm"
+	"strings"
 )
 
 //go:generate mockgen -destination=../mocks/repository/auth.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository AuthRepository
 type AuthRepository interface {
-	IsTokenValid(body *types.AuthRequest) error
+	IsTokenValid(redis *redis.Client, body *types.AuthRequest) (bool, error)
 	CreateToken(token *model.Token) error
+	DoesUserEmailExist(string) bool
+	GetByEmail(email string) (*model.User, error)
 	WithTx(tx *gorm.DB) AuthRepository
+	Create(user *model.User) error
+	Activate(email string) error
+	Get(email string) (*model.User, error)
 }
 
 type DefaultAuthRepo struct {
 	db *gorm.DB
 }
 
+// Get returns user profile
+func (r *DefaultAuthRepo) Get(email string) (*model.User, error) {
+	user := &model.User{}
+	result := r.db.Where("email_address = ?", email).First(&user)
+	if result.Error != nil {
+		return user, result.Error
+	}
+	return user, nil
+}
+
+func (r *DefaultAuthRepo) Activate(email string) error {
+	return r.db.Model(&model.User{}).Where(" email= ?", email).Update("email_verified", true).Error
+}
+func (r *DefaultAuthRepo) GetByEmail(email string) (*model.User, error) {
+	user := &model.User{}
+	result := r.db.Where("email_address = ?", email).First(&user)
+	if result.Error != nil {
+		return user, result.Error
+	}
+	return user, nil
+}
+func (r *DefaultAuthRepo) DoesUserEmailExist(email string) bool {
+	user := &model.User{}
+	result := r.db.Where("email_address = ?", email).First(&user)
+	if result.Error != nil {
+		return false
+	}
+	return true
+}
+
 func (r *DefaultAuthRepo) CreateToken(token *model.Token) error {
 	panic("implement me")
 }
 
-func (r *DefaultAuthRepo) IsTokenValid(body *types.AuthRequest) error {
-	panic("implement me")
+func (r *DefaultAuthRepo) IsTokenValid(redis *redis.Client, body *types.AuthRequest) (bool, error) {
+	token, err := redis.Get(strings.ToLower(body.EmailAddress))
+	if err != nil {
+		return false, err
+	}
+	if token == body.Token {
+		return true, nil
+	} else {
+		return false, nil
+	}
+
+}
+func (r *DefaultAuthRepo) Create(user *model.User) error {
+	return r.db.WithContext(context.Background()).Create(user).Error
 }
 
 func NewAuthRepository() AuthRepository {
