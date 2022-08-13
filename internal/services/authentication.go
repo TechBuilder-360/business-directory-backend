@@ -18,7 +18,7 @@ import (
 //go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services UserService
 type AuthService interface {
 	RegisterUser(body *types.Registration, log *log.Entry) (string, error)
-	ActivateEmail(email string, log *log.Entry) (string, error)
+	ActivateEmail(token string, email string, log *log.Entry) (string, error)
 	Login(body *types.AuthRequest) (*types.JWTResponse, error)
 	AuthEmail(body *types.EmailRequest) (string, *model.User, error)
 	GenerateToken(userID string) (string, error)
@@ -33,14 +33,24 @@ type DefaultAuthService struct {
 	redis    *redis.Client
 }
 
-func (u *DefaultAuthService) ActivateEmail(email string, log *log.Entry) (string, error) {
+func (d *DefaultAuthService) ActivateEmail(token string, email string, log *log.Entry) (string, error) {
 
 	// Update with conditions
-	if err := u.repo.Activate(email); err != nil {
-		log.Error("An Error occurred while Activating your account, Please try again. %s", err.Error())
+	body := &types.AuthRequest{
+		EmailAddress: email,
+		Token:        token,
+	}
+	ok, err := d.repo.IsTokenValid(d.redis, body)
+	if err != nil {
+		log.Error("An Error occurred when validating login token. %s", err.Error())
 		return "", err
 	}
-
+	if ok {
+		if err := d.repo.Activate(email); err != nil {
+			log.Error("An Error occurred while Activating your account, Please try again. %s", err.Error())
+			return "", err
+		}
+	}
 	return " Your account has been activated, Please proceed to login", nil
 }
 func (u *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Entry) (string, error) {
