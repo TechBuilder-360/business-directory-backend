@@ -5,6 +5,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/middlewares"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
+	"github.com/swaggo/http-swagger"
 )
 
 func SetupRoutes(router *mux.Router) {
@@ -30,6 +31,8 @@ func SetupRoutes(router *mux.Router) {
 	//******* BRANCH **********************
 	//*************************************
 	branchController.RegisterRoutes(router)
+
+	router.PathPrefix("/documentation/").Handler(httpSwagger.WrapHandler)
 
 	log.Info("Routes have been initialized")
 }

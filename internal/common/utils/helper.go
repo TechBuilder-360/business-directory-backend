@@ -71,6 +71,10 @@ func ValidateEmail(email string) bool {
 	return err == nil
 }
 
+func ToLower(text string) string {
+	return strings.ToLower(text)
+}
+
 func CapitalizeFirstCharacter(s string) string {
 	return cases.Title(language.AmericanEnglish, cases.NoLower).String(strings.ToLower(strings.TrimSpace(s)))
 }

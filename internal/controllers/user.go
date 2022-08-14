@@ -9,17 +9,17 @@ type UserController interface {
 	RegisterRoutes(router *mux.Router)
 }
 
-type NewUserController struct {
+type userController struct {
 	Service services.UserService
 }
 
-func (n NewUserController) RegisterRoutes(router *mux.Router) {
+func (n userController) RegisterRoutes(router *mux.Router) {
 	_ = router.PathPrefix("/users").Subrouter()
 
 }
 
 func DefaultUserController() UserController {
-	return &NewUserController{
+	return &userController{
 		Service: services.NewUserService(),
 	}
 }

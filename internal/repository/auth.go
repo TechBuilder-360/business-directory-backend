@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
@@ -14,7 +15,7 @@ import (
 type AuthRepository interface {
 	IsTokenValid(redis *redis.Client, body *types.AuthRequest) (bool, error)
 	CreateToken(token *model.Token) error
-	DoesUserEmailExist(string) bool
+	DoesUserEmailExist(string) (bool, error)
 	GetByEmail(email string) (*model.User, error)
 	WithTx(tx *gorm.DB) AuthRepository
 	Create(user *model.User) error
@@ -47,13 +48,13 @@ func (r *DefaultAuthRepo) GetByEmail(email string) (*model.User, error) {
 	}
 	return user, nil
 }
-func (r *DefaultAuthRepo) DoesUserEmailExist(email string) bool {
+func (r *DefaultAuthRepo) DoesUserEmailExist(email string) (bool, error) {
 	user := &model.User{}
-	result := r.db.Where("email_address = ?", email).First(&user)
-	if result.Error != nil {
-		return false
+	err := r.db.Where("email_address = ?", email).First(&user).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, errors.New("request failed")
 	}
-	return true
+	return true, nil
 }
 
 func (r *DefaultAuthRepo) CreateToken(token *model.Token) error {

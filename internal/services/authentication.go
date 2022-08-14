@@ -17,7 +17,7 @@ import (
 
 //go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services UserService
 type AuthService interface {
-	RegisterUser(body *types.Registration, log *log.Entry) (string, error)
+	RegisterUser(body *types.Registration, log *log.Entry) error
 	ActivateEmail(token string, email string, log *log.Entry) (string, error)
 	Login(body *types.AuthRequest) (*types.JWTResponse, error)
 	AuthEmail(body *types.EmailRequest) (string, *model.User, error)
@@ -53,70 +53,53 @@ func (d *DefaultAuthService) ActivateEmail(token string, email string, log *log.
 	}
 	return " Your account has been activated, Please proceed to login", nil
 }
-func (u *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Entry) (string, error) {
+func (u *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Entry) error {
+
+	email := utils.ToLower(body.EmailAddress)
+
 	// Check if email address exist
-	ok := u.repo.DoesUserEmailExist(body.EmailAddress)
-	//if err != nil {
-	//	log.Error("An Error occurred while checking if user email exist. %s", err.Error())
-	//	return "", err
-	//}
+	ok, err := u.repo.DoesUserEmailExist(email)
+	if err != nil {
+		return err
+	}
 	if ok {
 		log.Info("Email address already exist. '%s'", body.EmailAddress)
-		return "", errors.New("email address already exist")
+		return errors.New("email address is already registered")
 	}
 
 	// Save user details
-	email := strings.ToLower(body.EmailAddress)
 	user := &model.User{
 		FirstName:    body.FirstName,
 		LastName:     body.LastName,
 		DisplayName:  body.DisplayName,
 		EmailAddress: email,
+		PhoneNumber:  body.PhoneNumber,
 	}
 
-	err := u.repo.Create(user)
+	err = u.repo.Create(user)
 	if err != nil {
-		log.Error("Error occurred when saving new user. %s", err.Error())
-		return "", err
+		log.Error("error: occurred when saving new user. %s", err.Error())
+		return errors.New("registration was not successful")
 	}
 	token := utils.GenerateNumericToken(20)
-	err = u.redis.Set(email, token, 2000)
+	err = u.redis.Set(email, token, time.Minute*20)
 	if err != nil {
 		log.Error("Error occurred when when token %s", err)
-		return "", err
+		return errors.New("registration was not successful")
 	}
 
-	//profile := &types.UserProfile{
-	//	ID:            user.ID,
-	//	FirstName:     user.FirstName,
-	//	LastName:      user.LastName,
-	//	DisplayName:   user.DisplayName,
-	//	EmailAddress:  user.EmailAddress,
-	//	PhoneNumber:   user.PhoneNumber,
-	//	EmailVerified: user.EmailVerified,
-	//	LastLogin:     nil,
-	//}
-
-	// Activity log
-	//activity := &model.Activity{By: user.ID, Message: "Registered"}
-	//go func() {
-	//	if err = u.activity.Get(activity); err != nil {
-	//		log.Error("User activity failed to log", err.Error())
-	//	}
-	//}()
-
-	//TODO: Send Activate email
+	// Send Activate email
 	bodyHtml := "<div> <h3>Welcome to Biz Directory </h3>" +
 		"<p>Please click the button to activate your account</p></br>" +
-		"<button href='http://localhost:8000/auth/activate/+" + token + "/" + email +
-		"'>Activate</button>" +
+		"<a href='http://localhost:8000/auth/activate/+" + token + "/" + email +
+		"'>Activate</a>" +
 		" </div>"
 	err = sendgrid.SendMail("Activate your account", email, bodyHtml, body.DisplayName)
 	if err != nil {
 		log.Error("Error occurred when sending activation email. %s", err.Error())
-		return "", err
+		return err
 	}
-	return "Account created successfully, Please check your mail to activate Account ", nil
+	return nil
 }
 
 // Login

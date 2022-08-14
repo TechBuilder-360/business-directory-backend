@@ -11,7 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
 	"net/http"
-	// "net/http"
 	"os"
 )
 
@@ -72,10 +71,10 @@ func main() {
 
 func documentation() {
 	// programmatically set swagger info
-	docs.SwaggerInfo_swagger.Title = "Business directory API"
-	docs.SwaggerInfo_swagger.Description = "This is the API for business directory api."
-	docs.SwaggerInfo_swagger.Version = "1.0"
-	docs.SwaggerInfo_swagger.Host = fmt.Sprintf("%s", configs.Instance.Host)
-	docs.SwaggerInfo_swagger.BasePath = fmt.Sprintf("/%s/api/v1", configs.Instance.URLPrefix)
-	docs.SwaggerInfo_swagger.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo.Title = "Business directory API"
+	docs.SwaggerInfo.Description = "This is the API for business directory api."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s", configs.Instance.Host)
+	docs.SwaggerInfo.BasePath = fmt.Sprintf("/%s/api/v1", configs.Instance.URLPrefix)
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 }
