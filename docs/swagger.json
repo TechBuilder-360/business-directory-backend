@@ -17,9 +17,9 @@
     "host": "localhost:8000",
     "basePath": "/directory/api/v1",
     "paths": {
-        "/active-status": {
+        "/auth/activate/{token}/{email}": {
             "post": {
-                "description": "Setting the Status for an  Organisation Operation",
+                "description": "Request to verification token",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,16 +27,16 @@
                     "application/json"
                 ],
                 "tags": [
-                    "organisation"
+                    "Auth"
                 ],
                 "parameters": [
                     {
-                        "description": "activate or deactivate",
+                        "description": "Authenticate existing user",
                         "name": "default",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.OrganStatus"
+                            "$ref": "#/definitions/types.EmailRequest"
                         }
                     }
                 ],
@@ -44,220 +44,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utility.ResponseObj"
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     }
                 }
             }
         },
-        "/branch": {
-            "post": {
-                "description": "add by json Branch",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "branch"
-                ],
-                "parameters": [
-                    {
-                        "description": "Add add branch",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateBranch"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ResponseObj"
-                        }
-                    }
-                }
-            }
-        },
-        "/branch/{branchId}": {
-            "get": {
-                "description": "Get a single branch",
-                "tags": [
-                    "branch"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "string valid",
-                        "name": "branchId",
-                        "in": "path"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Organisation"
-                        }
-                    }
-                }
-            }
-        },
-        "/branches/{organisationId}": {
-            "get": {
-                "description": "Get the list of branches with pagination",
-                "tags": [
-                    "branch"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "int valid",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "string valid",
-                        "name": "organisationId",
-                        "in": "path"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Branch"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/get-organisations": {
-            "get": {
-                "description": "Get the list of organisation with pagination",
-                "tags": [
-                    "organisation"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "int valid",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Organisation"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/login": {
-            "post": {
-                "description": "Authenticate user and get jwt token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "parameters": [
-                    {
-                        "description": "Login to account",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.AuthRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.JWTResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/organisation": {
-            "post": {
-                "description": "add by json organisation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "organisation"
-                ],
-                "parameters": [
-                    {
-                        "description": "Add add organisation",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateOrgReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ResponseObj"
-                        }
-                    }
-                }
-            }
-        },
-        "/organisation/{organisationId}": {
-            "get": {
-                "description": "Get a single organisation",
-                "tags": [
-                    "organisation"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "string valid",
-                        "name": "organisationId",
-                        "in": "path"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Organisation"
-                        }
-                    }
-                }
-            }
-        },
-        "/request-login-token": {
+        "/auth/authentication": {
             "post": {
                 "description": "Request to authentication token",
                 "consumes": [
@@ -267,7 +60,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Auth"
                 ],
                 "parameters": [
                     {
@@ -276,7 +69,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.EmailRequest"
+                            "$ref": "#/definitions/types.EmailRequest"
                         }
                     }
                 ],
@@ -284,13 +77,46 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utility.Response"
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     }
                 }
             }
         },
-        "/user-registration": {
+        "/auth/login": {
+            "post": {
+                "description": "Authenticate user and get jwt token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "parameters": [
+                    {
+                        "description": "Login to account",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.JWTResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
             "post": {
                 "description": "Register a new user",
                 "consumes": [
@@ -300,7 +126,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Auth"
                 ],
                 "parameters": [
                     {
@@ -309,7 +135,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.Registration"
+                            "$ref": "#/definitions/types.Registration"
                         }
                     }
                 ],
@@ -317,7 +143,40 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utility.Response"
+                            "$ref": "#/definitions/utils.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/resend": {
+            "post": {
+                "description": "Request to authentication token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "parameters": [
+                    {
+                        "description": "Authenticate existing user",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.EmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     }
                 }
@@ -325,14 +184,14 @@
         }
     },
     "definitions": {
-        "dto.AuthRequest": {
+        "types.AuthRequest": {
             "type": "object",
             "required": [
-                "email_address",
+                "email-address",
                 "token"
             ],
             "properties": {
-                "email_address": {
+                "email-address": {
                     "type": "string"
                 },
                 "token": {
@@ -340,51 +199,7 @@
                 }
             }
         },
-        "dto.CreateBranch": {
-            "type": "object",
-            "required": [
-                "branch_name",
-                "organisation_id"
-            ],
-            "properties": {
-                "address": {
-                    "$ref": "#/definitions/models.Address"
-                },
-                "branch_name": {
-                    "type": "string"
-                },
-                "contact": {
-                    "$ref": "#/definitions/models.Contact"
-                },
-                "organisation_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.CreateOrgReq": {
-            "type": "object",
-            "required": [
-                "description",
-                "founding_date",
-                "organisation_name",
-                "organisation_size"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "founding_date": {
-                    "type": "string"
-                },
-                "organisation_name": {
-                    "type": "string"
-                },
-                "organisation_size": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.EmailRequest": {
+        "types.EmailRequest": {
             "type": "object",
             "required": [
                 "email_address"
@@ -395,29 +210,18 @@
                 }
             }
         },
-        "dto.JWTResponse": {
+        "types.JWTResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
                     "type": "string"
                 },
                 "profile": {
-                    "$ref": "#/definitions/dto.UserProfile"
+                    "$ref": "#/definitions/types.UserProfile"
                 }
             }
         },
-        "dto.OrganStatus": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "organisation_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.Registration": {
+        "types.Registration": {
             "type": "object",
             "required": [
                 "email_address",
@@ -442,7 +246,7 @@
                 }
             }
         },
-        "dto.UserProfile": {
+        "types.UserProfile": {
             "type": "object",
             "properties": {
                 "display_name": {
@@ -471,197 +275,9 @@
                 }
             }
         },
-        "models.Address": {
+        "utils.SuccessResponse": {
             "type": "object",
             "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "country": {
-                    "type": "string"
-                },
-                "country_code": {
-                    "type": "string"
-                },
-                "state": {
-                    "type": "string"
-                },
-                "street": {
-                    "type": "string"
-                },
-                "zip_code": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.Branch": {
-            "type": "object",
-            "properties": {
-                "IsHQ": {
-                    "type": "boolean"
-                },
-                "address": {
-                    "$ref": "#/definitions/models.Address"
-                },
-                "admins": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "branch_name": {
-                    "type": "string"
-                },
-                "contact": {
-                    "$ref": "#/definitions/models.Contact"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "geo_location": {
-                    "$ref": "#/definitions/models.Location"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "organisation_id": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Contact": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "phone_numbers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.PhoneDetails"
-                    }
-                }
-            }
-        },
-        "models.Location": {
-            "type": "object",
-            "properties": {
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                }
-            }
-        },
-        "models.Organisation": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "admins": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "contact": {
-                    "$ref": "#/definitions/models.Contact"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "creator_id": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "expiry_date": {
-                    "type": "string"
-                },
-                "founding_date": {
-                    "type": "string"
-                },
-                "geo_location": {
-                    "$ref": "#/definitions/models.Location"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "logo_url": {
-                    "type": "string"
-                },
-                "organisation_name": {
-                    "type": "string"
-                },
-                "organisation_size": {
-                    "type": "string"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "rating": {
-                    "type": "number"
-                },
-                "registration_number": {
-                    "type": "string"
-                },
-                "services": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "website": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PhoneDetails": {
-            "type": "object",
-            "properties": {
-                "country_code": {
-                    "type": "string"
-                },
-                "phone_number": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "utility.Response": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "utility.ResponseObj": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
                 "data": {},
                 "message": {
                     "type": "string"

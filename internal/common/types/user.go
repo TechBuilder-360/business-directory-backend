@@ -6,8 +6,8 @@ import "time"
 
 // AuthRequest ...
 type AuthRequest struct {
-	UserId string `json:"user_id" validate:"required"`
-	Token  string `json:"token" validate:"required"`
+	EmailAddress string `json:"email-address" validate:"required"`
+	Token        string `json:"token" validate:"required"`
 }
 
 // EmailRequest ...

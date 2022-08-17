@@ -1,67 +1,30 @@
 basePath: /directory/api/v1
 definitions:
-  dto.AuthRequest:
+  types.AuthRequest:
     properties:
-      email_address:
+      email-address:
         type: string
       token:
         type: string
     required:
-    - email_address
+    - email-address
     - token
     type: object
-  dto.CreateBranch:
-    properties:
-      address:
-        $ref: '#/definitions/models.Address'
-      branch_name:
-        type: string
-      contact:
-        $ref: '#/definitions/models.Contact'
-      organisation_id:
-        type: string
-    required:
-    - branch_name
-    - organisation_id
-    type: object
-  dto.CreateOrgReq:
-    properties:
-      description:
-        type: string
-      founding_date:
-        type: string
-      organisation_name:
-        type: string
-      organisation_size:
-        type: string
-    required:
-    - description
-    - founding_date
-    - organisation_name
-    - organisation_size
-    type: object
-  dto.EmailRequest:
+  types.EmailRequest:
     properties:
       email_address:
         type: string
     required:
     - email_address
     type: object
-  dto.JWTResponse:
+  types.JWTResponse:
     properties:
       access_token:
         type: string
       profile:
-        $ref: '#/definitions/dto.UserProfile'
+        $ref: '#/definitions/types.UserProfile'
     type: object
-  dto.OrganStatus:
-    properties:
-      active:
-        type: boolean
-      organisation_id:
-        type: string
-    type: object
-  dto.Registration:
+  types.Registration:
     properties:
       display_name:
         type: string
@@ -78,7 +41,7 @@ definitions:
     - first_name
     - last_name
     type: object
-  dto.UserProfile:
+  types.UserProfile:
     properties:
       display_name:
         type: string
@@ -97,131 +60,8 @@ definitions:
       phone_number:
         type: string
     type: object
-  models.Address:
+  utils.SuccessResponse:
     properties:
-      city:
-        type: string
-      country:
-        type: string
-      country_code:
-        type: string
-      state:
-        type: string
-      street:
-        type: string
-      zip_code:
-        type: integer
-    type: object
-  models.Branch:
-    properties:
-      IsHQ:
-        type: boolean
-      address:
-        $ref: '#/definitions/models.Address'
-      admins:
-        items:
-          type: string
-        type: array
-      branch_name:
-        type: string
-      contact:
-        $ref: '#/definitions/models.Contact'
-      created_at:
-        type: string
-      geo_location:
-        $ref: '#/definitions/models.Location'
-      id:
-        type: string
-      organisation_id:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  models.Contact:
-    properties:
-      email:
-        type: string
-      phone_numbers:
-        items:
-          $ref: '#/definitions/models.PhoneDetails'
-        type: array
-    type: object
-  models.Location:
-    properties:
-      latitude:
-        type: number
-      longitude:
-        type: number
-    type: object
-  models.Organisation:
-    properties:
-      active:
-        type: boolean
-      admins:
-        items:
-          type: string
-        type: array
-      contact:
-        $ref: '#/definitions/models.Contact'
-      created_at:
-        type: string
-      creator_id:
-        type: string
-      description:
-        type: string
-      expiry_date:
-        type: string
-      founding_date:
-        type: string
-      geo_location:
-        $ref: '#/definitions/models.Location'
-      id:
-        type: string
-      logo_url:
-        type: string
-      organisation_name:
-        type: string
-      organisation_size:
-        type: string
-      products:
-        items:
-          type: string
-        type: array
-      rating:
-        type: number
-      registration_number:
-        type: string
-      services:
-        items:
-          type: string
-        type: array
-      updated_at:
-        type: string
-      website:
-        type: string
-    type: object
-  models.PhoneDetails:
-    properties:
-      country_code:
-        type: string
-      phone_number:
-        type: string
-      type:
-        type: string
-    type: object
-  utility.Response:
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-      status:
-        type: boolean
-    type: object
-  utility.ResponseObj:
-    properties:
-      code:
-        type: string
       data: {}
       message:
         type: string
@@ -241,159 +81,28 @@ info:
   title: Business directory API
   version: "1.0"
 paths:
-  /active-status:
+  /auth/activate/{token}/{email}:
     post:
       consumes:
       - application/json
-      description: Setting the Status for an  Organisation Operation
+      description: Request to verification token
       parameters:
-      - description: activate or deactivate
+      - description: Authenticate existing user
         in: body
         name: default
         required: true
         schema:
-          $ref: '#/definitions/dto.OrganStatus'
+          $ref: '#/definitions/types.EmailRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utility.ResponseObj'
+            $ref: '#/definitions/utils.SuccessResponse'
       tags:
-      - organisation
-  /branch:
-    post:
-      consumes:
-      - application/json
-      description: add by json Branch
-      parameters:
-      - description: Add add branch
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateBranch'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utility.ResponseObj'
-      tags:
-      - branch
-  /branch/{branchId}:
-    get:
-      description: Get a single branch
-      parameters:
-      - description: string valid
-        in: path
-        name: branchId
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Organisation'
-      tags:
-      - branch
-  /branches/{organisationId}:
-    get:
-      description: Get the list of branches with pagination
-      parameters:
-      - description: int valid
-        in: query
-        name: page
-        type: integer
-      - description: string valid
-        in: path
-        name: organisationId
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Branch'
-            type: array
-      tags:
-      - branch
-  /get-organisations:
-    get:
-      description: Get the list of organisation with pagination
-      parameters:
-      - description: int valid
-        in: query
-        name: page
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Organisation'
-            type: array
-      tags:
-      - organisation
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate user and get jwt token
-      parameters:
-      - description: Login to account
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/dto.AuthRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.JWTResponse'
-      tags:
-      - User
-  /organisation:
-    post:
-      consumes:
-      - application/json
-      description: add by json organisation
-      parameters:
-      - description: Add add organisation
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateOrgReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utility.ResponseObj'
-      tags:
-      - organisation
-  /organisation/{organisationId}:
-    get:
-      description: Get a single organisation
-      parameters:
-      - description: string valid
-        in: path
-        name: organisationId
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Organisation'
-      tags:
-      - organisation
-  /request-login-token:
+      - Auth
+  /auth/authentication:
     post:
       consumes:
       - application/json
@@ -404,17 +113,38 @@ paths:
         name: default
         required: true
         schema:
-          $ref: '#/definitions/dto.EmailRequest'
+          $ref: '#/definitions/types.EmailRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utility.Response'
+            $ref: '#/definitions/utils.SuccessResponse'
       tags:
-      - User
-  /user-registration:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and get jwt token
+      parameters:
+      - description: Login to account
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/types.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.JWTResponse'
+      tags:
+      - Auth
+  /auth/register:
     post:
       consumes:
       - application/json
@@ -425,16 +155,37 @@ paths:
         name: default
         required: true
         schema:
-          $ref: '#/definitions/dto.Registration'
+          $ref: '#/definitions/types.Registration'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utility.Response'
+            $ref: '#/definitions/utils.SuccessResponse'
       tags:
-      - User
+      - Auth
+  /auth/resend:
+    post:
+      consumes:
+      - application/json
+      description: Request to authentication token
+      parameters:
+      - description: Authenticate existing user
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/types.EmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+      tags:
+      - Auth
 securityDefinitions:
   ApiKeyAuth:
     type: basic

@@ -14,6 +14,7 @@ import (
 
 type AuthController interface {
 	RegisterUser(w http.ResponseWriter, r *http.Request)
+	ActivateEmail(w http.ResponseWriter, r *http.Request)
 	AuthenticateEmail(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
 	RegisterRoutes(router *mux.Router)
@@ -24,7 +25,12 @@ type NewAuthController struct {
 }
 
 func (c *NewAuthController) RegisterRoutes(router *mux.Router) {
-	_ = router.PathPrefix("/auth").Subrouter()
+	apis := router.PathPrefix("/auth").Subrouter()
+	apis.HandleFunc("/register", c.RegisterUser).Methods("POST")
+	apis.HandleFunc("/activate/{token}/{email}", c.ActivateEmail).Methods("GET")
+	apis.HandleFunc("/authentication", c.AuthenticateEmail).Methods("POST")
+	apis.HandleFunc("/login", c.Login).Methods("POST")
+	apis.HandleFunc("/resend", c.ResendToken).Methods("POST")
 }
 
 func DefaultAuthController() AuthController {
@@ -33,28 +39,27 @@ func DefaultAuthController() AuthController {
 	}
 }
 
-// AuthenticateEmail @Summary     Request to authentication token
+// ResendToken @Summary     Resend authentication token
 // @Description  Request to authentication token
-// @Tags         User
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        default  body	types.EmailRequest  true  "Authenticate existing user"
-// @Success      200      {object}  utils.Response
-// @Router       /request-login-token [post]
-func (c *NewAuthController) AuthenticateEmail(w http.ResponseWriter, r *http.Request) {
+// @Success      200      {object}  utils.SuccessResponse
+// @Router       /auth/resend [post]
+func (c *NewAuthController) ResendToken(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
-	logger.Info("Verify user email and send login token.")
+	logger.Info("Resending login token.")
 
 	requestData := &types.EmailRequest{}
-
 	json.NewDecoder(r.Body).Decode(requestData)
 	logger.Info("Request data: %+v", requestData)
 
 	if validation.ValidateStruct(w, requestData, logger) {
 		return
 	}
-
-	if err := c.Service.AuthEmail(requestData); err != nil {
+	message, data, err := c.Service.ResendToken(requestData)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		logger.Error(err.Error())
 		json.NewEncoder(w).Encode(utils.ErrorResponse{
@@ -68,19 +73,61 @@ func (c *NewAuthController) AuthenticateEmail(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
-		Message: "Successful",
+		Message: message,
+		Data:    data,
+	})
+
+}
+
+// AuthenticateEmail @Summary     Request to authentication token
+// @Description  Request to authentication token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        default  body	types.EmailRequest  true  "Authenticate existing user"
+// @Success      200      {object}  utils.SuccessResponse
+// @Router       /auth/authentication [post]
+func (c *NewAuthController) AuthenticateEmail(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
+	logger.Info("Verify user email and send login token.")
+
+	requestData := &types.EmailRequest{}
+
+	json.NewDecoder(r.Body).Decode(requestData)
+	logger.Info("Request data: %+v", requestData)
+
+	if validation.ValidateStruct(w, requestData, logger) {
+		return
+	}
+	message, data, err := c.Service.AuthEmail(requestData)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		logger.Error(err.Error())
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: "email authentication failed",
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(utils.SuccessResponse{
+		Status:  true,
+		Message: message,
+		Data:    data,
 	})
 
 }
 
 // Login @Summary     Login
 // @Description  Authenticate user and get jwt token
-// @Tags         User
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        default  body	types.AuthRequest  true  "Login to account"
 // @Success      200      {object}  types.JWTResponse
-// @Router       /login [post]
+// @Router       /auth/login [post]
 func (c *NewAuthController) Login(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Verify User email and send login token.")
@@ -118,12 +165,12 @@ func (c *NewAuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 // RegisterUser @Summary     Register a new user
 // @Description  Register a new user
-// @Tags         User
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        default  body	types.Registration  true  "Add a new user"
-// @Success      200      {object}  utils.Response
-// @Router       /registration [post]
+// @Success      200      {object}  utils.SuccessResponse
+// @Router       /auth/register [post]
 func (c *NewAuthController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Adding User")
@@ -141,10 +188,44 @@ func (c *NewAuthController) RegisterUser(w http.ResponseWriter, r *http.Request)
 	}
 
 	if validation.ValidateStruct(w, requestData, logger) {
+
 		return
 	}
 
-	profile, err := c.Service.RegisterUser(requestData, logger)
+	err := c.Service.RegisterUser(requestData, logger)
+	if err != nil {
+		logger.Error(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: "registration was not successful",
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(utils.SuccessResponse{
+		Status:  true,
+		Message: "Successful",
+	})
+}
+
+// ActivateEmail @Summary     activation email
+// @Description  Request to verification token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        default  body	types.EmailRequest  true  "Authenticate existing user"
+// @Success      200      {object}  utils.SuccessResponse
+// @Router       /auth/activate/{token}/{email} [post]
+func (c *NewAuthController) ActivateEmail(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
+	logger.Info("Activating User")
+	vars := mux.Vars(r)
+	key := vars["email"]
+	token := vars["token"]
+
+	message, err := c.Service.ActivateEmail(token, key, logger)
 	if err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -159,9 +240,7 @@ func (c *NewAuthController) RegisterUser(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
-		Message: "Successful",
-		Data:    profile,
+		Message: message,
 	})
 	return
-
 }

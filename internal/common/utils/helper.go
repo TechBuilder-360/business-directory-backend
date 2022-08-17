@@ -3,8 +3,10 @@ package utils
 import (
 	"bytes"
 	"crypto/hmac"
+	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/rs/xid"
 
 	"io"
 	"io/ioutil"
@@ -71,10 +73,26 @@ func ValidateEmail(email string) bool {
 	return err == nil
 }
 
+func ToLower(text string) string {
+	return strings.ToLower(text)
+}
+
 func CapitalizeFirstCharacter(s string) string {
 	return cases.Title(language.AmericanEnglish, cases.NoLower).String(strings.ToLower(strings.TrimSpace(s)))
 }
 
 func GenerateUUID() string {
 	return uuid.NewString()
+}
+
+func GenerateUniqueID() string {
+	guid := xid.New()
+
+	return guid.String()
+}
+
+func ToMd5(text string) string {
+	val := md5.Sum([]byte(text))
+
+	return hex.EncodeToString(val[:])
 }
