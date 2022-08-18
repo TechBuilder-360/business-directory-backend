@@ -89,12 +89,15 @@ func (u *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Ent
 	}
 
 	// Send Activate email
-	bodyHtml := "<div> <h3>Welcome to Biz Directory </h3>" +
-		"<p>Please click the button to activate your account</p></br>" +
-		"<a href='http://localhost:8000/auth/activate/+" + token + "/" + email +
-		"'>Activate</a>" +
-		" </div>"
-	err = sendgrid.SendMail("Activate your account", email, bodyHtml, body.DisplayName)
+
+	mailTemplate := &types.MailTemplate{
+		Header:  "Activation Link",
+		Subject: "Activate your Account",
+		Token:   token,
+		ToEmail: body.EmailAddress,
+		ToName:  body.FirstName + " " + body.LastName,
+	}
+	err = sendgrid.SendMail(mailTemplate)
 	if err != nil {
 		log.Error("Error occurred when sending activation email. %s", err.Error())
 		return err
@@ -169,7 +172,7 @@ func (d *DefaultAuthService) ResendToken(body *types.EmailRequest) (string, *mod
 		log.Info("Email address does not exist. '%s'", email)
 		return "", nil, errors.New("email not found")
 	}
-	dur := 2000
+
 	token := utils.GenerateNumericToken(4)
 	err = d.redis.Set(email, token, 2000)
 	if err != nil {
@@ -186,10 +189,17 @@ func (d *DefaultAuthService) ResendToken(body *types.EmailRequest) (string, *mod
 			log.Error("User activity failed to log")
 		}
 	}()
+	dur, _ := time.ParseDuration("5mins")
+	mailTemplate := &types.MailTemplate{
+		Header:   "Activation Link",
+		Subject:  "Activate your Account",
+		Token:    token,
+		ToEmail:  data.EmailAddress,
+		ToName:   data.FirstName + " " + data.LastName,
+		Duration: dur,
+	}
 
-	bodyHtml := "<div> <h3>Welcome back to Biz Directory </h3>" +
-		"<p>Your verification token is " + token + "</p></br><p>expires in " + string(dur) + "minutes</p> </div>"
-	err = sendgrid.SendMail("Activate your account", email, bodyHtml, data.DisplayName)
+	err = sendgrid.SendMail(mailTemplate)
 	if err != nil {
 		log.Error("Error occurred when sending verification email. %s", err.Error())
 		return "", nil, err
@@ -213,7 +223,7 @@ func (d *DefaultAuthService) AuthEmail(body *types.EmailRequest) (string, *model
 		log.Info("Email address does not exist. '%s'", email)
 		return "", nil, errors.New("email not found")
 	}
-	dur := 2000
+
 	token := utils.GenerateNumericToken(4)
 	err = d.redis.Set(email, token, 2000)
 	if err != nil {
@@ -230,10 +240,17 @@ func (d *DefaultAuthService) AuthEmail(body *types.EmailRequest) (string, *model
 			log.Error("User activity failed to log")
 		}
 	}()
+	dur, _ := time.ParseDuration("5mins")
+	mailTemplate := &types.MailTemplate{
+		Header:   "Activation Link",
+		Subject:  "Activate your Account",
+		Token:    token,
+		ToEmail:  data.EmailAddress,
+		ToName:   data.FirstName + " " + data.LastName,
+		Duration: dur,
+	}
 
-	bodyHtml := "<div> <h3>Welcome back to Biz Directory </h3>" +
-		"<p>Your verification token is " + token + "</p></br><p>expires in " + string(dur) + "minutes</p> </div>"
-	err = sendgrid.SendMail("Activate your account", email, bodyHtml, data.DisplayName)
+	err = sendgrid.SendMail(mailTemplate)
 	if err != nil {
 		log.Error("Error occurred when sending verification email. %s", err.Error())
 		return "", nil, err

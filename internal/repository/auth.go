@@ -51,8 +51,12 @@ func (r *DefaultAuthRepo) GetByEmail(email string) (*model.User, error) {
 func (r *DefaultAuthRepo) DoesUserEmailExist(email string) (bool, error) {
 	user := &model.User{}
 	err := r.db.Where("email_address = ?", email).First(&user).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, errors.New("request failed")
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+
+	} else if err != nil {
+
+		return true, errors.New("request failed")
 	}
 	return true, nil
 }

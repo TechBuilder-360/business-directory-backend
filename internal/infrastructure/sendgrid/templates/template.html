@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation Link</title>
+
+    <style>
+
+
+    </style>
+</head>
+<body>
+<div class="user_item">
+    <h3 style="font-size:20pt; text-align:center">{{header}}</h3><br/>
+{% if token %}
+    <p style="font-size:13pt"> Click below to Activate your Account</p> <br/>
+
+    <button  href="http://localhost:8000/auth/activate/{{token}}/{{email}}" style="background-color:lightblue; color:white;padding:5px;border:none">Activate</button>
+{% endif %}
+
+    {% if code %}
+    <h3>Welcome back to Biz Directory </h3>
+    <p style="font-size:13pt">Your verification token is </p></br>
+    <p > Your Login code is displayed below</p> <br/>
+
+    <span style=" font-weight:bold; font-size:30pt;padding:7px;">{{code}}</span>
+    <p>expires in {{dur}} minutes</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
