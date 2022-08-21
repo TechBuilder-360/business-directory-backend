@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"encoding/json"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/services"
 	"github.com/dgrijalva/jwt-go"
@@ -66,7 +67,6 @@ func AuthorizeUserJWT(next http.Handler) http.Handler {
 			json.NewEncoder(w).Encode(utils.ErrorResponse{
 				Status:  false,
 				Message: "unauthorized",
-				Error:   nil,
 			})
 			return
 		}
@@ -90,7 +90,6 @@ func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
 			json.NewEncoder(w).Encode(utils.ErrorResponse{
 				Status:  false,
 				Message: "unauthorized",
-				Error:   nil,
 			})
 			return
 		}
@@ -213,7 +212,7 @@ func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
 //func (m *Middleware) AuthorizationMiddleware(role ...string) http.HandlerFunc {
 //	return func(w http.ResponseWriter, r *http.Request) {
 //		response := utils.NewResponse()
-//		consts BearerSchema = "Bearer"
+//		constant BearerSchema = "Bearer"
 //		authHeader := r.Header.Get("Authorization")
 //		tokenString := authHeader[len(BearerSchema):]
 //		log.Debug(tokenString)
@@ -255,23 +254,23 @@ func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
 func Recovery(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		//defer func() {
-		//	err := recover()
-		//	if err != nil {
-		//		log.Error(err) // May be log this error? Send to sentry?
-		//
-		//		jsonBody, _ := json.Marshal(utils.ErrorResponse{
-		//			Status:  false,
-		//			Message: "internal server error",
-		//		})
-		//
-		//		w.Header().Set("Content-Type", "application/json")
-		//		w.WriteHeader(http.StatusInternalServerError)
-		//		w.Write(jsonBody)
-		//	}
-		//
-		//}()
+		defer func() {
+			err := recover()
+			if err != nil {
+				log.Error(err)
 
+				jsonBody, _ := json.Marshal(utils.ErrorResponse{
+					Status:  false,
+					Message: constant.InternalServerError,
+				})
+
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write(jsonBody)
+			}
+
+		}()
+
+		w.Header().Set("Content-Type", "application/json")
 		next.ServeHTTP(w, r)
 
 	})

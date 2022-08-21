@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
@@ -18,12 +20,11 @@ import (
 //go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services UserService
 type AuthService interface {
 	RegisterUser(body *types.Registration, log *log.Entry) error
-	ActivateEmail(token string, email string, log *log.Entry) (string, error)
-	Login(body *types.AuthRequest) (*types.JWTResponse, error)
-	AuthEmail(body *types.EmailRequest) (string, *model.User, error)
-	GenerateToken(userID string) (string, error)
+	ActivateEmail(token string, uid string, log *log.Entry) error
+	Login(body *types.AuthRequest) (*types.LoginResponse, error)
+	GenerateToken(userID string) (*string, error)
 	ValidateToken(encodedToken string) (*jwt.Token, error)
-	ResendToken(body *types.EmailRequest) (string, *model.User, error)
+	RequestToken(body *types.EmailRequest, logger *log.Entry) error
 }
 
 type DefaultAuthService struct {
@@ -33,36 +34,58 @@ type DefaultAuthService struct {
 	redis    *redis.Client
 }
 
-func (d *DefaultAuthService) ActivateEmail(token string, email string, log *log.Entry) (string, error) {
-
-	// Update with conditions
-	body := &types.AuthRequest{
-		EmailAddress: email,
-		Token:        token,
+func NewAuthService() AuthService {
+	return &DefaultAuthService{
+		repo:     repository.NewAuthRepository(),
+		userRepo: repository.NewUserRepository(),
+		activity: repository.NewActivityRepository(),
+		redis:    redis.RedisClient(),
 	}
-	ok, err := d.repo.IsTokenValid(d.redis, body)
-	if err != nil {
-		log.Error("An Error occurred when validating login token. %s", err.Error())
-		return "", err
-	}
-	if ok {
-		if err := d.repo.Activate(email); err != nil {
-			log.Error("An Error occurred while Activating your account, Please try again. %s", err.Error())
-			return "", err
-		}
-	}
-	return " Your account has been activated, Please proceed to login", nil
 }
-func (u *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Entry) error {
+
+func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log.Entry) error {
+
+	user, err := d.userRepo.GetByID(uid)
+	if err != nil || user == nil {
+		return errors.New("user not found")
+	}
+
+	if user.EmailVerified == true {
+		return errors.New("account is already active")
+	}
+
+	valid, err := d.repo.IsTokenValid(user.ID, token)
+	if err != nil {
+		logger.Error("An Error occurred when validating login token. %s", err.Error())
+		return errors.New("link has expired")
+	}
+	if valid == false {
+		logger.Error(err.Error())
+		return errors.New("invalid activation link")
+	}
+
+	user.EmailVerified = true
+	if err = d.userRepo.Update(user); err != nil {
+		logger.Error("An Error occurred while Activating your account, Please try again. %s", err.Error())
+		return errors.New("account activation failed")
+	}
+	err = d.redis.Delete(user.ID)
+	if err != nil {
+		logger.Error(err.Error())
+	}
+
+	return nil
+}
+func (d *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Entry) error {
 
 	email := utils.ToLower(body.EmailAddress)
-
 	// Check if email address exist
-	ok, err := u.repo.DoesUserEmailExist(email)
+	existingUser, err := d.userRepo.GetByEmail(email)
 	if err != nil {
-		return err
+		log.Error(err.Error())
+		return errors.New(constant.InternalServerError)
 	}
-	if ok {
+	if existingUser != nil {
 		log.Info("Email address already exist. '%s'", body.EmailAddress)
 		return errors.New("email address is already registered")
 	}
@@ -76,186 +99,144 @@ func (u *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Ent
 		PhoneNumber:  body.PhoneNumber,
 	}
 
-	err = u.repo.Create(user)
+	err = d.userRepo.Create(user)
 	if err != nil {
 		log.Error("error: occurred when saving new user. %s", err.Error())
 		return errors.New("registration was not successful")
 	}
+
 	token := utils.GenerateNumericToken(20)
-	err = u.redis.Set(email, token, time.Minute*20)
+	err = d.redis.Set(user.ID, token, time.Hour*10)
 	if err != nil {
 		log.Error("Error occurred when when token %s", err)
-		return errors.New("registration was not successful")
 	}
 
 	// Send Activate email
-
-	mailTemplate := &types.MailTemplate{
-		Header:  "Activation Link",
-		Subject: "Activate your Account",
-		Token:   token,
-		ToEmail: body.EmailAddress,
-		ToName:  body.FirstName + " " + body.LastName,
+	mailTemplate := &sendgrid.ActivationMailRequest{
+		Token:    token,
+		ToMail:   body.EmailAddress,
+		ToName:   fmt.Sprintf("%s %s", body.LastName, body.FirstName),
+		FullName: fmt.Sprintf("%s %s", body.LastName, body.FirstName),
+		UID:      user.ID,
 	}
-	err = sendgrid.SendMail(mailTemplate)
+	err = sendgrid.SendActivateMail(mailTemplate)
 	if err != nil {
 		log.Error("Error occurred when sending activation email. %s", err.Error())
-		return err
 	}
+
 	return nil
 }
 
 // Login
 // Handles authentication logic
-func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.JWTResponse, error) {
-	response := &types.JWTResponse{}
+func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginResponse, error) {
+	response := &types.LoginResponse{}
+
+	user, err := d.userRepo.GetByEmail(strings.ToLower(body.EmailAddress))
+	if err != nil {
+		log.Error("An error occurred when fetching user profile. %s", err.Error())
+		return nil, errors.New(constant.InternalServerError)
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+
 	// Validate user token
-	ok, err := d.repo.IsTokenValid(d.redis, body)
+	token, err := d.redis.Get(user.ID)
 	if err != nil {
 		log.Error("An Error occurred when validating login token. %s", err.Error())
-		return nil, err
+		return nil, errors.New("token validation failed")
 	}
 
-	if ok {
-
-		user, err := d.repo.Get(strings.ToLower(body.EmailAddress))
-		if err != nil {
-			log.Error("An error occurred when fetching user profile. %s", err.Error())
-			return nil, err
-		}
-
-		// Generate JWT for user
-		token, err := d.GenerateToken(user.ID)
-		if err != nil {
-			log.Error("An error occurred when generating jwt token. %s", err.Error())
-			return nil, errors.New("authentication failed")
-		}
-		profile := types.UserProfile{
-			ID:            user.ID,
-			FirstName:     user.FirstName,
-			LastName:      user.LastName,
-			DisplayName:   user.DisplayName,
-			EmailAddress:  user.EmailAddress,
-			PhoneNumber:   user.PhoneNumber,
-			EmailVerified: user.EmailVerified,
-		}
-
-		response.Profile = profile
-		response.AccessToken = token
-		// Activity log
-		activity := &model.Activity{By: response.Profile.ID, Message: "Successful login"}
-		go func() {
-			if err := d.activity.Create(activity); err != nil {
-				log.Error("User activity failed to log")
-			}
-		}()
-
+	if token != body.Token {
+		return nil, errors.New("invalid otp")
 	}
+
+	// Generate JWT for user
+	jwToken, err := d.GenerateToken(user.ID)
+	if err != nil {
+		log.Error("An error occurred when generating jwt token. %s", err.Error())
+		return nil, errors.New("authentication failed")
+	}
+
+	profile := types.UserProfile{
+		ID:            user.ID,
+		FirstName:     user.FirstName,
+		LastName:      user.LastName,
+		DisplayName:   user.DisplayName,
+		EmailAddress:  user.EmailAddress,
+		PhoneNumber:   user.PhoneNumber,
+		EmailVerified: user.EmailVerified,
+	}
+
+	response.Profile = profile
+	response.Token = utils.AddToStr(jwToken)
+	// Activity log
+	activity := &model.Activity{By: user.ID, Message: "Successful login"}
+	go func() {
+		if err = d.redis.Delete(user.ID); err != nil {
+			log.Error("User token failed to be deleted from cache")
+		}
+		if err = d.activity.Create(activity); err != nil {
+			log.Error("User activity failed to log")
+		}
+	}()
 
 	return response, nil
 
 }
 
-func (d *DefaultAuthService) ResendToken(body *types.EmailRequest) (string, *model.User, error) {
+func (d *DefaultAuthService) RequestToken(body *types.EmailRequest, logger *log.Entry) error {
 	if !utils.ValidateEmail(body.EmailAddress) {
-		return "", nil, errors.New("invalid email address")
+		return errors.New("invalid email address")
 	}
 	email := strings.ToLower(body.EmailAddress)
 
 	// Check if email address exist
-	data, err := d.repo.GetByEmail(email)
+	user, err := d.userRepo.GetByEmail(email)
 	if err != nil {
-		log.Error("An Error occurred while checking if user email exist. %s", err.Error())
-		return "", nil, errors.New("email does not exist")
+		logger.Error(err.Error())
+		return errors.New(constant.InternalServerError)
 	}
-	if data.ID == "" {
-		log.Info("Email address does not exist. '%s'", email)
-		return "", nil, errors.New("email not found")
+
+	if user == nil {
+		logger.Error(err.Error())
+		return errors.New("email address not found")
 	}
 
 	token := utils.GenerateNumericToken(4)
-	err = d.redis.Set(email, token, 2000)
+	var duration uint = 5
+	err = d.redis.Set(user.ID, token, time.Minute*time.Duration(duration))
 	if err != nil {
-		log.Error("Error occurred when sending token %s", err)
-		return "", nil, err
+		logger.Error("Error occurred when sending token %s", err)
+		return errors.New("request failed please try again")
 	}
-
-	// TODO: Send Token to user email
 
 	// Activity log
-	activity := &model.Activity{Message: "Requested for sign in token"}
+	activity := &model.Activity{
+		By:      user.ID,
+		Message: "Requested for sign-in token",
+	}
 	go func() {
-		if err := d.activity.Create(activity); err != nil {
-			log.Error("User activity failed to log")
+		if err = d.activity.Create(activity); err != nil {
+			logger.Error("User activity failed to log")
 		}
 	}()
-	dur, _ := time.ParseDuration("5mins")
-	mailTemplate := &types.MailTemplate{
-		Header:   "Activation Link",
-		Subject:  "Activate your Account",
-		Token:    token,
-		ToEmail:  data.EmailAddress,
-		ToName:   data.FirstName + " " + data.LastName,
-		Duration: dur,
+
+	mailTemplate := &sendgrid.OTPMailRequest{
+		Code:     token,
+		ToMail:   user.EmailAddress,
+		ToName:   user.LastName + " " + user.FirstName,
+		Name:     user.DisplayName,
+		Duration: duration,
 	}
 
-	err = sendgrid.SendMail(mailTemplate)
+	err = sendgrid.SendOTPMail(mailTemplate)
 	if err != nil {
-		log.Error("Error occurred when sending verification email. %s", err.Error())
-		return "", nil, err
-	}
-	return "sign in code has been re-sent ", data, nil
-}
-func (d *DefaultAuthService) AuthEmail(body *types.EmailRequest) (string, *model.User, error) {
-
-	if !utils.ValidateEmail(body.EmailAddress) {
-		return "", nil, errors.New("invalid email address")
-	}
-	email := strings.ToLower(body.EmailAddress)
-
-	// Check if email address exist
-	data, err := d.repo.GetByEmail(email)
-	if err != nil {
-		log.Error("An Error occurred while checking if user email exist. %s", err.Error())
-		return "", nil, errors.New("email does not exist")
-	}
-	if data.ID == "" {
-		log.Info("Email address does not exist. '%s'", email)
-		return "", nil, errors.New("email not found")
+		logger.Error("Error occurred when sending otp email. %s", err.Error())
 	}
 
-	token := utils.GenerateNumericToken(4)
-	err = d.redis.Set(email, token, 2000)
-	if err != nil {
-		log.Error("Error occurred when when token %s", err)
-		return "", nil, err
-	}
-
-	// TODO: Send Token to user email
-
-	// Activity log
-	activity := &model.Activity{Message: "Requested for sign in token"}
-	go func() {
-		if err := d.activity.Create(activity); err != nil {
-			log.Error("User activity failed to log")
-		}
-	}()
-	dur, _ := time.ParseDuration("5mins")
-	mailTemplate := &types.MailTemplate{
-		Header:   "Activation Link",
-		Subject:  "Activate your Account",
-		Token:    token,
-		ToEmail:  data.EmailAddress,
-		ToName:   data.FirstName + " " + data.LastName,
-		Duration: dur,
-	}
-
-	err = sendgrid.SendMail(mailTemplate)
-	if err != nil {
-		log.Error("Error occurred when sending verification email. %s", err.Error())
-		return "", nil, err
-	}
-	return "Please check your mail for sign on Code ", data, nil
+	return nil
 }
 
 type authCustomClaims struct {
@@ -263,13 +244,13 @@ type authCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func (d *DefaultAuthService) GenerateToken(userId string) (string, error) {
+func (d *DefaultAuthService) GenerateToken(userId string) (*string, error) {
 	claims := &authCustomClaims{
 		userId,
 		jwt.StandardClaims{
-			//ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-			Issuer:   configs.Instance.Issuer,
-			IssuedAt: time.Now().Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+			Issuer:    configs.Instance.Issuer,
+			IssuedAt:  time.Now().Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -278,9 +259,10 @@ func (d *DefaultAuthService) GenerateToken(userId string) (string, error) {
 	t, err := token.SignedString([]byte(configs.Instance.Secret))
 	if err != nil {
 		log.Error(err.Error())
-		return "", errors.New("token could not be generated")
+		return nil, errors.New("token could not be generated")
 	}
-	return t, nil
+
+	return &t, nil
 }
 
 func (d *DefaultAuthService) ValidateToken(encodedToken string) (*jwt.Token, error) {
@@ -290,11 +272,4 @@ func (d *DefaultAuthService) ValidateToken(encodedToken string) (*jwt.Token, err
 		}
 		return []byte(configs.Instance.Secret), nil
 	})
-}
-
-func NewAuthService() AuthService {
-	return &DefaultAuthService{
-		repo:  repository.NewAuthRepository(),
-		redis: redis.RedisClient(),
-	}
 }

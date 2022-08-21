@@ -77,7 +77,7 @@ func (c *Client) Set(key string, value interface{}, duration time.Duration) erro
 	return c.Client.Set(ctx, key, value, duration).Err()
 }
 
-func (c *Client) Get(key string) (interface{}, error) {
+func (c *Client) Get(key string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
@@ -85,19 +85,10 @@ func (c *Client) Get(key string) (interface{}, error) {
 	return c.Client.Get(ctx, key).Result()
 }
 
-func (c *Client) Delete(key string) (int64, error) {
+func (c *Client) Delete(key string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	key = fmt.Sprintf("%s-%s", c.namespace, key)
-	return c.Client.Del(ctx, key).Result()
-}
-
-func (c *Client) Exists(key string) (bool, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	key = fmt.Sprintf("%s-%s", c.namespace, key)
-	i, err := c.Client.Exists(ctx, key).Result()
-	return i >= 1, err
+	return c.Client.Del(ctx, key).Err()
 }

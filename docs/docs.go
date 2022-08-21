@@ -24,9 +24,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/activate/{token}/{email}": {
+        "/auth": {
             "post": {
-                "description": "Request to verification token",
+                "description": "Request to authentication token",
                 "consumes": [
                     "application/json"
                 ],
@@ -36,6 +36,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
+                "summary": "request to authentication token",
                 "parameters": [
                     {
                         "description": "Authenticate existing user",
@@ -57,9 +58,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/authentication": {
+        "/auth/activate": {
             "post": {
-                "description": "Request to authentication token",
+                "description": "Request to verification token",
                 "consumes": [
                     "application/json"
                 ],
@@ -71,13 +72,16 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "Authenticate existing user",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.EmailRequest"
-                        }
+                        "type": "string",
+                        "description": "Institution type",
+                        "name": "token",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Institution type",
+                        "name": "type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -117,7 +121,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/types.JWTResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Data": {
+                                            "$ref": "#/definitions/types.JWTResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -143,39 +159,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/types.Registration"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.SuccessResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/resend": {
-            "post": {
-                "description": "Request to authentication token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "parameters": [
-                    {
-                        "description": "Authenticate existing user",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.EmailRequest"
                         }
                     }
                 ],

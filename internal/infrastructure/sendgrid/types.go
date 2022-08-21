@@ -1,13 +1,31 @@
 package sendgrid
 
-type MailBuilder struct {
-	ToName  string
-	ToMail  string
-	Subject string
-	Content interface{}
-}
+const (
+	ACTIVATIONTEMPLATE Template = "activation_template"
+	OTPTEMPLATE        Template = "otp_template"
+)
 
 type ActivationMailRequest struct {
+	ToName   string
+	ToMail   string
 	FullName string
 	Token    string
+	UID      string
 }
+
+type OTPMailRequest struct {
+	ToName   string
+	ToMail   string
+	Code     string
+	Name     string
+	Duration uint
+}
+
+type mail struct {
+	ToName   string
+	ToMail   string
+	Subject  string
+	Template string
+}
+
+type Template string

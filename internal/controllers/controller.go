@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/TechBuilder-360/business-directory-backend/internal/common/consts"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -28,7 +28,7 @@ func DefaultController() Controller {
 }
 
 func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
-	log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
+	log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(utils.SuccessResponse{

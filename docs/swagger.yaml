@@ -81,11 +81,11 @@ info:
   title: Business directory API
   version: "1.0"
 paths:
-  /auth/activate/{token}/{email}:
+  /auth:
     post:
       consumes:
       - application/json
-      description: Request to verification token
+      description: Request to authentication token
       parameters:
       - description: Authenticate existing user
         in: body
@@ -100,20 +100,23 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/utils.SuccessResponse'
+      summary: request to authentication token
       tags:
       - Auth
-  /auth/authentication:
+  /auth/activate:
     post:
       consumes:
       - application/json
-      description: Request to authentication token
+      description: Request to verification token
       parameters:
-      - description: Authenticate existing user
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/types.EmailRequest'
+      - description: Institution type
+        in: query
+        name: token
+        type: string
+      - description: Institution type
+        in: query
+        name: type
+        type: string
       produces:
       - application/json
       responses:
@@ -141,7 +144,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.JWTResponse'
+            allOf:
+            - $ref: '#/definitions/utils.SuccessResponse'
+            - properties:
+                Data:
+                  $ref: '#/definitions/types.JWTResponse'
+              type: object
       tags:
       - Auth
   /auth/register:
@@ -156,27 +164,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/types.Registration'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.SuccessResponse'
-      tags:
-      - Auth
-  /auth/resend:
-    post:
-      consumes:
-      - application/json
-      description: Request to authentication token
-      parameters:
-      - description: Authenticate existing user
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/types.EmailRequest'
       produces:
       - application/json
       responses:

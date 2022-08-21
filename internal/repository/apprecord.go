@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -28,8 +29,8 @@ func (r *DefaultActivityRepo) Create(activity *model.Activity) error {
 	panic("implement me")
 }
 
-func NewActivityRepository(db *gorm.DB) ActivityRepository {
+func NewActivityRepository() ActivityRepository {
 	return &DefaultActivityRepo{
-		db: db,
+		db: database.ConnectDB(),
 	}
 }
