@@ -8,11 +8,11 @@ import (
 type User struct {
 	Base
 
-	FirstName     string     `json:"first_name"`
-	LastName      string     `json:"last_name"`
-	DisplayName   string     `json:"display_name"`
-	EmailAddress  string     `json:"email_address"`
-	PhoneNumber   string     `json:"phone_number"`
-	EmailVerified bool       `json:"email_verified"`
-	LastLogin     *time.Time `json:"last_login"`
+	FirstName     string    `json:"first_name" gorm:"not null"`
+	LastName      string    `json:"last_name" gorm:"not null"`
+	DisplayName   string    `json:"display_name" gorm:"not null"`
+	EmailAddress  string    `json:"email_address" gorm:"not null"`
+	PhoneNumber   string    `json:"phone_number" gorm:"null"`
+	EmailVerified bool      `json:"email_verified" gorm:"default:false"`
+	LastLogin     time.Time `json:"last_login" gorm:"null"`
 }

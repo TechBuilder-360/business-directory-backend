@@ -17,7 +17,7 @@ import (
 var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-)([]}{.?:><")
 var numeric = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 
-func GenerateRandomString(size uint) []byte {
+func GenerateRandomString(size uint) string {
 	random.Seed(time.Now().UnixNano())
 
 	b := make([]byte, size)
@@ -25,7 +25,7 @@ func GenerateRandomString(size uint) []byte {
 		b[i] = letters[random.Intn(len(letters))]
 	}
 
-	return b
+	return string(b)
 }
 
 func GenerateNumericToken(size int) string {

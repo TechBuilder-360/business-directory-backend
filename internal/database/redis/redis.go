@@ -23,7 +23,6 @@ var redisClient *Client
 
 // NewClient is a client constructor.
 func NewClient(connectionURL, password, namespace string) *Client {
-	log.Info("connecting to redis client")
 
 	c := redis.NewClient(&redis.Options{
 		Addr:        connectionURL,
@@ -77,20 +76,16 @@ func (c *Client) Set(key string, value interface{}, duration time.Duration) erro
 	return c.Client.Set(ctx, key, value, duration).Err()
 }
 
-func (c *Client) Get(key string) (interface{}, error) {
+func (c *Client) Get(key string) (*string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	key = fmt.Sprintf("%s-%s", c.namespace, key)
-	return c.Client.Get(ctx, key).Result()
-}
-
-func (c *Client) Delete(key string) (int64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	key = fmt.Sprintf("%s-%s", c.namespace, key)
-	return c.Client.Del(ctx, key).Result()
+	result, err := c.Client.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return nil, nil
+	}
+	return &result, err
 }
 
 func (c *Client) Exists(key string) (bool, error) {
@@ -98,6 +93,18 @@ func (c *Client) Exists(key string) (bool, error) {
 	defer cancel()
 
 	key = fmt.Sprintf("%s-%s", c.namespace, key)
-	i, err := c.Client.Exists(ctx, key).Result()
-	return i >= 1, err
+	res, err := c.Client.Exists(ctx, key).Result()
+	if err == redis.Nil {
+		return false, nil
+	}
+
+	return res > 0, err
+}
+
+func (c *Client) Delete(key string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	key = fmt.Sprintf("%s-%s", c.namespace, key)
+	return c.Client.Del(ctx, key).Err()
 }

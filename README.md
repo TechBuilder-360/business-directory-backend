@@ -3,7 +3,7 @@ Manages user information and serves API to the front-end mobile
 
 ## Requirements
 1. Go version 1.17
-2. Mongo database
+2. PostgresSql database
 
 ## Get started
 `git clone https://github.com/TechBuilder-360/business-directory-backend.git`

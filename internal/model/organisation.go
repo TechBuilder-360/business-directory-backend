@@ -7,7 +7,7 @@ import (
 //types Permission string
 
 //// Permissions
-//consts (
+//constant (
 //	OWNER    Permission = "owner"         // owner has all the privileges
 //	ADDADMIN Permission = "can_add_admin" // can add new admin to organisation
 //	CREATEAD Permission = "can_create_ad" // can create advert for organisation

@@ -24,8 +24,8 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/activate/{token}/{email}": {
-            "post": {
+        "/auth/activate": {
+            "get": {
                 "description": "Request to verification token",
                 "consumes": [
                     "application/json"
@@ -38,13 +38,16 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "Authenticate existing user",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.EmailRequest"
-                        }
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "uid",
+                        "name": "uid",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -69,6 +72,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
+                "summary": "request to authentication token",
                 "parameters": [
                     {
                         "description": "Authenticate existing user",
@@ -117,7 +121,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/types.JWTResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Data": {
+                                            "$ref": "#/definitions/types.JWTResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -155,53 +171,20 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/auth/resend": {
-            "post": {
-                "description": "Request to authentication token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "parameters": [
-                    {
-                        "description": "Authenticate existing user",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.EmailRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.SuccessResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
         "types.AuthRequest": {
             "type": "object",
             "required": [
-                "email-address",
-                "token"
+                "email_address",
+                "otp"
             ],
             "properties": {
-                "email-address": {
+                "email_address": {
                     "type": "string"
                 },
-                "token": {
+                "otp": {
                     "type": "string"
                 }
             }

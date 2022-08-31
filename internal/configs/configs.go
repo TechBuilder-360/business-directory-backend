@@ -3,11 +3,13 @@ package configs
 import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"go.deanishe.net/env"
+	"strings"
 )
 
 const (
-	PRODUCTION types.ENVIRONMENT = "Production"
-	SANDBOX    types.ENVIRONMENT = "SandBox"
+	PRODUCTION  types.ENVIRONMENT = "PRODUCTION"
+	DEVELOPMENT types.ENVIRONMENT = "DEVELOPMENT"
+	SANDBOX     types.ENVIRONMENT = "SANDBOX"
 )
 
 var Instance *Config
@@ -44,6 +46,6 @@ func Load() {
 	return
 }
 
-func GetEnv() types.ENVIRONMENT {
-	return Instance.Environment
+func (c *Config) GetEnv() types.ENVIRONMENT {
+	return types.ENVIRONMENT(strings.ToUpper(string(Instance.Environment)))
 }

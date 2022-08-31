@@ -9,7 +9,7 @@ package model
 //	"zuri.chat/zccore/utils"
 //)
 //
-//consts (
+//constant (
 //	OrganisationCollectionName       = "organisations"
 //	TokenTransactionCollectionName   = "token_transaction"
 //	InstalledPluginsCollectionName   = "installed_plugins"
@@ -20,7 +20,7 @@ package model
 //	PluginCollectionName             = "plugins"
 //)
 //
-//consts (
+//constant (
 //	CreateOrganisationMember              = "CreateOrganisationMember"
 //	UpdateOrganisationName                = "UpdateOrganisationName"
 //	UpdateOrganisationMemberPic           = "UpdateOrganisationMemberPic"
@@ -38,7 +38,7 @@ package model
 //	UpdateOrganisationMemberFiles         = "UpdateOrganisationMemberFiles"
 //)
 //
-//consts (
+//constant (
 //	OwnerRole  = "owner"
 //	AdminRole  = "admin"
 //	EditorRole = "editor"
@@ -55,20 +55,20 @@ package model
 //	GuestRole:  GuestRole,
 //}
 //
-//consts (
+//constant (
 //	FreeVersion = "free"
 //	ProVersion  = "pro"
 //)
 //
-//consts ProSubscriptionRate = 10
-//consts StatusHistoryLimit = 6
+//constant ProSubscriptionRate = 10
+//constant StatusHistoryLimit = 6
 //
 //var ExpiryTime = make(chan int64, 1)
 //var ClearOld = make(chan bool, 1)
 //
 //var RequestData = make(map[string]string)
 //
-//consts (
+//constant (
 //	logoWidth   = 111
 //	logoHeight  = 74
 //	imageWidth  = 170
@@ -179,7 +179,7 @@ package model
 //	Title string `json:"title" bson:"title"`
 //}
 //
-//consts (
+//constant (
 //	DontClear  = "dont_clear"
 //	ThirtyMins = "thirty_mins"
 //	OneHr      = "one_hour"
@@ -360,7 +360,7 @@ package model
 //	Colors string `json:"colors"`
 //}
 //
-//consts (
+//constant (
 //	ThemeClean   = "clean"
 //	ThemeCompact = "compact"
 //	NameFull     = "full & display names"
@@ -428,7 +428,7 @@ package model
 //	LanguagesZuriShouldSpellCheck []string `json:"languages_zuri_should_spell_check" bson:"languages_zuri_should_spell_check"`
 //}
 //
-//consts (
+//constant (
 //	FocusOnLastMessage = "focus_on_last_message"
 //	EditLastMessage    = "edit_last_message"
 //)
@@ -469,7 +469,7 @@ package model
 //	WarnAgainstFiles  bool `json:"warn_against_files" bson:"warn_against_files"`
 //}
 //
-//consts (
+//constant (
 //	SendMessage  = "send_message"
 //	StartNewLine = "start_new_line"
 //)
