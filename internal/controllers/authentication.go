@@ -47,7 +47,7 @@ func DefaultAuthController() AuthController {
 // @Produce      json
 // @Param        default  body	types.EmailRequest  true  "Authenticate existing user"
 // @Success      200      {object}  utils.SuccessResponse
-// @Router       /auth [post]
+// @Router       /auth/authentication [post]
 func (c *NewAuthController) Authenticate(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Authenticate")
@@ -178,8 +178,8 @@ func (c *NewAuthController) RegisterUser(w http.ResponseWriter, r *http.Request)
 // @Tags         Auth
 // @Accept       json
 // @Produce      json
-// @Param        token    query     string  false  "Institution type"
-// @Param        type    query     string  false  "Institution type"
+// @Param        token    query     string  false  "token"
+// @Param        uid    query     string  false  "uid"
 // @Success      200      {object}  utils.SuccessResponse
 // @Router       /auth/activate [get]
 func (c *NewAuthController) ActivateEmail(w http.ResponseWriter, r *http.Request) {
@@ -205,7 +205,7 @@ func (c *NewAuthController) ActivateEmail(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
-		Message: "Successful",
+		Message: "account activation successful",
 	})
 	return
 }

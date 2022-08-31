@@ -24,7 +24,43 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth": {
+        "/auth/activate": {
+            "get": {
+                "description": "Request to verification token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "uid",
+                        "name": "uid",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/authentication": {
             "post": {
                 "description": "Request to authentication token",
                 "consumes": [
@@ -46,42 +82,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.EmailRequest"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.SuccessResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/activate": {
-            "post": {
-                "description": "Request to verification token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Institution type",
-                        "name": "token",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Institution type",
-                        "name": "type",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -177,14 +177,14 @@ const docTemplate = `{
         "types.AuthRequest": {
             "type": "object",
             "required": [
-                "email-address",
-                "token"
+                "email_address",
+                "otp"
             ],
             "properties": {
-                "email-address": {
+                "email_address": {
                     "type": "string"
                 },
-                "token": {
+                "otp": {
                     "type": "string"
                 }
             }

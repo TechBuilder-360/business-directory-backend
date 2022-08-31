@@ -26,7 +26,7 @@ func (r *DefaultActivityRepo) WithTx(tx *gorm.DB) ActivityRepository {
 }
 
 func (r *DefaultActivityRepo) Create(activity *model.Activity) error {
-	panic("implement me")
+	return r.db.Create(activity).Error
 }
 
 func NewActivityRepository() ActivityRepository {

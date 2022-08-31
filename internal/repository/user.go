@@ -32,7 +32,8 @@ func (r *DefaultUserRepo) WithTx(tx *gorm.DB) UserRepository {
 }
 
 func (r *DefaultUserRepo) Update(user *model.User) error {
-	panic("implement me")
+	ctx := context.Background()
+	return r.db.WithContext(ctx).Save(user).Error
 }
 
 func (r *DefaultUserRepo) GetByID(id string) (*model.User, error) {

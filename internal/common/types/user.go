@@ -4,8 +4,8 @@ package types
 
 // AuthRequest ...
 type AuthRequest struct {
-	EmailAddress string `json:"email-address" validate:"required"`
-	Token        string `json:"token" validate:"required"`
+	EmailAddress string `json:"email_address" validate:"required"`
+	Otp          string `json:"otp" validate:"required"`
 }
 
 // EmailRequest ...

@@ -22,7 +22,7 @@ type AuthService interface {
 	RegisterUser(body *types.Registration, log *log.Entry) error
 	ActivateEmail(token string, uid string, log *log.Entry) error
 	Login(body *types.AuthRequest) (*types.LoginResponse, error)
-	GenerateToken(userID string) (*string, error)
+	GenerateJWT(userID string) (*string, error)
 	ValidateToken(encodedToken string) (*jwt.Token, error)
 	RequestToken(body *types.EmailRequest, logger *log.Entry) error
 }
@@ -57,7 +57,7 @@ func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log
 	valid, err := d.repo.IsTokenValid(user.ID, token)
 	if err != nil {
 		logger.Error("An Error occurred when validating login token. %s", err.Error())
-		return errors.New("link has expired")
+		return errors.New(constant.InternalServerError)
 	}
 	if valid == false {
 		logger.Error(err.Error())
@@ -69,6 +69,7 @@ func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log
 		logger.Error("An Error occurred while Activating your account, Please try again. %s", err.Error())
 		return errors.New("account activation failed")
 	}
+
 	err = d.redis.Delete(user.ID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -76,6 +77,7 @@ func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log
 
 	return nil
 }
+
 func (d *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Entry) error {
 
 	email := utils.ToLower(body.EmailAddress)
@@ -105,23 +107,31 @@ func (d *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Ent
 		return errors.New("registration was not successful")
 	}
 
-	token := utils.GenerateNumericToken(20)
-	err = d.redis.Set(user.ID, token, time.Hour*10)
+	var token string
+	if configs.Instance.GetEnv() != configs.SANDBOX {
+		token = utils.GenerateRandomString(20)
+	} else {
+		token = "sandbox"
+	}
+
+	err = d.redis.Set(user.ID, token, time.Hour*24)
 	if err != nil {
 		log.Error("Error occurred when when token %s", err)
 	}
 
-	// Send Activate email
-	mailTemplate := &sendgrid.ActivationMailRequest{
-		Token:    token,
-		ToMail:   body.EmailAddress,
-		ToName:   fmt.Sprintf("%s %s", body.LastName, body.FirstName),
-		FullName: fmt.Sprintf("%s %s", body.LastName, body.FirstName),
-		UID:      user.ID,
-	}
-	err = sendgrid.SendActivateMail(mailTemplate)
-	if err != nil {
-		log.Error("Error occurred when sending activation email. %s", err.Error())
+	if configs.Instance.GetEnv() != configs.SANDBOX {
+		// Send Activate email
+		mailTemplate := &sendgrid.ActivationMailRequest{
+			Token:    token,
+			ToMail:   body.EmailAddress,
+			ToName:   fmt.Sprintf("%s %s", body.LastName, body.FirstName),
+			FullName: fmt.Sprintf("%s %s", body.LastName, body.FirstName),
+			UID:      user.ID,
+		}
+		err = sendgrid.SendActivateMail(mailTemplate)
+		if err != nil {
+			log.Error("Error occurred when sending activation email. %s", err.Error())
+		}
 	}
 
 	return nil
@@ -148,12 +158,12 @@ func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginRespons
 		return nil, errors.New("token validation failed")
 	}
 
-	if token != body.Token {
+	if token == nil || utils.AddToStr(token) != body.Otp {
 		return nil, errors.New("invalid otp")
 	}
 
 	// Generate JWT for user
-	jwToken, err := d.GenerateToken(user.ID)
+	jwToken, err := d.GenerateJWT(user.ID)
 	if err != nil {
 		log.Error("An error occurred when generating jwt token. %s", err.Error())
 		return nil, errors.New("authentication failed")
@@ -167,6 +177,7 @@ func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginRespons
 		EmailAddress:  user.EmailAddress,
 		PhoneNumber:   user.PhoneNumber,
 		EmailVerified: user.EmailVerified,
+		LastLogin:     user.LastLogin,
 	}
 
 	response.Profile = profile
@@ -174,11 +185,17 @@ func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginRespons
 	// Activity log
 	activity := &model.Activity{By: user.ID, Message: "Successful login"}
 	go func() {
-		if err = d.redis.Delete(user.ID); err != nil {
-			log.Error("User token failed to be deleted from cache")
+		user.LastLogin = time.Now()
+		if err = d.userRepo.Update(user); err != nil {
+			log.Error("User last login failed to be updated. %s", err.Error())
 		}
+
+		if err = d.redis.Delete(user.ID); err != nil {
+			log.Error("User token failed to be deleted from cache. %s", err.Error())
+		}
+
 		if err = d.activity.Create(activity); err != nil {
-			log.Error("User activity failed to log")
+			log.Error("User activity failed to log. %s", err.Error())
 		}
 	}()
 
@@ -201,15 +218,26 @@ func (d *DefaultAuthService) RequestToken(body *types.EmailRequest, logger *log.
 
 	if user == nil {
 		logger.Error(err.Error())
-		return errors.New("email address not found")
+		return errors.New("user not found")
 	}
 
-	token := utils.GenerateNumericToken(4)
+	var token string
 	var duration uint = 5
-	err = d.redis.Set(user.ID, token, time.Minute*time.Duration(duration))
-	if err != nil {
-		logger.Error("Error occurred when sending token %s", err)
-		return errors.New("request failed please try again")
+	if configs.Instance.GetEnv() != configs.SANDBOX {
+		token = utils.GenerateNumericToken(4)
+		var duration uint = 5
+		err = d.redis.Set(user.ID, token, time.Minute*time.Duration(duration))
+		if err != nil {
+			logger.Error("Error occurred when sending token %s", err)
+			return errors.New("request failed please try again")
+		}
+	} else {
+		token = "1234"
+		err = d.redis.Set(user.ID, token, time.Minute*time.Duration(duration))
+		if err != nil {
+			logger.Error("Error occurred when sending token %s", err)
+			return errors.New("request failed please try again")
+		}
 	}
 
 	// Activity log
@@ -223,17 +251,18 @@ func (d *DefaultAuthService) RequestToken(body *types.EmailRequest, logger *log.
 		}
 	}()
 
-	mailTemplate := &sendgrid.OTPMailRequest{
-		Code:     token,
-		ToMail:   user.EmailAddress,
-		ToName:   user.LastName + " " + user.FirstName,
-		Name:     user.DisplayName,
-		Duration: duration,
-	}
-
-	err = sendgrid.SendOTPMail(mailTemplate)
-	if err != nil {
-		logger.Error("Error occurred when sending otp email. %s", err.Error())
+	if configs.Instance.GetEnv() != configs.SANDBOX {
+		mailTemplate := &sendgrid.OTPMailRequest{
+			Code:     token,
+			ToMail:   user.EmailAddress,
+			ToName:   user.LastName + " " + user.FirstName,
+			Name:     user.DisplayName,
+			Duration: duration,
+		}
+		err = sendgrid.SendOTPMail(mailTemplate)
+		if err != nil {
+			logger.Error("Error occurred when sending otp email. %s", err.Error())
+		}
 	}
 
 	return nil
@@ -244,7 +273,7 @@ type authCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func (d *DefaultAuthService) GenerateToken(userId string) (*string, error) {
+func (d *DefaultAuthService) GenerateJWT(userId string) (*string, error) {
 	claims := &authCustomClaims{
 		userId,
 		jwt.StandardClaims{

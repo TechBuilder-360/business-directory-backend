@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
@@ -24,13 +25,13 @@ func (r *DefaultAuthRepo) CreateToken(token *model.Token) error {
 }
 
 func (r *DefaultAuthRepo) IsTokenValid(key, token string) (bool, error) {
-	token, err := r.redis.Get(key)
+	rToken, err := redis.RedisClient().Get(key)
 	if err != nil {
 		return false, err
 	}
 
-	isValid := token != ""
-	
+	isValid := utils.AddToStr(rToken) == token
+
 	return isValid, nil
 }
 
