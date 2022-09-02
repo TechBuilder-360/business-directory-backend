@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
@@ -22,7 +23,9 @@ type DefaultBranchRepo struct {
 }
 
 func (d DefaultBranchRepo) Create(branch *model.Branch) error {
-	panic("implement me")
+
+	return d.db.WithContext(context.Background()).Debug().Create(branch).Error
+
 }
 
 func (d DefaultBranchRepo) Get(branch *model.Branch) error {
