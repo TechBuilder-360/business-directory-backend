@@ -27,6 +27,7 @@ func DBMigration(db *gorm.DB) error {
 		model.OrganisationProduct{},
 		model.OrganisationMember{},
 		model.Activity{},
+		model.Branch{},
 	)
 
 	return err

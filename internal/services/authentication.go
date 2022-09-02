@@ -45,7 +45,7 @@ func NewAuthService() AuthService {
 
 func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log.Entry) error {
 
-	user, err := d.userRepo.GetByID(uid)
+	user, err := d.userRepo.GetUserByID(uid)
 	if err != nil || user == nil {
 		return errors.New("user not found")
 	}

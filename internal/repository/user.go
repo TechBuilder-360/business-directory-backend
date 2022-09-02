@@ -10,7 +10,7 @@ import (
 
 //go:generate mockgen -destination=../mocks/repository/user.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository UserRepository
 type UserRepository interface {
-	GetByID(id string) (*model.User, error)
+	GetUserByID(id string) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
 	Update(user *model.User) error
 	Create(user *model.User) error
@@ -36,7 +36,7 @@ func (r *DefaultUserRepo) Update(user *model.User) error {
 	return r.db.WithContext(ctx).Save(user).Error
 }
 
-func (r *DefaultUserRepo) GetByID(id string) (*model.User, error) {
+func (r *DefaultUserRepo) GetUserByID(id string) (*model.User, error) {
 	user := &model.User{}
 	if err := r.db.Where("id = ?", id).First(user).Error; err != nil {
 		return nil, err
