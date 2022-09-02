@@ -24,7 +24,7 @@ type DefaultBranchRepo struct {
 
 func (d DefaultBranchRepo) Create(branch *model.Branch) error {
 
-	return d.db.WithContext(context.Background()).Debug().Create(branch).Error
+	return d.db.WithContext(context.Background()).Create(branch).Error
 
 }
 

@@ -13,23 +13,35 @@ type OrganisationRepository interface {
 	Create(organisation *model.Organisation) error
 	Get(organisation *model.Organisation) error
 	GetAll(page, limit uint) (*[]model.Organisation, error)
-	Find(filter map[string]interface{}, organisation *model.Organisation) error
+	Find(filter map[string]interface{}) ([]model.Organisation, error)
 	Update(organisation *model.Organisation) error
 	WithTx(tx *gorm.DB) OrganisationRepository
+	GetOrganisationByName(name string) (bool, error)
 }
 
 type DefaultOrganisationRepo struct {
 	db *gorm.DB
 }
 
-func (d DefaultOrganisationRepo) Find(filter map[string]interface{}, organisation *model.Organisation) error {
-	err := d.db.Where(filter).Find(&organisation).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("record not found")
-	} else if err != nil {
-		return errors.New("not found")
+func (d DefaultOrganisationRepo) GetOrganisationByName(name string) (bool, error) {
+	var organisation []model.Organisation
+	err := d.db.Where("organisation_name=?", name).Find(&organisation).Error
+
+	if err != nil {
+		return false, err
 	}
-	return nil
+
+	return true, nil
+}
+func (d DefaultOrganisationRepo) Find(filter map[string]interface{}) ([]model.Organisation, error) {
+	var organisation []model.Organisation
+	err := d.db.Where(filter).Find(&organisation)
+	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	} else if err.Error != nil {
+		return nil, err.Error
+	}
+	return organisation, nil
 }
 
 func (d *DefaultOrganisationRepo) Create(organisation *model.Organisation) error {

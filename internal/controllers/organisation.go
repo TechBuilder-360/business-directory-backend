@@ -62,7 +62,7 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 		return
 	}
 
-	err = c.Service.CreateOrganisation(body, logger)
+	data, err := c.Service.CreateOrganisation(body, logger)
 	if err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -77,7 +77,7 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
 		Message: "Successful created",
-		Data:    nil,
+		Data:    data,
 	})
 
 }

@@ -32,6 +32,11 @@ type CreateOrgReq struct {
 	UserID           string           `json:"user_id" validate:"required"`
 	FoundingDate     string           `json:"founding_date" validate:"required"`
 }
+type CreateOrgResponse struct {
+	ID               string `json:"id"`
+	OrganisationName string `json:"organisation_name"`
+	IsHQ             bool   `json:"ishq"`
+}
 
 // Organisation ...
 type Organisation struct {

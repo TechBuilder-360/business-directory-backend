@@ -16,25 +16,27 @@ import (
 
 //go:generate mockgen -destination=../mocks/services/organisation.go -package=services github.com/TechBuilder-360/business-directory-backend/services OrganisationService
 type OrganisationService interface {
-	CreateOrganisation(body *types.CreateOrgReq, logger *log.Entry) error
+	CreateOrganisation(body *types.CreateOrgReq, logger *log.Entry) (*types.CreateOrgResponse, error)
 }
 
 type DefaultOrganisationService struct {
-	repo     repository.OrganisationRepository
-	rep      repository.BranchRepository
-	activity repository.ActivityRepository
-	db       *gorm.DB
+	repo       repository.OrganisationRepository
+	branchRepo repository.BranchRepository
+	activity   repository.ActivityRepository
+	db         *gorm.DB
+	userRepo   repository.UserRepository
 }
 
 func NewOrganisationService() OrganisationService {
 	return &DefaultOrganisationService{repo: repository.NewOrganisationRepository(),
-		activity: repository.NewActivityRepository(),
-		db:       database.ConnectDB(),
-		rep:      repository.NewBranchRepository(),
+		activity:   repository.NewActivityRepository(),
+		db:         database.ConnectDB(),
+		branchRepo: repository.NewBranchRepository(),
+		userRepo:   repository.NewUserRepository(),
 	}
 }
 
-func (d *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgReq, logger *log.Entry) error {
+func (d *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgReq, logger *log.Entry) (*types.CreateOrgResponse, error) {
 	uw := repository.NewGormUnitOfWork(d.db)
 	tx, err := uw.Begin()
 
@@ -47,38 +49,32 @@ func (d *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgReq
 
 	if err != nil {
 		logger.Error(err.Error())
-		return err
+		return nil, err
 	}
-	user := &model.User{
-		Base: model.Base{
-			ID: body.UserID,
-		},
-	}
-	d.db.First(&user)
+
+	user, _ := d.userRepo.GetUserByID(body.UserID)
 	if user.Tier != 1 {
 		logger.Error("Upgrade your acount to create Organisation")
-		return errors.New("Upgrade your acount to create Organisation")
+		return nil, errors.New("Upgrade your acount to create Organisation")
 	}
 	founding, err := dateparse.ParseLocal(body.FoundingDate)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Founding date is not a valid date. %s %s", body.FoundingDate, err.Error()))
-		return errors.New(constant.InternalServerError)
+		return nil, errors.New(constant.InternalServerError)
 	}
-
-	body.OrganisationName = utils.CapitalizeFirstCharacter(body.OrganisationName)
 
 	organisation := &model.Organisation{}
+	body.OrganisationName = utils.CapitalizeFirstCharacter(body.OrganisationName)
 
-	filter := map[string]interface{}{"organisation_name": body.OrganisationName}
-	err = d.repo.WithTx(tx).Find(filter, organisation)
-	if err != nil {
+	ok, _ := d.repo.GetOrganisationByName(body.OrganisationName)
+	//if err != nil {
+	//	logger.Error(err.Error())
+	//	return errors.New(constant.InternalServerError)
+	//}
+	if ok {
 		logger.Error(err.Error())
-		return errors.New(constant.InternalServerError)
-	}
-	if organisation.Base.ID != "" {
-		logger.Error(err.Error())
-		return errors.New("organisation name already exist")
+		return nil, errors.New("organisation name already exist")
 	}
 
 	organisation.UserID = user.ID
@@ -89,18 +85,18 @@ func (d *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgReq
 	err = d.repo.WithTx(tx).Create(organisation)
 	if err != nil {
 		logger.Error(err.Error())
-		return errors.New(constant.InternalServerError)
+		return nil, errors.New(constant.InternalServerError)
 	}
 	branch := &model.Branch{}
 
 	branch.OrganisationID = organisation.Base.ID
 	branch.BranchName = organisation.OrganisationName
 	branch.IsHQ = true
-	er := d.rep.WithTx(tx).Create(branch)
+	er := d.branchRepo.WithTx(tx).Create(branch)
 
 	if er != nil {
 		logger.Error(err.Error())
-		return errors.New(constant.InternalServerError)
+		return nil, errors.New(constant.InternalServerError)
 	}
 	// Activity log
 	activity := &model.Activity{For: user.ID, Message: fmt.Sprintf("Created an organisation %s", organisation.OrganisationName)}
@@ -113,9 +109,14 @@ func (d *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgReq
 	}()
 	if err = uw.Commit(tx); err != nil {
 		logger.Error(err.Error())
-		return errors.New("organisation could not be created")
+		return nil, errors.New("organisation could not be created")
 	}
-	return nil
+	response := &types.CreateOrgResponse{
+		ID:               organisation.Base.ID,
+		OrganisationName: organisation.OrganisationName,
+		IsHQ:             branch.IsHQ,
+	}
+	return response, nil
 }
 
 //func (d *DefaultOrganisationService) CreateBranch(body *types.CreateBranch, organisation *model.Organisation, log log.Logger) (*types.CreateBranch, error) {
