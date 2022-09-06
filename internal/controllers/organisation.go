@@ -5,6 +5,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
+	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
 	"github.com/TechBuilder-360/business-directory-backend/internal/services"
 	"github.com/TechBuilder-360/business-directory-backend/internal/validation"
 	"github.com/gorilla/mux"
@@ -23,7 +24,7 @@ type organisationController struct {
 
 func (c *organisationController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/organisations").Subrouter()
-	apis.HandleFunc("/create", c.CreateOrganisation).Methods(http.MethodPost)
+	apis.HandleFunc("/create", middlewares.Adapt(http.HandlerFunc(c.CreateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
 }
 
 func DefaultOrganisationController() OrganisationController {
@@ -32,20 +33,20 @@ func DefaultOrganisationController() OrganisationController {
 	}
 }
 
-// Create Organisation
+// CreateOrganisation godoc
 // @Summary      create an organisation
 // @Description  create an organisation
 // @Tags         Create
 // @Accept       json
 // @Produce      json
-// @Param        default  body	types.CreateOrgReq  true  "create this organisation"
-// @Success      200      {object}  utils.SuccessResponse
+// @Param        default  body	types.CreateOrganisationReq  true  "create this organisation"
+// @Success      200      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse}
 // @Router       /organisations/create [post]
 func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Creating Organisation.")
 
-	body := &types.CreateOrgReq{}
+	body := &types.CreateOrganisationReq{}
 
 	err := json.NewDecoder(r.Body).Decode(body)
 	if err != nil {
@@ -62,7 +63,19 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 		return
 	}
 
-	data, err := c.Service.CreateOrganisation(body, logger)
+	// get user from context
+	user, err := middlewares.UserFromContext(r)
+	if err != nil {
+		logger.Error(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	data, err := c.Service.CreateOrganisation(body, user, logger)
 	if err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -76,7 +89,7 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
-		Message: "Successful created",
+		Message: "Successful",
 		Data:    data,
 	})
 

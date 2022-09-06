@@ -27,3 +27,4 @@ type (
 
 type ENVIRONMENT string
 type OrganisationSize string
+type RoleType string

@@ -17,6 +17,7 @@ func ValidateStruct(w http.ResponseWriter, requestData interface{}, logger *log.
 		json.NewEncoder(w).Encode(utils.ErrorResponse{
 			Status:  false,
 			Message: "Invalid request",
+			Error:   validationErrors.Error(),
 		})
 		return true
 	}

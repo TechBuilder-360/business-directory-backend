@@ -25,17 +25,20 @@ type Address struct {
 	State       string `json:"state"`
 }
 
-// CreateOrgReq ...
-type CreateOrgReq struct {
-	OrganisationName string           `json:"organisation_name" validate:"required"`
+// CreateOrganisationReq ...
+type CreateOrganisationReq struct {
+	Name             string           `json:"organisation_name" validate:"required"`
+	Category         string           `json:"category" validate:"required"`
+	Country          string           `json:"country" validate:"required" example:"NG"`
+	Description      string           `json:"description" validate:"required"`
 	OrganisationSize OrganisationSize `json:"organisation_size" validate:"required"`
-	UserID           string           `json:"user_id" validate:"required"`
 	FoundingDate     string           `json:"founding_date" validate:"required"`
 }
-type CreateOrgResponse struct {
-	ID               string `json:"id"`
-	OrganisationName string `json:"organisation_name"`
-	IsHQ             bool   `json:"ishq"`
+type CreateOrganisationResponse struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	IsHQ        bool   `json:"is_hq"`
 }
 
 // Organisation ...

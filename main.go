@@ -7,6 +7,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
 	"github.com/TechBuilder-360/business-directory-backend/routers"
+	"github.com/TechBuilder-360/business-directory-backend/seeder"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
@@ -57,6 +58,8 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("Migration Failed: %s", err.Error()))
 	}
+	go seeder.Seed(dbConnection)
+
 	// // Set up the routes
 	router := mux.NewRouter()
 	routers.SetupRoutes(router)

@@ -21,13 +21,15 @@ func ConnectDB() *gorm.DB {
 
 func DBMigration(db *gorm.DB) error {
 	err := db.AutoMigrate(
-		model.User{},
-		model.Organisation{},
-		model.OrganisationService{},
-		model.OrganisationProduct{},
-		model.OrganisationMember{},
-		model.Activity{},
-		model.Branch{},
+		&model.User{},
+		&model.Organisation{},
+		&model.OrganisationService{},
+		&model.OrganisationProduct{},
+		&model.OrganisationMember{},
+		&model.Activity{},
+		&model.Branch{},
+		&model.Category{},
+		&model.Role{},
 	)
 
 	return err
