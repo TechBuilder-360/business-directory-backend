@@ -1,95 +1,202 @@
 package services
 
 import (
+	"errors"
+	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
+	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
+	"github.com/TechBuilder-360/business-directory-backend/internal/database"
+	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
+	"github.com/araddon/dateparse"
+	"github.com/google/uuid"
+	"github.com/pariz/gountries"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
+// APIKeyPair Business Sec/Pub key pairs
+type APIKeyPair struct {
+	SecretKey string
+	PublicKey string
+}
+
 //go:generate mockgen -destination=../mocks/services/organisation.go -package=services github.com/TechBuilder-360/business-directory-backend/services OrganisationService
 type OrganisationService interface {
-	//CreateOrganisation(body *types.CreateOrgReq, user *model.User, logger *log.Entry) (*types.Organisation, error)
+	CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error)
+	GetOrganisationByPublicKey(publicKey string) (*model.Organisation, error)
+	GenerateKeyPairs() *APIKeyPair
 }
 
 type DefaultOrganisationService struct {
-	repo     repository.OrganisationRepository
-	activity repository.ActivityRepository
-	db       *gorm.DB
+	organisationRepo repository.OrganisationRepository
+	branchRepo       repository.BranchRepository
+	activityRepo     repository.ActivityRepository
+	userRepo         repository.UserRepository
+	roleRepo         repository.RoleRepository
+	db               *gorm.DB
 }
 
 func NewOrganisationService() OrganisationService {
-	return &DefaultOrganisationService{repo: repository.NewOrganisationRepository()}
+	return &DefaultOrganisationService{
+		organisationRepo: repository.NewOrganisationRepository(),
+		activityRepo:     repository.NewActivityRepository(),
+		userRepo:         repository.NewUserRepository(),
+		branchRepo:       repository.NewBranchRepository(),
+		roleRepo:         repository.NewRoleRepository(),
+		db:               database.ConnectDB(),
+	}
 }
 
-//func (d *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgReq, user *model.User, log *log.Entry) (*types.Organisation, error) {
-//	uw := repository.NewGormUnitOfWork(d.db)
-//	tx, err := uw.Begin()
-//
-//	defer func() {
-//		if err != nil {
-//			tx.Rollback()
-//		}
-//	}()
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	founding, err := dateparse.ParseLocal(body.FoundingDate)
-//	if err != nil {
-//		errMsg := fmt.Sprintf("Founding date is not a valid date. %s %s", body.FoundingDate, err.Error())
-//		return nil, errors.New(errMsg)
-//	}
-//
-//	body.OrganisationName = utils.CapitalizeFirstCharacter(body.OrganisationName)
-//
-//	organisation := &model.Organisation{}
-//	filter := map[string]interface{}{"organisation_name": body.OrganisationName}
-//	err = d.repo.WithTx(tx).Find(filter, organisation)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	if organisation.ID != "" {
-//		return nil, errors.New("organisation name already exist")
-//	}
-//
-//	organisation.UserID = user.ID
-//	organisation.OrganisationName = body.OrganisationName
-//	organisation.Description = utils.FormatDate(founding)
-//	organisation.OrganisationSize = &body.OrganisationSize
-//	organisation.Description = body.Description
-//
-//	err = d.repo.WithTx(tx).Create(organisation)
-//	if err != nil {
-//		return nil, errors.New("organisation could not be created")
-//	}
-//
-//	// Activity log
-//	activity := &model.Activity{For: user.ID, Message: fmt.Sprintf("Created an organisation %s", organisation.OrganisationName)}
-//	go func() {
-//		err := d.activity.Create(activity)
-//		if err != nil {
-//
-//		}
-//	}()
-//
-//	response := &types.Organisation{
-//		OrganisationID:     organisation.ID,
-//		OrganisationName:   organisation.OrganisationName,
-//		LogoURL:            *organisation.LogoURL,
-//		Website:            *organisation.Website,
-//		OrganisationSize:   *organisation.OrganisationSize,
-//		Description:        organisation.Description,
-//		RegistrationNumber: *organisation.RegistrationNumber,
-//		FoundingDate:       organisation.FoundingDate,
-//	}
-//
-//	if err = uw.Commit(tx); err != nil {
-//		return nil, errors.New("organisation could not be created")
-//	}
-//
-//	return response, nil
-//}
+func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error) {
+	uw := repository.NewGormUnitOfWork(o.db)
+	tx, err := uw.Begin()
+
+	defer func() {
+		if err != nil {
+			logger.Error(err.Error())
+			tx.Rollback()
+		}
+	}()
+
+	if err != nil {
+		logger.Error(err.Error())
+		return nil, err
+	}
+
+	if user.Tier < 1 {
+		logger.Error("Upgrade your account to create organisation")
+		return nil, errors.New("upgrade your account to create organisation")
+	}
+
+	q := gountries.New()
+	country, err := q.FindCountryByAlpha(body.Country)
+	if err != nil {
+		return nil, errors.New("invalid country")
+	}
+
+	founding, err := dateparse.ParseLocal(body.FoundingDate)
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Founding date is not a valid date. %s %s", body.FoundingDate, err.Error()))
+		return nil, errors.New(constant.InternalServerError)
+	}
+
+	keys := o.GenerateKeyPairs()
+
+	organisationName := utils.CapitalizeFirstCharacter(body.Name)
+
+	org, err := o.organisationRepo.GetOrganisationByName(organisationName)
+	if err != nil {
+		logger.Error(err.Error())
+		return nil, errors.New(constant.InternalServerError)
+	}
+	if org != nil {
+		logger.Error("organisation name already exist")
+		return nil, errors.New("organisation name already exist")
+	}
+
+	organisation := &model.Organisation{
+		UserID:           user.ID,
+		OrganisationName: organisationName,
+		Description:      body.Description,
+		FoundingDate:     utils.FormatDate(founding),
+		OrganisationSize: body.OrganisationSize,
+		Category:         body.Category,
+		Country:          country.Name.Official,
+		PublicKey:        keys.PublicKey,
+		SecretKey:        keys.SecretKey,
+	}
+	organisation.ID = utils.GenerateUUID()
+
+	err = o.organisationRepo.WithTx(tx).Create(organisation)
+	if err != nil {
+		logger.Error(err.Error())
+		return nil, errors.New("organisation creation failed")
+	}
+
+	branch := &model.Branch{
+		OrganisationID: organisation.ID,
+		BranchName:     organisation.OrganisationName,
+		IsHQ:           true,
+	}
+
+	role, err := o.roleRepo.GetByName(model.OWNER)
+	if err != nil {
+		logger.Error(err.Error())
+		return nil, errors.New("organisation creation failed")
+	}
+
+	member := &model.OrganisationMember{
+		UserID:         user.ID,
+		OrganizationID: organisation.ID,
+		RoleID:         role.ID,
+	}
+
+	err = o.organisationRepo.WithTx(tx).AddOrganisationMember(member)
+	if err != nil {
+		return nil, errors.New("organisation creation failed")
+	}
+
+	er := o.branchRepo.WithTx(tx).Create(branch)
+	if er != nil {
+		logger.Error(err.Error())
+		return nil, errors.New("organisation creation failed")
+	}
+	// Activity log
+	activity := &model.Activity{For: user.ID, Message: fmt.Sprintf("Created an organisation %s", organisation.OrganisationName)}
+	go func() {
+		err = o.activityRepo.Create(activity)
+		if err != nil {
+			logger.Error(err.Error())
+		}
+	}()
+
+	if err = uw.Commit(tx); err != nil {
+		logger.Error(err.Error())
+		return nil, errors.New("organisation could not be created")
+	}
+	response := &types.CreateOrganisationResponse{
+		ID:          organisation.ID,
+		Name:        organisation.OrganisationName,
+		Description: organisation.Description,
+		IsHQ:        branch.IsHQ,
+	}
+	return response, nil
+}
+
+func (o *DefaultOrganisationService) GetOrganisationByPublicKey(publicKey string) (*model.Organisation, error) {
+	organisation, err := o.organisationRepo.GetByPublicKey(publicKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return organisation, nil
+}
+
+func (o *DefaultOrganisationService) GenerateKeyPairs() *APIKeyPair {
+	var (
+		secretKey = uuid.NewString()
+		publicKey = utils.ToMd5(uuid.NewString())
+	)
+
+	var (
+		skHeader = "bd_sk_"
+		pkHeader = "bd_pk_"
+	)
+
+	if configs.Instance.GetEnv() != configs.PRODUCTION {
+		skHeader = "bd_sandbox_sk_"
+		pkHeader = "bd_sandbox_pk_"
+	}
+
+	return &APIKeyPair{
+		SecretKey: skHeader + secretKey,
+		PublicKey: pkHeader + publicKey,
+	}
+}
 
 //func (d *DefaultOrganisationService) CreateBranch(body *types.CreateBranch, organisation *model.Organisation, log log.Logger) (*types.CreateBranch, error) {
 //	uw := repository.NewGormUnitOfWork(d.db)

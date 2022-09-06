@@ -6,6 +6,7 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/mitchellh/mapstructure"
 	"github.com/rs/xid"
 
 	"io"
@@ -95,4 +96,22 @@ func ToMd5(text string) string {
 	val := md5.Sum([]byte(text))
 
 	return hex.EncodeToString(val[:])
+}
+
+func StructToMap(input interface{}, output interface{}) (interface{}, error) {
+
+	err := mapstructure.Decode(input, output)
+	if err != nil {
+		return nil, err
+	}
+
+	return output, nil
+}
+
+func AddToStr(add *string) string {
+	if add == nil {
+		return ""
+	}
+
+	return *add
 }

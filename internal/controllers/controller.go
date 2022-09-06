@@ -2,9 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/TechBuilder-360/business-directory-backend/internal/common/consts"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
-	"github.com/TechBuilder-360/business-directory-backend/middlewares"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -18,7 +17,7 @@ type Controller interface {
 func (c *NewController) RegisterRoutes(router *mux.Router) {
 	api := router.PathPrefix("").Subrouter()
 
-	api.HandleFunc("/ping", middlewares.Chain(c.Ping, middlewares.Method("GET"), middlewares.Logging())) //.Methods(http.MethodGet)
+	api.HandleFunc("/ping", c.Ping)
 }
 
 type NewController struct {
@@ -29,7 +28,7 @@ func DefaultController() Controller {
 }
 
 func (c *NewController) Ping(w http.ResponseWriter, r *http.Request) {
-	log.WithFields(log.Fields{consts.RequestIdentifier: utils.GenerateUUID()})
+	log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(utils.SuccessResponse{

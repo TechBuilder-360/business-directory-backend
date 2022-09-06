@@ -12,24 +12,50 @@ import (
 type OrganisationRepository interface {
 	Create(organisation *model.Organisation) error
 	Get(organisation *model.Organisation) error
+	GetByPublicKey(publicKey string) (*model.Organisation, error)
 	GetAll(page, limit uint) (*[]model.Organisation, error)
-	Find(filter map[string]interface{}, organisation *model.Organisation) error
+	Find(filter map[string]interface{}) ([]model.Organisation, error)
 	Update(organisation *model.Organisation) error
 	WithTx(tx *gorm.DB) OrganisationRepository
+	GetOrganisationByName(name string) (*model.Organisation, error)
+	AddOrganisationMember(member *model.OrganisationMember) error
 }
 
 type DefaultOrganisationRepo struct {
 	db *gorm.DB
 }
 
-func (d DefaultOrganisationRepo) Find(filter map[string]interface{}, organisation *model.Organisation) error {
-	err := d.db.Where(filter).Find(&organisation).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("record not found")
-	} else if err != nil {
-		return errors.New("not found")
+func (d *DefaultOrganisationRepo) GetByPublicKey(publicKey string) (*model.Organisation, error) {
+	organisation := &model.Organisation{}
+	err := d.db.WithContext(context.Background()).Where(&model.Organisation{PublicKey: publicKey}).First(organisation).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) == false {
+		return nil, errors.New("could not fetch organisation")
 	}
-	return nil
+
+	return organisation, nil
+}
+
+func (d *DefaultOrganisationRepo) GetOrganisationByName(name string) (*model.Organisation, error) {
+	var organisation *model.Organisation
+	err := d.db.Where("organisation_name=?", name).First(&organisation).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return organisation, nil
+}
+func (d *DefaultOrganisationRepo) Find(filter map[string]interface{}) ([]model.Organisation, error) {
+	var organisation []model.Organisation
+	err := d.db.Where(filter).Find(&organisation)
+	if errors.Is(err.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	} else if err.Error != nil {
+		return nil, err.Error
+	}
+	return organisation, nil
 }
 
 func (d *DefaultOrganisationRepo) Create(organisation *model.Organisation) error {
@@ -48,8 +74,8 @@ func (d *DefaultOrganisationRepo) Update(organisation *model.Organisation) error
 	panic("implement me")
 }
 
-func (d *DefaultOrganisationRepo) UpdateStatus(organisation *model.Organisation) error {
-	panic("implement me")
+func (d *DefaultOrganisationRepo) AddOrganisationMember(member *model.OrganisationMember) error {
+	return d.db.WithContext(context.Background()).Create(member).Error
 }
 
 func (d *DefaultOrganisationRepo) WithTx(tx *gorm.DB) OrganisationRepository {

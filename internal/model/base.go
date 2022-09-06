@@ -8,7 +8,7 @@ import (
 
 type Base struct {
 	ID        string `gorm:"primaryKey"`
-	Counter   uint   `json:"counter" gorm:"->;types:BIGSERIAL"`
+	Counter   uint64 `json:"-" gorm:"<-;types:BIGSERIAL;autoIncrement"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -19,7 +19,9 @@ func (b *Base) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
-func (b *Base) BeforeUpdate(tx *gorm.DB) (err error) {
-	b.UpdatedAt = time.Now()
-	return
+type BaseP struct {
+	Counter   uint64 `json:"-" gorm:"<-;types:BIGSERIAL;autoIncrement"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }

@@ -9,7 +9,7 @@ type SuccessResponse struct {
 
 // ErrorResponse ...
 type ErrorResponse struct {
-	Status  bool        `json:"status"`
-	Message string      `json:"message"`
-	Error   interface{} `json:"error,omitempty"`
+	Status  bool   `json:"status"`
+	Message string `json:"message"`
+	Error   string `json:"error,omitempty"`
 }
