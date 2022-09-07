@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func ImageUpload(input interface{}) (string, error) {
+func ImageUpload(input string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//create cloudinary instance

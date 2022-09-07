@@ -1,7 +1,5 @@
 package types
 
-import "mime/multipart"
-
 // AuthRequest ...
 type AuthRequest struct {
 	EmailAddress string `json:"email_address" validate:"required"`
@@ -23,7 +21,7 @@ type Registration struct {
 }
 
 type UpgradeUserTierRequest struct {
-	IdentityNumber string         `json:"identity_number" validate:"required" `
-	IdentityName   string         `json:"identity_name" validate:"required"`
-	IdentityImage  multipart.File `json:"identity_image" validate:"required" `
+	IdentityNumber string `json:"identity_number" validate:"required" `
+	IdentityName   string `json:"identity_name" validate:"required"`
+	IdentityImage  string `json:"identity_image" validate:"required" `
 }
