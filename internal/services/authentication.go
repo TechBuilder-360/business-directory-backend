@@ -13,6 +13,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
 	"github.com/dgrijalva/jwt-go"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -25,6 +26,7 @@ type AuthService interface {
 	GenerateJWT(userID string) (*string, error)
 	ValidateToken(encodedToken string) (*jwt.Token, error)
 	RequestToken(body *types.EmailRequest, logger *log.Entry) error
+	RefreshUserToken(tokenString string, logger *log.Entry) (*string, error)
 }
 
 type DefaultAuthService struct {
@@ -65,6 +67,9 @@ func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log
 	}
 
 	user.EmailVerified = true
+	if configs.Instance.GetEnv() == configs.SANDBOX {
+		user.Tier = 99
+	}
 	if err = d.userRepo.Update(user); err != nil {
 		logger.Error("An Error occurred while Activating your account, Please try again. %s", err.Error())
 		return errors.New("account activation failed")
@@ -301,4 +306,34 @@ func (d *DefaultAuthService) ValidateToken(encodedToken string) (*jwt.Token, err
 		}
 		return []byte(configs.Instance.Secret), nil
 	})
+}
+
+func (r *DefaultAuthService) RefreshUserToken(tokenString string, logger *log.Entry) (*string, error) {
+
+	token, err := NewAuthService().ValidateToken(tokenString)
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			logger.Error(jwt.ErrSignatureInvalid)
+			return nil, errors.New(constant.InternalServerError)
+		}
+	}
+	if !token.Valid {
+		logger.Error(jwt.ErrSignatureInvalid)
+		return nil, errors.New(constant.InternalServerError)
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userId := claims["user_id"].(string)
+
+		tk, err := NewAuthService().GenerateJWT(userId)
+
+		if err != nil {
+			log.Error(http.StatusUnauthorized)
+			return nil, errors.New(constant.InternalServerError)
+		}
+		return tk, nil
+	}
+
+	return nil, nil
 }

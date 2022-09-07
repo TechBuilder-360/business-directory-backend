@@ -1,6 +1,6 @@
 package types
 
-//import "github.com/go-playground/validator/v10"
+import "mime/multipart"
 
 // AuthRequest ...
 type AuthRequest struct {
@@ -20,4 +20,10 @@ type Registration struct {
 	LastName     string `json:"last_name" validate:"required"`
 	DisplayName  string `json:"display_name"`
 	PhoneNumber  string `json:"phone_number"`
+}
+
+type UpgradeUserTierRequest struct {
+	IdentityNumber string         `json:"identity_number" validate:"required" `
+	IdentityName   string         `json:"identity_name" validate:"required"`
+	IdentityImage  multipart.File `json:"identity_image" validate:"required" `
 }

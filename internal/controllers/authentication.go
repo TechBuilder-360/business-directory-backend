@@ -17,6 +17,7 @@ type AuthController interface {
 	ActivateEmail(w http.ResponseWriter, r *http.Request)
 	Authenticate(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
+	RefreshUserToken(w http.ResponseWriter, r *http.Request)
 	RegisterRoutes(router *mux.Router)
 }
 
@@ -31,6 +32,7 @@ func (c *NewAuthController) RegisterRoutes(router *mux.Router) {
 	apis.HandleFunc("/activate", c.ActivateEmail).Methods(http.MethodGet)
 	apis.HandleFunc("/authentication", c.Authenticate).Methods(http.MethodPost)
 	apis.HandleFunc("/login", c.Login).Methods(http.MethodPost)
+	apis.HandleFunc("/refresh", c.RefreshUserToken).Methods(http.MethodPost)
 }
 
 func DefaultAuthController() AuthController {
@@ -208,4 +210,30 @@ func (c *NewAuthController) ActivateEmail(w http.ResponseWriter, r *http.Request
 		Message: "account activation successful",
 	})
 	return
+}
+
+func (c *NewAuthController) RefreshUserToken(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger.Info("refreshing user token")
+	const BearerSchema = "Bearer"
+	authHeader := r.Header.Get("Authorization")
+	tokenString := authHeader[len(BearerSchema)+1:]
+
+	tk, err := c.as.RefreshUserToken(tokenString, logger)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		logger.Error(err.Error())
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(utils.SuccessResponse{
+		Status:  true,
+		Message: "refreshed",
+		Data:    tk,
+	})
 }

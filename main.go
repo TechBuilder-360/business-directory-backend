@@ -9,6 +9,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/routers"
 	"github.com/TechBuilder-360/business-directory-backend/seeder"
 	"github.com/gorilla/mux"
+	"github.com/polds/logrus-papertrail-hook"
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
 	"net/http"
@@ -34,6 +35,18 @@ import (
 
 func init() {
 	// Log as JSON instead of the default ASCII formatter.
+
+	hook, err := logrus_papertrail.NewPapertrailHook(&logrus_papertrail.Hook{
+		Host:    "logs.papertrailapp.com",
+		Port:    configs.Instance.PaperTailPort,
+		Appname: configs.Instance.PaperTailAppName,
+	})
+
+	hook.SetLevels([]log.Level{log.ErrorLevel, log.WarnLevel})
+
+	if err == nil {
+		log.AddHook(hook)
+	}
 	log.SetFormatter(&log.JSONFormatter{})
 
 	// Output to stdout instead of the default stderr
@@ -45,6 +58,7 @@ func init() {
 }
 
 func main() {
+
 	configs.Load()
 
 	// // Generate swagger doc information

@@ -18,5 +18,6 @@ type User struct {
 	LastLogin      time.Time `json:"last_login" gorm:"null"`
 	Tier           int       `json:"tier" gorm:"default:0"`
 	IdentityNumber string    `json:"identity_number" gorm:"null"`
+	IdentityName   string    `json:"identity_name" gorm:"null"`
 	IdentityImage  string    `json:"identity_image" gorm:"null"`
 }
