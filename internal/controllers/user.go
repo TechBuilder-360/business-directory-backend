@@ -13,8 +13,8 @@ import (
 	"net/http"
 )
 
-type UserController interface {
-	UpgradeUserTier(w http.ResponseWriter, r *http.Request)
+type IUserController interface {
+	UpgradeTierOne(w http.ResponseWriter, r *http.Request)
 	RegisterRoutes(router *mux.Router)
 }
 
@@ -24,21 +24,20 @@ type NewUserController struct {
 
 func (c NewUserController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/users").Subrouter()
-	apis.HandleFunc("/upgrade", middlewares.Adapt(http.HandlerFunc(c.UpgradeUserTier),
+	apis.HandleFunc("/upgrade", middlewares.Adapt(http.HandlerFunc(c.UpgradeTierOne),
 		middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
 
 }
 
-func DefaultUserController() UserController {
+func DefaultUserController() IUserController {
 	return &NewUserController{
 		as: services.NewUserService(),
 	}
 }
 
-func (c *NewUserController) UpgradeUserTier(w http.ResponseWriter, r *http.Request) {
+func (c *NewUserController) UpgradeTierOne(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Upgrading user tiers")
-
 	body := &types.UpgradeUserTierRequest{}
 	json.NewDecoder(r.Body).Decode(body)
 	logger.Info("Request data: %+v", body)
@@ -47,7 +46,7 @@ func (c *NewUserController) UpgradeUserTier(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err := c.as.UpgradeUserTier(body, logger)
+	err := c.as.UpgradeTierOne(body, logger)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		logger.Error(err.Error())

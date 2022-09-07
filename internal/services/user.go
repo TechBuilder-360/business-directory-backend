@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
-	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
+	"github.com/TechBuilder-360/business-directory-backend/internal/infrastructure/utility"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
 	log "github.com/sirupsen/logrus"
@@ -12,7 +12,7 @@ import (
 
 //go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services UserService
 type UserService interface {
-	UpgradeUserTier(body *types.UpgradeUserTierRequest, logger *log.Entry) error
+	UpgradeTierOne(body *types.UpgradeUserTierRequest, logger *log.Entry) error
 }
 
 type DefaultUserService struct {
@@ -24,9 +24,9 @@ func NewUserService() UserService {
 	return &DefaultUserService{repo: repository.NewUserRepository()}
 }
 
-func (r *DefaultUserService) UpgradeUserTier(body *types.UpgradeUserTierRequest, logger *log.Entry) error {
+func (r *DefaultUserService) UpgradeTierOne(body *types.UpgradeUserTierRequest, logger *log.Entry) error {
 	user := &model.User{}
-	url, err := utils.ImageUpload(body.IdentityImage)
+	url, err := utility.ImageUpload(body.IdentityImage)
 	if err != nil {
 		logger.Error(err)
 		return errors.New(constant.InternalServerError)
@@ -35,6 +35,7 @@ func (r *DefaultUserService) UpgradeUserTier(body *types.UpgradeUserTierRequest,
 	user.IdentityName = body.IdentityName
 	user.IdentityNumber = body.IdentityNumber
 	user.IdentityImage = url
+
 	user.Tier = 1
 	err = r.repo.Update(user)
 	if err != nil {

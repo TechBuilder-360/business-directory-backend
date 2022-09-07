@@ -235,6 +235,7 @@ func (d *DefaultAuthService) RequestToken(body *types.EmailRequest, logger *log.
 		if err != nil {
 			logger.Error("Error occurred when sending token %s", err)
 			return errors.New("request failed please try again")
+
 		}
 	} else {
 		token = "1234"
