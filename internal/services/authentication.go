@@ -26,7 +26,7 @@ type AuthService interface {
 	GenerateJWT(userID string) (*string, error)
 	ValidateToken(encodedToken string) (*jwt.Token, error)
 	RequestToken(body *types.EmailRequest, logger *log.Entry) error
-	RefreshUserToken(tokenString string, logger *log.Entry) (*string, error)
+	RefreshUserToken(tokenString string, logger *log.Entry) (*types.LoginResponse, error)
 }
 
 type DefaultAuthService struct {
@@ -308,7 +308,7 @@ func (d *DefaultAuthService) ValidateToken(encodedToken string) (*jwt.Token, err
 	})
 }
 
-func (r *DefaultAuthService) RefreshUserToken(tokenString string, logger *log.Entry) (*string, error) {
+func (r *DefaultAuthService) RefreshUserToken(tokenString string, logger *log.Entry) (*types.LoginResponse, error) {
 
 	token, err := NewAuthService().ValidateToken(tokenString)
 
@@ -322,7 +322,7 @@ func (r *DefaultAuthService) RefreshUserToken(tokenString string, logger *log.En
 		logger.Error(jwt.ErrSignatureInvalid)
 		return nil, errors.New(constant.InternalServerError)
 	}
-
+	response := &types.LoginResponse{}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		userId := claims["user_id"].(string)
 
@@ -332,7 +332,8 @@ func (r *DefaultAuthService) RefreshUserToken(tokenString string, logger *log.En
 			log.Error(http.StatusUnauthorized)
 			return nil, errors.New(constant.InternalServerError)
 		}
-		return tk, nil
+		response.Token = utils.AddToStr(tk)
+		return response, nil
 	}
 
 	return nil, nil
