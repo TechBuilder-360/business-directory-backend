@@ -1,7 +1,5 @@
 package types
 
-//import "github.com/go-playground/validator/v10"
-
 // AuthRequest ...
 type AuthRequest struct {
 	EmailAddress string `json:"email_address" validate:"required"`
@@ -20,4 +18,10 @@ type Registration struct {
 	LastName     string `json:"last_name" validate:"required"`
 	DisplayName  string `json:"display_name"`
 	PhoneNumber  string `json:"phone_number"`
+}
+
+type UpgradeUserTierRequest struct {
+	IdentityNumber string `json:"identity_number" validate:"required" `
+	IdentityName   string `json:"identity_name" validate:"required"`
+	IdentityImage  string `json:"identity_image" validate:"required" `
 }

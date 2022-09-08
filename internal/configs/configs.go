@@ -35,6 +35,14 @@ type Config struct {
 
 	SendGridAPIKey    string `env:"SENDGRID_API_KEY"`
 	SendGridFromEmail string `env:"SEND_GRID_FROM_EMAIL"`
+
+	PaperTailAppName string `env:"PAPER_TAIL_APP_NAME"`
+	PaperTailPort    int    `env:"PAPER_TAIL_PORT"`
+
+	EnvCloudName         string `env:"ENV_CLOUD_NAME"`
+	EnvCloudAPIKey       string `env:"ENV_CLOUD_API_KEY"`
+	EnvCloudAPISecret    string `env:"ENV_CLOUD_API_SECRET"`
+	EnvCloudUploadFolder string `env:"ENV_CLOUD_UPLOAD_FOLDER"`
 }
 
 func Load() {
