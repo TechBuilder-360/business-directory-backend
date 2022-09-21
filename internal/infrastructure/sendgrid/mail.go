@@ -2,6 +2,7 @@ package sendgrid
 
 import (
 	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/flosch/pongo2"
 	"github.com/sendgrid/sendgrid-go"
@@ -24,10 +25,10 @@ func parseHTML(body map[string]interface{}, templateName Template) (string, erro
 }
 
 func sendMail(body *mail) error {
-	from := m.NewEmail("TechBuilder Developer", configs.Instance.SendGridFromEmail)
+	from := m.NewEmail("TechBuilder Developer", utils.AddToStr(configs.Instance.SendGridFromEmail))
 	to := m.NewEmail(body.ToName, body.ToMail)
 	message := m.NewSingleEmail(from, body.Subject, to, "", body.Template)
-	client := sendgrid.NewSendClient(configs.Instance.SendGridAPIKey)
+	client := sendgrid.NewSendClient(utils.AddToStr(configs.Instance.SendGridAPIKey))
 	_, err := client.Send(message)
 	if err != nil {
 		return err
@@ -39,7 +40,7 @@ func SendActivateMail(activate *ActivationMailRequest) error {
 	content := make(map[string]interface{})
 	content["fullname"] = activate.FullName
 	content["appName"] = configs.Instance.AppName
-	content["link"] = fmt.Sprintf("%s/auth/activate?token=%s&uid=%s", configs.Instance.Host, activate.Token, activate.UID)
+	content["link"] = fmt.Sprintf("%s/auth/activate?token=%s&uid=%s", configs.Instance.BASEURL, activate.Token, activate.UID)
 
 	template, err := parseHTML(content, ACTIVATIONTEMPLATE)
 	if err != nil {

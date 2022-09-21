@@ -5,6 +5,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
+	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
 	"github.com/TechBuilder-360/business-directory-backend/internal/services"
 	"github.com/TechBuilder-360/business-directory-backend/internal/validation"
 	"github.com/gorilla/mux"
@@ -212,14 +213,37 @@ func (c *NewAuthController) ActivateEmail(w http.ResponseWriter, r *http.Request
 	return
 }
 
+// RefreshUserToken
+// @Summary      Refresh authorization token
+// @Description  Refresh authorization token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        default    body     string  false  "token"
+// @Success      200      {object}  utils.SuccessResponse
+// @Router       /auth/refresh [post]
 func (c *NewAuthController) RefreshUserToken(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("refreshing user token")
-	const BearerSchema = "Bearer"
-	authHeader := r.Header.Get("Authorization")
-	tokenString := authHeader[len(BearerSchema)+1:]
 
-	tk, err := c.as.RefreshUserToken(tokenString, logger)
+	body := types.RefreshTokenRequest{}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		logger.Error(err.Error())
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: "Invalid request",
+		})
+		return
+	}
+
+	if validation.ValidateStruct(w, body, logger) {
+		return
+	}
+
+	token := middlewares.ExtractBearerToken(r)
+
+	tk, err := c.as.RefreshUserToken(body, token, logger)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		logger.Error(err.Error())

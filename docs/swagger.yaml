@@ -10,6 +10,40 @@ definitions:
     - email_address
     - otp
     type: object
+  types.CreateOrganisationReq:
+    properties:
+      category:
+        type: string
+      country:
+        example: NG
+        type: string
+      description:
+        type: string
+      founding_date:
+        type: string
+      organisation_name:
+        type: string
+      organisation_size:
+        type: string
+    required:
+    - category
+    - country
+    - description
+    - founding_date
+    - organisation_name
+    - organisation_size
+    type: object
+  types.CreateOrganisationResponse:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      is_hq:
+        type: boolean
+      name:
+        type: string
+    type: object
   types.EmailRequest:
     properties:
       email_address:
@@ -173,6 +207,33 @@ paths:
             $ref: '#/definitions/utils.SuccessResponse'
       tags:
       - Auth
+  /organisations/create:
+    post:
+      consumes:
+      - application/json
+      description: create an organisation
+      parameters:
+      - description: create this organisation
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateOrganisationReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.SuccessResponse'
+            - properties:
+                Data:
+                  $ref: '#/definitions/types.CreateOrganisationResponse'
+              type: object
+      summary: create an organisation
+      tags:
+      - Create
 securityDefinitions:
   ApiKeyAuth:
     type: basic

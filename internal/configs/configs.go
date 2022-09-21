@@ -17,11 +17,10 @@ var Instance *Config
 type Config struct {
 	AppName       string            `env:"APP_NAME"`
 	Namespace     string            `env:"NAMESPACE"`
-	Host          string            `env:"BASE_URL"`
-	Issuer        string            `env:"PORT"`
+	BASEURL       string            `env:"BASE_URL"`
+	Port          string            `env:"PORT"`
 	Environment   types.ENVIRONMENT `env:"ENVIRONMENT"`
 	Secret        string            `env:"SECRET"`
-	URLPrefix     string            `env:"ISSUER"`
 	TOKENLIFESPAN uint              `env:"TOKEN_LIFE_SPAN"`
 
 	DbName string `env:"DB_NAME"`
@@ -33,16 +32,15 @@ type Config struct {
 	RedisURL      string `env:"REDIS_URL"`
 	RedisPassword string `env:"REDIS_PASSWORD"`
 
-	SendGridAPIKey    string `env:"SENDGRID_API_KEY"`
-	SendGridFromEmail string `env:"SEND_GRID_FROM_EMAIL"`
+	SendGridAPIKey    *string `env:"SENDGRID_API_KEY"`
+	SendGridFromEmail *string `env:"SEND_GRID_FROM_EMAIL"`
 
-	PaperTailAppName string `env:"PAPER_TAIL_APP_NAME"`
-	PaperTailPort    int    `env:"PAPER_TAIL_PORT"`
+	PaperTailAppName *string `env:"PAPER_TAIL_APP_NAME"`
+	PaperTailPort    *string `env:"PAPER_TAIL_PORT"`
 
-	EnvCloudName         string `env:"ENV_CLOUD_NAME"`
-	EnvCloudAPIKey       string `env:"ENV_CLOUD_API_KEY"`
-	EnvCloudAPISecret    string `env:"ENV_CLOUD_API_SECRET"`
-	EnvCloudUploadFolder string `env:"ENV_CLOUD_UPLOAD_FOLDER"`
+	CloudinaryName   *string `env:"ENV_CLOUD_NAME"`
+	CloudinaryAPIKey *string `env:"ENV_CLOUD_API_KEY"`
+	CloudinarySecret *string `env:"ENV_CLOUD_API_SECRET"`
 }
 
 func Load() {

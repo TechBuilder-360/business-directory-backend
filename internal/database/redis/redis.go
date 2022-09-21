@@ -76,7 +76,27 @@ func (c *Client) Set(key string, value interface{}, duration time.Duration) erro
 	return c.Client.Set(ctx, key, value, duration).Err()
 }
 
+func (c *Client) HSet(key string, value interface{}, duration time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	key = fmt.Sprintf("%s-%s", c.namespace, key)
+	return c.Client.HSet(ctx, key, value).Err()
+}
+
 func (c *Client) Get(key string) (*string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	key = fmt.Sprintf("%s-%s", c.namespace, key)
+	result, err := c.Client.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return nil, nil
+	}
+	return &result, err
+}
+
+func (c *Client) HGet(key string) (*string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 

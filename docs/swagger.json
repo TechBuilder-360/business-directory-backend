@@ -164,6 +164,52 @@
                     }
                 }
             }
+        },
+        "/organisations/create": {
+            "post": {
+                "description": "create an organisation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Create"
+                ],
+                "summary": "create an organisation",
+                "parameters": [
+                    {
+                        "description": "create this organisation",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateOrganisationReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Data": {
+                                            "$ref": "#/definitions/types.CreateOrganisationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -178,6 +224,55 @@
                     "type": "string"
                 },
                 "otp": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.CreateOrganisationReq": {
+            "type": "object",
+            "required": [
+                "category",
+                "country",
+                "description",
+                "founding_date",
+                "organisation_name",
+                "organisation_size"
+            ],
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "NG"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "founding_date": {
+                    "type": "string"
+                },
+                "organisation_name": {
+                    "type": "string"
+                },
+                "organisation_size": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.CreateOrganisationResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_hq": {
+                    "type": "boolean"
+                },
+                "name": {
                     "type": "string"
                 }
             }
