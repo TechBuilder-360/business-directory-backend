@@ -23,10 +23,10 @@ type AuthService interface {
 	RegisterUser(body *types.Registration, log *log.Entry) error
 	ActivateEmail(token string, uid string, log *log.Entry) error
 	Login(body *types.AuthRequest) (*types.LoginResponse, error)
-	GenerateJWT(userID string) (*string, error)
+	GenerateJWT(userID string) (*types.Authentication, error)
 	ValidateToken(encodedToken string) (*jwt.Token, error)
 	RequestToken(body *types.EmailRequest, logger *log.Entry) error
-	RefreshUserToken(tokenString string, logger *log.Entry) (*types.LoginResponse, error)
+	RefreshUserToken(body types.RefreshTokenRequest, token string, logger *log.Entry) (*types.Authentication, error)
 }
 
 type DefaultAuthService struct {
@@ -168,7 +168,7 @@ func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginRespons
 	}
 
 	// Generate JWT for user
-	jwToken, err := d.GenerateJWT(user.ID)
+	jwt, err := d.GenerateJWT(user.ID)
 	if err != nil {
 		log.Error("An error occurred when generating jwt token. %s", err.Error())
 		return nil, errors.New("authentication failed")
@@ -186,7 +186,7 @@ func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginRespons
 	}
 
 	response.Profile = profile
-	response.Token = utils.AddToStr(jwToken)
+	response.Authentication = *jwt
 	// Activity log
 	activity := &model.Activity{By: user.ID, Message: "Successful login"}
 	go func() {
@@ -279,25 +279,36 @@ type authCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func (d *DefaultAuthService) GenerateJWT(userId string) (*string, error) {
+func (d *DefaultAuthService) GenerateJWT(userId string) (*types.Authentication, error) {
 	claims := &authCustomClaims{
 		userId,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-			Issuer:    configs.Instance.Issuer,
+			Issuer:    configs.Instance.AppName,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	//encoded string
-	t, err := token.SignedString([]byte(configs.Instance.Secret))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	at, err := token.SignedString([]byte(configs.Instance.Secret))
 	if err != nil {
 		log.Error(err.Error())
 		return nil, errors.New("token could not be generated")
 	}
 
-	return &t, nil
+	// generate refresh token
+	claims.ExpiresAt = time.Now().Add(time.Hour * 24 * 30).Unix()
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	rt, err := refreshToken.SignedString([]byte(configs.Instance.Secret))
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.Authentication{
+		AccessToken:  at,
+		RefreshToken: rt,
+	}, nil
 }
 
 func (d *DefaultAuthService) ValidateToken(encodedToken string) (*jwt.Token, error) {
@@ -309,33 +320,46 @@ func (d *DefaultAuthService) ValidateToken(encodedToken string) (*jwt.Token, err
 	})
 }
 
-func (r *DefaultAuthService) RefreshUserToken(tokenString string, logger *log.Entry) (*types.LoginResponse, error) {
-
-	token, err := NewAuthService().ValidateToken(tokenString)
-
+func (d *DefaultAuthService) RefreshUserToken(body types.RefreshTokenRequest, token string, logger *log.Entry) (*types.Authentication, error) {
+	var userId string
+	rToken, err := NewAuthService().ValidateToken(body.RefreshToken)
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
 			logger.Error(jwt.ErrSignatureInvalid)
 			return nil, errors.New(constant.InternalServerError)
 		}
 	}
-	if !token.Valid {
-		logger.Error(jwt.ErrSignatureInvalid)
-		return nil, errors.New(constant.InternalServerError)
-	}
-	response := &types.LoginResponse{}
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		userId := claims["user_id"].(string)
 
-		tk, err := NewAuthService().GenerateJWT(userId)
-
-		if err != nil {
-			log.Error(http.StatusUnauthorized)
+	tk, err := NewAuthService().ValidateToken(token)
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			logger.Error(jwt.ErrSignatureInvalid)
 			return nil, errors.New(constant.InternalServerError)
 		}
-		response.Token = utils.AddToStr(tk)
-		return response, nil
 	}
 
-	return nil, nil
+	if claims, ok := rToken.Claims.(jwt.MapClaims); ok && rToken.Valid {
+		userId = claims["user_id"].(string)
+
+		if claims, ok = tk.Claims.(jwt.MapClaims); ok {
+			uid := claims["user_id"].(string)
+
+			if uid != userId {
+				return nil, errors.New("invalid refresh token")
+			}
+
+			// Todo: check refresh or JWT has been revoked
+		}
+	} else {
+		return nil, errors.New("refresh token has expired")
+	}
+
+	// Todo: Invalidate old refresh and JWT
+	var response *types.Authentication
+	response, err = NewAuthService().GenerateJWT(userId)
+	if err != nil {
+		log.Error(http.StatusInternalServerError)
+		return nil, errors.New(constant.InternalServerError)
+	}
+	return response, nil
 }

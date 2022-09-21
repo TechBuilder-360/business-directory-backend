@@ -15,9 +15,7 @@ import (
 func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var ctx context.Context
-		const BearerSchema = "Bearer"
-		authHeader := r.Header.Get("X-Token")
-		publicKey := authHeader[len(BearerSchema)+1:]
+		publicKey := extractOrganisationToken(r)
 		organisation, err := services.NewOrganisationService().GetOrganisationByPublicKey(publicKey)
 		if organisation != nil {
 			ctx = context.WithValue(r.Context(), AuthOrganisationContextKey, organisation)
@@ -33,6 +31,13 @@ func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func extractOrganisationToken(r *http.Request) string {
+	const BearerSchema = "Bearer"
+	authHeader := r.Header.Get("X-Token")
+	publicKey := authHeader[len(BearerSchema)+1:]
+	return publicKey
 }
 
 func OrganisationFromContext(r *http.Request) (*model.Organisation, error) {

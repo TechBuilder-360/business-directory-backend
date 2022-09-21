@@ -21,9 +21,7 @@ func AuthorizeUserJWT() Adapter {
 
 			var user *model.User
 			var ctx context.Context
-			const BearerSchema = "Bearer"
-			authHeader := r.Header.Get("Authorization")
-			tokenString := authHeader[len(BearerSchema)+1:]
+			tokenString := ExtractBearerToken(r)
 			token, err := services.NewAuthService().ValidateToken(tokenString)
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				userId := claims["user_id"].(string)
@@ -54,6 +52,13 @@ func AuthorizeUserJWT() Adapter {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func ExtractBearerToken(r *http.Request) string {
+	const BearerSchema = "Bearer"
+	authHeader := r.Header.Get("Authorization")
+	tokenString := authHeader[len(BearerSchema)+1:]
+	return tokenString
 }
 
 func UserFromContext(r *http.Request) (*model.User, error) {
