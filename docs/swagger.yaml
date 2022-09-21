@@ -186,6 +186,27 @@ paths:
               type: object
       tags:
       - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh authorization token
+      parameters:
+      - description: token
+        in: body
+        name: default
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+      summary: Refresh authorization token
+      tags:
+      - Auth
   /auth/register:
     post:
       consumes:
