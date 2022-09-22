@@ -22,7 +22,7 @@ type NewUserController struct {
 	as services.UserService
 }
 
-func (c NewUserController) RegisterRoutes(router *mux.Router) {
+func (c *NewUserController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/users").Subrouter()
 	apis.HandleFunc("/upgrade", middlewares.Adapt(http.HandlerFunc(c.UpgradeTierOne),
 		middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
@@ -46,7 +46,19 @@ func (c *NewUserController) UpgradeTierOne(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err := c.as.UpgradeTierOne(body, logger)
+	// get user from context
+	user, err := middlewares.UserFromContext(r)
+	if err != nil {
+		logger.Error(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	err = c.as.UpgradeTierOne(body, user, logger)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		logger.Error(err.Error())
