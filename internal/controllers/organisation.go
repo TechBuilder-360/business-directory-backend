@@ -15,6 +15,8 @@ import (
 
 type OrganisationController interface {
 	CreateOrganisation(w http.ResponseWriter, r *http.Request)
+	ActivateOrganisation(w http.ResponseWriter, r *http.Request)
+	DeactivateOrganisation(w http.ResponseWriter, r *http.Request)
 	RegisterRoutes(router *mux.Router)
 }
 
@@ -25,6 +27,9 @@ type organisationController struct {
 func (c *organisationController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/organisations").Subrouter()
 	apis.HandleFunc("/create", middlewares.Adapt(http.HandlerFunc(c.CreateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
+	apis.HandleFunc("/activate-organisation/{id}", middlewares.Adapt(http.HandlerFunc(c.ActivateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
+	apis.HandleFunc("/de-activate-organisation/{id}", middlewares.Adapt(http.HandlerFunc(c.DeactivateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
+
 }
 
 func DefaultOrganisationController() OrganisationController {
@@ -91,6 +96,76 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 		Status:  true,
 		Message: "Successful",
 		Data:    data,
+	})
+
+}
+
+// CreateOrganisation godoc
+// @Summary      create an organisation
+// @Description  create an organisation
+// @Tags         Create
+// @Accept       json
+// @Produce      json
+// @Param        default  body	types.CreateOrganisationReq  true  "create this organisation"
+// @Success      200      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse}
+// @Router       /organisations/create [post]
+func (c *organisationController) ActivateOrganisation(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger.Info("Activating Organisation.")
+	params := mux.Vars(r)
+	OrganisationID := params["id"]
+
+	err := c.Service.ActivateOrganisation(OrganisationID, logger)
+	if err != nil {
+		logger.Error(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(utils.SuccessResponse{
+		Status:  true,
+		Message: "Successful",
+		Data:    nil,
+	})
+
+}
+
+// CreateOrganisation godoc
+// @Summary      create an organisation
+// @Description  create an organisation
+// @Tags         Create
+// @Accept       json
+// @Produce      json
+// @Param        default  body	types.CreateOrganisationReq  true  "create this organisation"
+// @Success      200      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse}
+// @Router       /organisations/create [post]
+func (c *organisationController) DeactivateOrganisation(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger.Info("De-activating Organisation.")
+	params := mux.Vars(r)
+	OrganisationID := params["id"]
+
+	err := c.Service.DeactivateOrganisation(OrganisationID, logger)
+	if err != nil {
+		logger.Error(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(utils.SuccessResponse{
+		Status:  true,
+		Message: "Successful",
+		Data:    nil,
 	})
 
 }

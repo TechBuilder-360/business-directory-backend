@@ -28,6 +28,8 @@ type OrganisationService interface {
 	CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error)
 	GetOrganisationByPublicKey(publicKey string) (*model.Organisation, error)
 	GenerateKeyPairs() *APIKeyPair
+	DeactivateOrganisation(id string, logger *log.Entry) error
+	ActivateOrganisation(id string, logger *log.Entry) error
 }
 
 type DefaultOrganisationService struct {
@@ -49,7 +51,40 @@ func NewOrganisationService() OrganisationService {
 		db:               database.ConnectDB(),
 	}
 }
+func (o *DefaultOrganisationService) DeactivateOrganisation(id string, logger *log.Entry) error {
+	organization := &model.Organisation{}
+	organization.Base.ID = id
+	err := o.organisationRepo.Get(organization)
+	if err != nil {
+		logger.Error(err)
+		return errors.New(constant.InternalServerError)
+	}
 
+	organization.Active = false
+	err = o.organisationRepo.Update(organization)
+	if err != nil {
+		logger.Error(err)
+		return errors.New(constant.InternalServerError)
+	}
+	return nil
+}
+func (o *DefaultOrganisationService) ActivateOrganisation(id string, logger *log.Entry) error {
+	organization := &model.Organisation{}
+	organization.Base.ID = id
+	err := o.organisationRepo.Get(organization)
+	if err != nil {
+		logger.Error(err)
+		return errors.New(constant.InternalServerError)
+	}
+
+	organization.Active = true
+	err = o.organisationRepo.Update(organization)
+	if err != nil {
+		logger.Error(err)
+		return errors.New(constant.InternalServerError)
+	}
+	return nil
+}
 func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error) {
 	uw := repository.NewGormUnitOfWork(o.db)
 	tx, err := uw.Begin()

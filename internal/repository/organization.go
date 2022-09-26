@@ -63,7 +63,7 @@ func (d *DefaultOrganisationRepo) Create(organisation *model.Organisation) error
 }
 
 func (d *DefaultOrganisationRepo) Get(organisation *model.Organisation) error {
-	panic("implement me")
+	return d.db.First(&organisation).Error
 }
 
 func (d *DefaultOrganisationRepo) GetAll(page, limit uint) (*[]model.Organisation, error) {
@@ -71,7 +71,8 @@ func (d *DefaultOrganisationRepo) GetAll(page, limit uint) (*[]model.Organisatio
 }
 
 func (d *DefaultOrganisationRepo) Update(organisation *model.Organisation) error {
-	panic("implement me")
+	ctx := context.Background()
+	return d.db.WithContext(ctx).Save(organisation).Error
 }
 
 func (d *DefaultOrganisationRepo) AddOrganisationMember(member *model.OrganisationMember) error {
