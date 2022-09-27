@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"gorm.io/gorm"
+	"math"
 )
 
 //go:generate mockgen -destination=../mocks/repository/branch.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository BranchRepository
@@ -14,7 +16,7 @@ type BranchRepository interface {
 	Get(branch *model.Branch) error
 	Find(filter map[string]interface{}, branch *model.Branch) error
 	Update(branch *model.Branch) error
-	GetAll(organisationId string, page, limit uint) (*[]model.Branch, error)
+	GetAll(page int) (*types.DataView, error)
 	WithTx(tx *gorm.DB) BranchRepository
 }
 
@@ -29,7 +31,7 @@ func (d DefaultBranchRepo) Create(branch *model.Branch) error {
 }
 
 func (d DefaultBranchRepo) Get(branch *model.Branch) error {
-	panic("implement me")
+	return d.db.First(&branch).Error
 }
 
 func (d DefaultBranchRepo) Find(filter map[string]interface{}, branch *model.Branch) error {
@@ -46,8 +48,24 @@ func (d DefaultBranchRepo) Update(branch *model.Branch) error {
 	panic("implement me")
 }
 
-func (d DefaultBranchRepo) GetAll(organisationId string, page, limit uint) (*[]model.Branch, error) {
-	panic("implement me")
+func (d DefaultBranchRepo) GetAll(page int) (*types.DataView, error) {
+	var branch []model.Branch
+	limit := 10
+	brans := &types.Branch{}
+	offset := (page - 1) * limit
+	query := d.db.Select(brans).Limit(limit).Offset(offset).Find(&branch)
+	if query.Error != nil {
+		return nil, query.Error
+	}
+
+	data := &types.DataView{
+		Page:    page,
+		Perpage: int64(limit),
+		Total:   int64(math.Ceil(float64(query.RowsAffected) / float64(limit))),
+		Data:    query,
+	}
+
+	return data, nil
 }
 
 func (d DefaultBranchRepo) WithTx(tx *gorm.DB) BranchRepository {

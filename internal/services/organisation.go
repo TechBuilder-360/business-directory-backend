@@ -30,6 +30,8 @@ type OrganisationService interface {
 	GenerateKeyPairs() *APIKeyPair
 	DeactivateOrganisation(id string, logger *log.Entry) error
 	ActivateOrganisation(id string, logger *log.Entry) error
+	GetSingleOrganisation(id string, logger *log.Entry) (*model.Organisation, error)
+	GetAllOrganisation(page int, logger *log.Entry) (*types.DataView, error)
 }
 
 type DefaultOrganisationService struct {
@@ -84,6 +86,26 @@ func (o *DefaultOrganisationService) ActivateOrganisation(id string, logger *log
 		return errors.New(constant.InternalServerError)
 	}
 	return nil
+}
+
+func (o *DefaultOrganisationService) GetSingleOrganisation(id string, logger *log.Entry) (*model.Organisation, error) {
+	organization := &model.Organisation{}
+	organization.Base.ID = id
+	err := o.organisationRepo.Get(organization)
+	if err != nil {
+		logger.Error(err)
+		return nil, errors.New(constant.InternalServerError)
+	}
+	return organization, nil
+}
+
+func (o *DefaultOrganisationService) GetAllOrganisation(page int, logger *log.Entry) (*types.DataView, error) {
+	data, err := o.organisationRepo.GetAll(page)
+	if err != nil {
+		logger.Error(err)
+		return nil, errors.New(constant.InternalServerError)
+	}
+	return data, nil
 }
 func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error) {
 	uw := repository.NewGormUnitOfWork(o.db)

@@ -69,8 +69,8 @@ type OrganStatus struct {
 }
 
 type DataView struct {
-	Page     int     `json:"page"`
-	Perpage  int64   `json:"perpage"`
-	Total    int64   `json:"total"`
-	LastPage float64 `json:"last_page"`
+	Page    int         `json:"page"`
+	Perpage int64       `json:"perpage"`
+	Total   int64       `json:"total"`
+	Data    interface{} `json:"data"`
 }
