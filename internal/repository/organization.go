@@ -6,12 +6,13 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 //go:generate mockgen -destination=../mocks/repository/organisation.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository OrganisationRepository
 type OrganisationRepository interface {
 	Create(organisation *model.Organisation) error
-	Get(organisation *model.Organisation) error
+	FetchByID(id string) (*model.Organisation, error)
 	GetByPublicKey(publicKey string) (*model.Organisation, error)
 	GetAll(page, limit uint) (*[]model.Organisation, error)
 	Find(filter map[string]interface{}) ([]model.Organisation, error)
@@ -62,8 +63,15 @@ func (d *DefaultOrganisationRepo) Create(organisation *model.Organisation) error
 	return d.db.WithContext(context.Background()).Create(organisation).Error
 }
 
-func (d *DefaultOrganisationRepo) Get(organisation *model.Organisation) error {
-	panic("implement me")
+// FetchByID display organisation for search result
+func (d *DefaultOrganisationRepo) FetchByID(id string) (*model.Organisation, error) {
+	var organisation *model.Organisation
+	err := d.db.WithContext(context.Background()).Preload(clause.Associations).Where("status=true and active=true and id=?", id).First(&organisation).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return organisation, nil
 }
 
 func (d *DefaultOrganisationRepo) GetAll(page, limit uint) (*[]model.Organisation, error) {

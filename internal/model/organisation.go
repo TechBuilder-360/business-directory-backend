@@ -36,10 +36,13 @@ type Organisation struct {
 	Description        string                 `gorm:"not null"`
 	RegistrationNumber *string
 	FoundingDate       string
-	Active             bool   `gorm:"default:false"`
-	PublicKey          string `gorm:"not null"`
-	SecretKey          string `gorm:"not null"`
-	User               User   `gorm:"-"`
+	Rating             float64 `gorm:"default:0"`
+	Active             bool    `gorm:"default:false"` // display organisation
+	Status             bool    `gorm:"default:false"`
+	PublicKey          string  `gorm:"not null"`
+	SecretKey          string  `gorm:"not null"`
+	User               User    `gorm:"-"`
+	Branch             []Branch
 	//Members            []OrganisationMember
 	//Services           []OrganisationService
 	//Products           []OrganisationProduct

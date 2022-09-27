@@ -24,8 +24,10 @@ type APIKeyPair struct {
 }
 
 //go:generate mockgen -destination=../mocks/services/organisation.go -package=services github.com/TechBuilder-360/business-directory-backend/services OrganisationService
-type OrganisationService interface {
+type IOrganisationService interface {
 	CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error)
+	GetOrganisation(id string) (*types.Organisation, error)
+	//GetOrganisations(query types.Query, logger *log.Entry) (*[]types.Organisation, error)
 	GetOrganisationByPublicKey(publicKey string) (*model.Organisation, error)
 	GenerateKeyPairs() *APIKeyPair
 }
@@ -39,7 +41,7 @@ type DefaultOrganisationService struct {
 	db               *gorm.DB
 }
 
-func NewOrganisationService() OrganisationService {
+func NewOrganisationService() IOrganisationService {
 	return &DefaultOrganisationService{
 		organisationRepo: repository.NewOrganisationRepository(),
 		activityRepo:     repository.NewActivityRepository(),
@@ -48,6 +50,35 @@ func NewOrganisationService() OrganisationService {
 		roleRepo:         repository.NewRoleRepository(),
 		db:               database.ConnectDB(),
 	}
+}
+
+func (o *DefaultOrganisationService) GetOrganisation(id string) (*types.Organisation, error) {
+	// TODO: pull organisation info from redis cache
+	organisation, err := o.organisationRepo.FetchByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	branch := make([]types.Branch, 0)
+	for _, b := range organisation.Branch {
+		branch = append(branch, types.Branch{
+			BranchName: b.Name,
+			IsHQ:       b.IsHQ,
+		})
+	}
+
+	return &types.Organisation{
+		OrganisationID:     organisation.ID,
+		OrganisationName:   organisation.OrganisationName,
+		LogoURL:            organisation.LogoURL,
+		Website:            organisation.Website,
+		OrganisationSize:   organisation.OrganisationSize,
+		Description:        organisation.Description,
+		RegistrationNumber: organisation.RegistrationNumber,
+		Rating:             organisation.Rating,
+		FoundingDate:       organisation.FoundingDate,
+		Branch:             branch,
+	}, nil
 }
 
 func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error) {
@@ -119,7 +150,7 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 
 	branch := &model.Branch{
 		OrganisationID: organisation.ID,
-		BranchName:     organisation.OrganisationName,
+		Name:           organisation.OrganisationName,
 		IsHQ:           true,
 	}
 
