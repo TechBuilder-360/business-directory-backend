@@ -4,8 +4,8 @@ type Branch struct {
 	Base
 
 	OrganisationID string `gorm:"column:organisation_id"`
-	BranchName     string `gorm:"column:branch_name"`
-	IsHQ           bool   `gorm:"column:IsHQ"`
+	Name           string `gorm:"column:name"`
+	IsHQ           bool   `gorm:"column:is_hq"`
 	Address
 	Location
 }
