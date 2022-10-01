@@ -9,7 +9,7 @@ type CreateBranch struct {
 type Branch struct {
 	BranchName string `json:"branch_name"`
 	IsHQ       bool   `json:"is_hq"`
-	Address
-	Location
-	Contact
+	//Address
+	//Location
+	//Contact
 }

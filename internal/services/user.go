@@ -14,19 +14,23 @@ import (
 //go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services UserService
 type UserService interface {
 	UpgradeTierOne(body *types.UpgradeUserTierRequest, user *model.User, logger *log.Entry) error
+	Update(user *model.User) error
 }
 
 type DefaultUserService struct {
-	repo     repository.UserRepository
+	userRepo repository.UserRepository
 	activity repository.ActivityRepository
 }
 
+func (r *DefaultUserService) Update(user *model.User) error {
+	return r.userRepo.Update(user)
+}
+
 func NewUserService() UserService {
-	return &DefaultUserService{repo: repository.NewUserRepository()}
+	return &DefaultUserService{userRepo: repository.NewUserRepository()}
 }
 
 func (r *DefaultUserService) UpgradeTierOne(body *types.UpgradeUserTierRequest, user *model.User, logger *log.Entry) error {
-
 	if user.Tier > 0 {
 		return errors.New("tier upgrade has already being submitted")
 	}
@@ -43,11 +47,12 @@ func (r *DefaultUserService) UpgradeTierOne(body *types.UpgradeUserTierRequest, 
 		user.IdentityImage = &body.IdentityImage
 	}
 
+	// Todo: Identity needs to be verified
 	user.IdentityName = &body.IdentityName
 	user.IdentityNumber = &body.IdentityNumber
 	user.Tier = uint8(1)
 
-	err := r.repo.Update(user)
+	err := r.Update(user)
 	if err != nil {
 		logger.Error(err)
 		return errors.New(constant.InternalServerError)

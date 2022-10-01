@@ -13,21 +13,24 @@ import (
 	"net/http"
 )
 
-type OrganisationController interface {
+type IOrganisationController interface {
 	CreateOrganisation(w http.ResponseWriter, r *http.Request)
+	GetOrganisation(w http.ResponseWriter, r *http.Request)
 	RegisterRoutes(router *mux.Router)
 }
 
 type organisationController struct {
-	Service services.OrganisationService
+	Service services.IOrganisationService
 }
 
 func (c *organisationController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/organisations").Subrouter()
-	apis.HandleFunc("/create", middlewares.Adapt(http.HandlerFunc(c.CreateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
+
+	apis.HandleFunc("/", middlewares.Adapt(http.HandlerFunc(c.CreateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
+	apis.HandleFunc("/{id}", c.GetOrganisation).Methods(http.MethodGet)
 }
 
-func DefaultOrganisationController() OrganisationController {
+func DefaultOrganisationController() IOrganisationController {
 	return &organisationController{
 		Service: services.NewOrganisationService(),
 	}
@@ -40,8 +43,8 @@ func DefaultOrganisationController() OrganisationController {
 // @Accept       json
 // @Produce      json
 // @Param        default  body	types.CreateOrganisationReq  true  "create this organisation"
-// @Success      200      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse}
-// @Router       /organisations/create [post]
+// @Success      201      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse}
+// @Router       /organisations [post]
 func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Creating Organisation.")
@@ -86,6 +89,42 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(utils.SuccessResponse{
+		Status:  true,
+		Message: "Successful",
+		Data:    data,
+	})
+
+}
+
+// GetOrganisation godoc
+// @Summary      get organisation
+// @Description  get organisation
+// @Tags         Organisation
+// @Accept       json
+// @Produce      json
+// @Param        default  path	string  true  "organisation ID"
+// @Success      200      {object}  utils.SuccessResponse{types.Organisation}
+// @Router       /organisation/{id} [get]
+func (c *organisationController) GetOrganisation(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger.Info("GetOrganisation")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	data, err := c.Service.GetOrganisation(id)
+	if err != nil {
+		logger.Error(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
@@ -94,3 +133,38 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 	})
 
 }
+
+// GetOrganisations godoc
+// @Summary      get organisation
+// @Description  get organisation
+// @Tags         Organisation
+// @Accept       json
+// @Produce      json
+// @Success      200      {object}  utils.SuccessResponse{Data=types.Organisations}
+// @Router       /organisations [get]
+//func (c *organisationController) GetOrganisations(w http.ResponseWriter, r *http.Request) {
+//	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+//	logger.Info("GetOrganisation")
+//
+//	vars := mux.Vars(r)
+//	id := vars["id"]
+//
+//	data, err := c.Service.GetOrganisations(id)
+//	if err != nil {
+//		logger.Error(err.Error())
+//		w.WriteHeader(http.StatusBadRequest)
+//		json.NewEncoder(w).Encode(utils.ErrorResponse{
+//			Status:  false,
+//			Message: err.Error(),
+//		})
+//		return
+//	}
+//
+//	w.WriteHeader(http.StatusOK)
+//	json.NewEncoder(w).Encode(utils.SuccessResponse{
+//		Status:  true,
+//		Message: "Successful",
+//		Data:    data,
+//	})
+//
+//}

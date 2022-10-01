@@ -32,6 +32,12 @@ type (
 	RefreshTokenRequest struct {
 		RefreshToken string `json:"refresh_token" validate:"required"`
 	}
+
+	Query struct {
+		Page     uint
+		PageSize uint
+		Search   string
+	}
 )
 
 type ENVIRONMENT string
