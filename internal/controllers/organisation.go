@@ -114,7 +114,7 @@ func (c *organisationController) GetOrganisation(w http.ResponseWriter, r *http.
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	data, err := c.Service.GetOrganisation(id, logger)
+	data, err := c.Service.GetOrganisation(id)
 	if err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -142,29 +142,29 @@ func (c *organisationController) GetOrganisation(w http.ResponseWriter, r *http.
 // @Produce      json
 // @Success      200      {object}  utils.SuccessResponse{Data=types.Organisations}
 // @Router       /organisations [get]
-func (c *organisationController) GetOrganisations(w http.ResponseWriter, r *http.Request) {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
-	logger.Info("GetOrganisation")
-
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	data, err := c.Service.GetOrganisation(id, logger)
-	if err != nil {
-		logger.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ErrorResponse{
-			Status:  false,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(utils.SuccessResponse{
-		Status:  true,
-		Message: "Successful",
-		Data:    data,
-	})
-
-}
+//func (c *organisationController) GetOrganisations(w http.ResponseWriter, r *http.Request) {
+//	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+//	logger.Info("GetOrganisation")
+//
+//	vars := mux.Vars(r)
+//	id := vars["id"]
+//
+//	data, err := c.Service.GetOrganisations(id)
+//	if err != nil {
+//		logger.Error(err.Error())
+//		w.WriteHeader(http.StatusBadRequest)
+//		json.NewEncoder(w).Encode(utils.ErrorResponse{
+//			Status:  false,
+//			Message: err.Error(),
+//		})
+//		return
+//	}
+//
+//	w.WriteHeader(http.StatusOK)
+//	json.NewEncoder(w).Encode(utils.SuccessResponse{
+//		Status:  true,
+//		Message: "Successful",
+//		Data:    data,
+//	})
+//
+//}

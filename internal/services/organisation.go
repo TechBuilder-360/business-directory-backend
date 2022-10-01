@@ -229,51 +229,51 @@ func (o *DefaultOrganisationService) GenerateKeyPairs() *APIKeyPair {
 	}
 }
 
-//func (d *DefaultOrganisationService) CreateBranch(body *types.CreateBranch, organisation *model.Organisation, log log.Logger) (*types.CreateBranch, error) {
-//	uw := repository.NewGormUnitOfWork(d.db)
-//	tx, err := uw.Begin()
-//
-//	defer func() {
-//		if err != nil {
-//			tx.Rollback()
-//		}
-//	}()
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	branch := &model.Branch{}
-//	branch.OrganisationID = organisation.ID
-//	//filter := map[string]interface{}{"branch_name": body.BranchName, "organisation_id": body.OrganisationID}
-//	//err := d.repo.WithTx(tx).FindBranch(filter)
-//	//if val == true {
-//	//	log.Error("Branch name Already Exist")
-//	//	return errs.CustomError(http.StatusNotAcceptable, utils.ALREADY_EXIST, nil)
-//	//}
-//	//
-//	//_, err := repo.CreateBranch(request)
-//	//if err != nil {
-//	//	log.Error("Error occurred while creating branch, %s", err.Error())
-//	//	return errs.UnexpectedError(utils.SMMERROR)
-//	//}
-//	//
-//	//// TODO: Add logged in user's ID to activity log
-//	//// Activity log
-//	//activity := &model.Activity{By: "", For: request.OrganisationID, Message: fmt.Sprintf("Added a branch '%s'", request.BranchName)}
-//	//go func() {
-//	//	if err = repo.AddActivity(activity); err != nil {
-//	//		log.Error("User activity failed to log")
-//	//	}
-//	//}()
-//
-//	if err = uw.Commit(tx); err != nil {
-//		return nil, err
-//	}
-//
-//	return nil, nil
-//}
-//
+func (o *DefaultOrganisationService) CreateBranch(body *types.CreateBranch, organisation *model.Organisation, log log.Logger) (*types.CreateBranch, error) {
+	uw := repository.NewGormUnitOfWork(o.db)
+	tx, err := uw.Begin()
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err != nil {
+		return nil, err
+	}
+
+	branch := &model.Branch{}
+	branch.OrganisationID = organisation.ID
+	//filter := map[string]interface{}{"branch_name": body.BranchName, "organisation_id": body.OrganisationID}
+	//err := d.repo.WithTx(tx).FindBranch(filter)
+	//if val == true {
+	//	log.Error("Branch name Already Exist")
+	//	return errs.CustomError(http.StatusNotAcceptable, utils.ALREADY_EXIST, nil)
+	//}
+	//
+	//_, err := repo.CreateBranch(request)
+	//if err != nil {
+	//	log.Error("Error occurred while creating branch, %s", err.Error())
+	//	return errs.UnexpectedError(utils.SMMERROR)
+	//}
+	//
+	//// TODO: Add logged in user's ID to activity log
+	//// Activity log
+	//activity := &model.Activity{By: "", For: request.OrganisationID, Message: fmt.Sprintf("Added a branch '%s'", request.BranchName)}
+	//go func() {
+	//	if err = repo.AddActivity(activity); err != nil {
+	//		log.Error("User activity failed to log")
+	//	}
+	//}()
+
+	if err = uw.Commit(tx); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
 //func GetOrganisations(page int, repo repository.Repository, log log.Logger) (*types.DataView, error) {
 //	organisations, err := repo.GetOrganisations(page)
 //	if err != nil {
@@ -283,7 +283,7 @@ func (o *DefaultOrganisationService) GenerateKeyPairs() *APIKeyPair {
 //
 //	return organisations, nil
 //}
-//
+
 //func GetSingleOrganisation(orgId string, repo repository.Repository, log log.Logger) (interface{}, error) {
 //	data, err := repo.GetSingleOrganisation(orgId)
 //	if err != nil {
@@ -304,15 +304,6 @@ func (o *DefaultOrganisationService) GenerateKeyPairs() *APIKeyPair {
 //	return data, nil
 //}
 //
-//func GetSingleBranch(branchID string, repo repository.Repository, log log.Logger) (interface{}, error) {
-//	branch, err := repo.GetSingleBranch(branchID)
-//	if err != nil {
-//		log.Error("Error occured while getting branch, %s", err.Error())
-//		return nil, err
-//	}
-//
-//	return branch, nil
-//}
 //
 //func OrganisationStatus(Organs *types.OrganStatus, repo repository.Repository, log log.Logger) (interface{}, error) {
 //	_, err := repo.OrganisationStatus(Organs)

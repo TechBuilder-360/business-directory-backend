@@ -17,7 +17,7 @@ type User struct {
 	EmailVerified  bool      `json:"email_verified" gorm:"default:false"`
 	LastLogin      time.Time `json:"last_login" gorm:"null"`
 	Tier           uint8     `json:"tier" gorm:"default:0"`
-	IdentityNumber string    `json:"identity_number" gorm:"null"`
-	IdentityName   string    `json:"identity_name" gorm:"null"`
-	IdentityImage  string    `json:"identity_image" gorm:"null"`
+	IdentityNumber *string   `json:"identity_number" gorm:"type:varchar(20)"`
+	IdentityName   *string   `json:"identity_name" gorm:"type:varchar(50)"`
+	IdentityImage  *string   `json:"identity_image" gorm:"type:varchar(255)"`
 }
