@@ -8,15 +8,16 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"gorm.io/gorm"
-	"math"
+	"gorm.io/gorm/clause"
 )
 
 //go:generate mockgen -destination=../mocks/repository/organisation.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository OrganisationRepository
 type OrganisationRepository interface {
 	Create(organisation *model.Organisation) error
-	Get(organisation *model.Organisation) error
+	Get(id string) (*model.Organisation, error)
 	GetByPublicKey(publicKey string) (*model.Organisation, error)
-	GetAll(page int) (*types.DataView, error)
+	GetAll(query types.Query) ([]model.Organisation, error)
+	Total(query types.Query) (int64, error)
 	Find(filter map[string]interface{}) ([]model.Organisation, error)
 	Update(organisation *model.Organisation) error
 	WithTx(tx *gorm.DB) OrganisationRepository
@@ -40,7 +41,7 @@ func (d *DefaultOrganisationRepo) GetByPublicKey(publicKey string) (*model.Organ
 
 func (d *DefaultOrganisationRepo) GetOrganisationByName(name string) (*model.Organisation, error) {
 	var organisation *model.Organisation
-	err := d.db.Where("organisation_name=?", name).First(&organisation).Error
+	err := d.db.Where("name=?", name).First(&organisation).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -65,28 +66,43 @@ func (d *DefaultOrganisationRepo) Create(organisation *model.Organisation) error
 	return d.db.WithContext(context.Background()).Create(organisation).Error
 }
 
-func (d *DefaultOrganisationRepo) Get(organisation *model.Organisation) error {
-	return d.db.First(&organisation).Error
+func (d *DefaultOrganisationRepo) Get(id string) (*model.Organisation, error) {
+	var organisation *model.Organisation
+	err := d.db.Preload(clause.Associations).Where("id = ?", id).First(&organisation).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.New("not found")
+	}
+	if err != nil {
+		return nil, errors.New("an error occurred")
+	}
+
+	return organisation, nil
 }
 
-func (d *DefaultOrganisationRepo) GetAll(page int) (*types.DataView, error) {
-	var organisation []model.Organisation
-	limit := 10
-	organs := &types.Organisation{}
-	offset := (page - 1) * limit
-	query := d.db.Select(organs).Limit(limit).Offset(offset).Find(&organisation)
-	if query.Error != nil {
-		return nil, query.Error
+func (d *DefaultOrganisationRepo) GetAll(query types.Query) ([]model.Organisation, error) {
+	var organisations []model.Organisation
+	stmt := d.db.Model(&model.Organisation{}).Limit(query.PageSize).Offset(query.PaginationOffset())
+	if query.Search != "" {
+		stmt = stmt.Where("name ilike '%?%'", query.Search)
+	}
+	if err := stmt.Find(&organisations).Error; err != nil {
+		return nil, err
 	}
 
-	data := &types.DataView{
-		Page:    page,
-		Perpage: int64(limit),
-		Total:   int64(math.Ceil(float64(query.RowsAffected) / float64(limit))),
-		Data:    query,
+	return organisations, nil
+}
+
+func (d *DefaultOrganisationRepo) Total(query types.Query) (int64, error) {
+	total := int64(0)
+	stmt := d.db.Model(&model.Organisation{})
+	if query.Search != "" {
+		stmt = stmt.Where("name ilike '%?%'", query.Search)
+	}
+	if err := stmt.Count(&total).Error; err != nil {
+		return total, err
 	}
 
-	return data, nil
+	return total, nil
 }
 
 func (d *DefaultOrganisationRepo) Update(organisation *model.Organisation) error {

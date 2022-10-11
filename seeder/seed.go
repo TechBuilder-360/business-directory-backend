@@ -1,6 +1,7 @@
 package seeder
 
 import (
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -13,6 +14,8 @@ func Seed(db *gorm.DB) {
 	err := runCategorySeeder(db)
 	errs = append(errs, err)
 	err = runRolesSeeder(db)
+	errs = append(errs, err)
+	err = runCountrySeeder(db)
 	errs = append(errs, err)
 
 	for _, e := range errs {
@@ -53,6 +56,22 @@ func runRolesSeeder(tx *gorm.DB) error {
 	}
 
 	if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&roles).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func runCountrySeeder(tx *gorm.DB) error {
+	country := []model.Country{
+		{
+			Name:   "Nigeria",
+			Code:   "NG",
+			Active: utils.ToBoolAddr(true),
+		},
+	}
+
+	if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&country).Error; err != nil {
 		return err
 	}
 

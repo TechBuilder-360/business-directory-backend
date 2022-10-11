@@ -24,25 +24,28 @@ type Organisation struct {
 	Base
 
 	Category           string `json:"-" gorm:"not null"`
-	Country            string `json:"-" gorm:"not null"`
+	CountryID          string `json:"-" gorm:"not null"`
 	UserID             string `json:"-" gorm:"not null"`
-	OrganisationName   string `gorm:"column:organisation_name;unique"`
+	Name               string `gorm:"column:name;unique"`
 	LogoURL            *string
 	PhoneNumber        *string //international format i.e 23481*******1
+	SupportPhoneNumber *string //international format i.e 23481*******1
 	EmailAddress       string  `json:"email_address" gorm:"not null"`
 	Website            *string
-	City               string                 `json:"city" gorm:"not null"`
 	OrganisationSize   types.OrganisationSize `gorm:"not null"`
 	Description        string                 `gorm:"not null"`
 	RegistrationNumber *string
+	Verified           bool `gorm:"default:false"`
 	FoundingDate       string
-	Active             bool   `gorm:"default:false"`
-	PublicKey          string `gorm:"not null"`
-	SecretKey          string `gorm:"not null"`
-	User               User   `gorm:"-"`
-	//Members            []OrganisationMember
-	//Services           []OrganisationService
-	//Products           []OrganisationProduct
+	Rating             float64               `json:"rating"`
+	Active             bool                  `gorm:"default:false"`
+	PublicKey          string                `gorm:"not null"`
+	SecretKey          string                `gorm:"not null"`
+	User               User                  `gorm:"-"`
+	Branch             []Branch              `gorm:"-"`
+	OrganisationMember []OrganisationMember  `gorm:"-"`
+	Services           []OrganisationService `gorm:"-"`
+	Products           []OrganisationProduct `gorm:"-"`
 }
 
 type OrganisationService struct {

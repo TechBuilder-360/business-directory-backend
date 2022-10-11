@@ -9,13 +9,11 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strconv"
 )
 
 type BranchController interface {
 	RegisterRoutes(router *mux.Router)
-	GetSingleBranch(w http.ResponseWriter, r *http.Request)
-	GetAllBranch(w http.ResponseWriter, r *http.Request)
+	GetBranches(w http.ResponseWriter, r *http.Request)
 }
 
 type NewBranchController struct {
@@ -24,9 +22,8 @@ type NewBranchController struct {
 
 func (c *NewBranchController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/branches").Subrouter()
-	apis.HandleFunc("/{id}", middlewares.Adapt(http.HandlerFunc(c.GetSingleBranch), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
-	apis.HandleFunc("/fetch-all-branch", middlewares.Adapt(http.HandlerFunc(c.GetAllBranch), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
 
+	apis.HandleFunc("", middlewares.Adapt(http.HandlerFunc(c.GetBranches), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
 }
 
 func DefaultBranchController() BranchController {
@@ -35,66 +32,31 @@ func DefaultBranchController() BranchController {
 	}
 }
 
-// GetSingleBranch godoc
-// @Summary      fetch an branch
-// @Description  fetch an branch
-// @Tags         Get One
+// GetBranches godoc
+// @Summary      get branches
+// @Description  Get branches
+// @Tags         Branch
 // @Accept       json
 // @Produce      json
-// @Param        default  body	id  true  "fetch an branch"
-// @Success      200      {object}  utils.SuccessResponse{Data=data}
-// @Router       /branches/{id} [get]
-func (c *NewBranchController) GetSingleBranch(w http.ResponseWriter, r *http.Request) {
+// @Success      200      {object}  utils.SuccessResponse{Data=[]types.Branch}
+// @Router       /branches [get]
+func (c *NewBranchController) GetBranches(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("fetching single branch.")
-	params := mux.Vars(r)
-	OrganisationID := params["id"]
 
-	data, err := c.Service.GetSingleBranch(OrganisationID, logger)
+	// get organisation from context
+	organisation, err := middlewares.OrganisationFromContext(r)
 	if err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ErrorResponse{
 			Status:  false,
-			Message: err.Error(),
+			Message: "organisation not found",
 		})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(utils.SuccessResponse{
-		Status:  true,
-		Message: "Successful",
-		Data:    data,
-	})
-
-}
-
-// GetAllBranch godoc
-// @Summary      fetch all branch
-// @Description  fetch all brancn
-// @Tags         Get all
-// @Accept       json
-// @Produce      json
-// @Param        default  body	id  true  "fetch all branch"
-// @Success      200      {object}  utils.SuccessResponse{Data=data}
-// @Router       /branches/fetch-all-branch [get]
-func (c *NewBranchController) GetAllBranch(w http.ResponseWriter, r *http.Request) {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
-	logger.Info("fetching All Branch.")
-	params := mux.Vars(r)
-	BranchID, err := strconv.Atoi(params["page"])
-	if err != nil {
-		logger.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ErrorResponse{
-			Status:  false,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	data, err := c.Service.GetAllBranch(BranchID, logger)
+	data, err := c.Service.GetOrganisationBranches(organisation, logger)
 	if err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)

@@ -18,8 +18,7 @@ type Location struct {
 
 type Address struct {
 	CountryCode string `json:"country_code"`
-	Country     string `json:"country"`
-	ZipCode     int    `json:"zip_code"`
+	ZipCode     string `json:"zip_code"`
 	Street      string `json:"street"`
 	City        string `json:"city"`
 	State       string `json:"state"`
@@ -35,42 +34,38 @@ type CreateOrganisationReq struct {
 	FoundingDate     string           `json:"founding_date" validate:"required"`
 }
 type CreateOrganisationResponse struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	IsHQ        bool   `json:"is_hq"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	IsHQ        bool     `json:"is_hq"`
+	Branch      []Branch `json:"branches"`
 }
 
 // Organisation ...
 type Organisation struct {
-	OrganisationID     string  `json:"organisation_id"`
-	OrganisationName   string  `json:"organisation_name"`
-	LogoURL            string  `json:"logo_url"`
-	Website            string  `json:"website"`
-	OrganisationSize   string  `json:"organisation_size"`
-	Description        string  `json:"description"`
-	RegistrationNumber string  `json:"registration_number"`
-	Rating             float64 `json:"rating"`
-	FoundingDate       string  `json:"founding_date"`
+	ID                 string           `json:"id"`
+	Name               string           `json:"name"`
+	LogoURL            *string          `json:"logo_url"`
+	Website            *string          `json:"website"`
+	OrganisationSize   OrganisationSize `json:"organisation_size"`
+	Description        string           `json:"description"`
+	RegistrationNumber *string          `json:"registration_number"`
+	Rating             float64          `json:"rating"`
+	FoundingDate       string           `json:"founding_date"`
+	Verified           bool             `json:"verified"`
+	Branch             []Branch         `json:"branch"`
 }
 
 // Organisations ...
 type Organisations struct {
-	OrganisationID   string  `json:"organisation_id"`
-	OrganisationName string  `json:"organisation_name"`
-	LogoURL          string  `json:"logo_url"`
-	Description      string  `json:"description"`
-	Rating           float64 `json:"rating"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	LogoURL     *string `json:"logo_url"`
+	Description string  `json:"description"`
+	Rating      float64 `json:"rating"`
+	Verified    bool    `json:"verified"`
 }
 
 type OrganStatus struct {
-	OrganisationID string `json:"organisation_id"`
-	Active         bool   `json:"active" `
-}
-
-type DataView struct {
-	Page    int         `json:"page"`
-	Perpage int64       `json:"perpage"`
-	Total   int64       `json:"total"`
-	Data    interface{} `json:"data"`
+	Active bool `json:"active" `
 }
