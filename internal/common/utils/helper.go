@@ -115,3 +115,7 @@ func AddToStr(add *string) string {
 
 	return *add
 }
+
+func ToBoolAddr(b bool) *bool {
+	return &b
+}

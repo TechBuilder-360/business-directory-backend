@@ -57,6 +57,25 @@ func SendActivateMail(activate *ActivationMailRequest) error {
 	return sendMail(&message)
 }
 
+func GeneralMail(general *GeneralMailRequest) error {
+	content := make(map[string]interface{})
+	content["message"] = general.Message
+
+	template, err := parseHTML(content, GENERALTEMPLATE)
+	if err != nil {
+		return err
+	}
+
+	message := mail{
+		ToName:   general.ToName,
+		ToMail:   general.ToMail,
+		Subject:  general.Subject,
+		Template: template,
+	}
+
+	return sendMail(&message)
+}
+
 func SendOTPMail(otp *OTPMailRequest) error {
 	content := make(map[string]interface{})
 	content["name"] = otp.Name

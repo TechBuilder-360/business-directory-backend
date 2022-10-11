@@ -30,6 +30,7 @@ func DBMigration(db *gorm.DB) error {
 		&model.Branch{},
 		&model.Category{},
 		&model.Role{},
+		&model.Country{},
 	)
 
 	return err

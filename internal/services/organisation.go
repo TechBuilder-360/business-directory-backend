@@ -8,11 +8,11 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
+	"github.com/TechBuilder-360/business-directory-backend/internal/infrastructure/sendgrid"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
 	"github.com/araddon/dateparse"
 	"github.com/google/uuid"
-	"github.com/pariz/gountries"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -26,10 +26,11 @@ type APIKeyPair struct {
 //go:generate mockgen -destination=../mocks/services/organisation.go -package=services github.com/TechBuilder-360/business-directory-backend/services OrganisationService
 type IOrganisationService interface {
 	CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error)
-	GetOrganisation(id string) (*types.Organisation, error)
-	//GetOrganisations(query types.Query, logger *log.Entry) (*[]types.Organisation, error)
 	GetOrganisationByPublicKey(publicKey string) (*model.Organisation, error)
 	GenerateKeyPairs() *APIKeyPair
+	ChangeOrganisationStatus(organisation *model.Organisation, user *model.User, body *types.Activate, logger *log.Entry) error
+	GetSingleOrganisation(id string) (*types.Organisation, error)
+	GetAllOrganisation(query types.Query, logger *log.Entry) (*types.PaginatedResponse, error)
 }
 
 type DefaultOrganisationService struct {
@@ -38,6 +39,7 @@ type DefaultOrganisationService struct {
 	activityRepo     repository.ActivityRepository
 	userRepo         repository.UserRepository
 	roleRepo         repository.RoleRepository
+	countryRepo      repository.CountryRepository
 	db               *gorm.DB
 }
 
@@ -48,28 +50,81 @@ func NewOrganisationService() IOrganisationService {
 		userRepo:         repository.NewUserRepository(),
 		branchRepo:       repository.NewBranchRepository(),
 		roleRepo:         repository.NewRoleRepository(),
+		countryRepo:      repository.NewCountryRepository(),
 		db:               database.ConnectDB(),
 	}
 }
 
-func (o *DefaultOrganisationService) GetOrganisation(id string) (*types.Organisation, error) {
-	// TODO: pull organisation info from redis cache
-	organisation, err := o.organisationRepo.FetchByID(id)
+func (o *DefaultOrganisationService) ChangeOrganisationStatus(organisation *model.Organisation, user *model.User, body *types.Activate, logger *log.Entry) error {
+	// todo: before activating an organisation there are some validations that needs be done
+	if organisation.Active != body.Status {
+		organisation.Active = body.Status
+		err := o.organisationRepo.Update(organisation)
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
+
+		status := "offline"
+		if body.Status {
+			status = "online"
+		}
+
+		if configs.Instance.GetEnv() != configs.SANDBOX {
+			message := fmt.Sprintf("Your organisation %s is %s.", organisation.Name, status)
+			// Send Activate email
+			mailTemplate := &sendgrid.GeneralMailRequest{
+				ToMail:  organisation.EmailAddress,
+				ToName:  organisation.Name,
+				Subject: "Status Update",
+				Message: message,
+			}
+			err = sendgrid.GeneralMail(mailTemplate)
+			if err != nil {
+				log.Error("Error occurred when sending activation email. %s", err.Error())
+			}
+		}
+
+		// Activity log
+		go func() {
+			activity := &model.Activity{For: organisation.ID, By: user.ID, Message: fmt.Sprintf("Change organisation status to '%s'", status)}
+			err = o.activityRepo.Create(activity)
+			if err != nil {
+				logger.Error(err.Error())
+			}
+		}()
+	}
+
+	return nil
+}
+
+func (o *DefaultOrganisationService) GetSingleOrganisation(id string) (*types.Organisation, error) {
+	organisation, err := o.organisationRepo.Get(id)
 	if err != nil {
 		return nil, err
 	}
 
-	branch := make([]types.Branch, 0)
+	branches := make([]types.Branch, 0)
+
 	for _, b := range organisation.Branch {
-		branch = append(branch, types.Branch{
-			BranchName: b.Name,
-			IsHQ:       b.IsHQ,
+		country, _ := o.countryRepo.GetCountryByID(b.CountryID)
+		branches = append(branches, types.Branch{
+			Name:        b.Name,
+			IsHQ:        b.IsHQ,
+			PhoneNumber: b.PhoneNumber,
+			Country:     country.Code,
+			ZipCode:     b.ZipCode,
+			Street:      b.Street,
+			City:        b.City,
+			State:       b.State,
+			Longitude:   b.Longitude,
+			Latitude:    b.Latitude,
 		})
 	}
 
-	return &types.Organisation{
-		OrganisationID:     organisation.ID,
-		OrganisationName:   organisation.OrganisationName,
+	response := types.Organisation{
+		ID:                 organisation.ID,
+		Name:               organisation.Name,
 		LogoURL:            organisation.LogoURL,
 		Website:            organisation.Website,
 		OrganisationSize:   organisation.OrganisationSize,
@@ -77,8 +132,47 @@ func (o *DefaultOrganisationService) GetOrganisation(id string) (*types.Organisa
 		RegistrationNumber: organisation.RegistrationNumber,
 		Rating:             organisation.Rating,
 		FoundingDate:       organisation.FoundingDate,
-		Branch:             branch,
+		Verified:           organisation.Verified,
+		Branch:             branches,
+	}
+
+	return &response, nil
+}
+
+func (o *DefaultOrganisationService) GetAllOrganisation(query types.Query, logger *log.Entry) (*types.PaginatedResponse, error) {
+	total, err := o.organisationRepo.Total(query)
+	if err != nil {
+		logger.Error(err)
+		return &types.PaginatedResponse{Data: []interface{}{}}, nil
+	}
+
+	data, err := o.organisationRepo.GetAll(query)
+	if err != nil {
+		logger.Error(err)
+		return &types.PaginatedResponse{Data: []interface{}{}}, nil
+	}
+
+	organisations := make([]types.Organisations, 0)
+
+	for _, organisation := range data {
+		// todo: set location based on nearest location to user
+		organisations = append(organisations, types.Organisations{
+			ID:          organisation.ID,
+			Name:        organisation.Name,
+			LogoURL:     organisation.LogoURL,
+			Description: organisation.Description,
+			Rating:      organisation.Rating,
+			Verified:    organisation.Verified,
+		})
+	}
+
+	return &types.PaginatedResponse{
+		Page:    query.Page,
+		PerPage: query.PageSize,
+		Total:   total,
+		Data:    organisations,
 	}, nil
+
 }
 
 func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error) {
@@ -102,10 +196,10 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 		return nil, errors.New("upgrade your account to create organisation")
 	}
 
-	q := gountries.New()
-	country, err := q.FindCountryByAlpha(body.Country)
+	country, err := o.countryRepo.GetCountryByCode(body.Country)
 	if err != nil {
-		return nil, errors.New("invalid country")
+		logger.Error(err.Error())
+		return nil, errors.New("country not found")
 	}
 
 	founding, err := dateparse.ParseLocal(body.FoundingDate)
@@ -131,12 +225,12 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 
 	organisation := &model.Organisation{
 		UserID:           user.ID,
-		OrganisationName: organisationName,
+		Name:             organisationName,
 		Description:      body.Description,
 		FoundingDate:     utils.FormatDate(founding),
 		OrganisationSize: body.OrganisationSize,
 		Category:         body.Category,
-		Country:          country.Name.Official,
+		CountryID:        country.ID,
 		PublicKey:        keys.PublicKey,
 		SecretKey:        keys.SecretKey,
 	}
@@ -150,8 +244,11 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 
 	branch := &model.Branch{
 		OrganisationID: organisation.ID,
-		Name:           organisation.OrganisationName,
+		Name:           organisation.Name,
 		IsHQ:           true,
+		Active:         true,
+		PhoneNumber:    organisation.PhoneNumber,
+		CountryID:      country.ID,
 	}
 
 	role, err := o.roleRepo.GetByName(model.OWNER)
@@ -176,8 +273,9 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 		logger.Error(err.Error())
 		return nil, errors.New("organisation creation failed")
 	}
+
 	// Activity log
-	activity := &model.Activity{For: user.ID, Message: fmt.Sprintf("Created an organisation %s", organisation.OrganisationName)}
+	activity := &model.Activity{For: user.ID, Message: fmt.Sprintf("Created an organisation %s", organisation.Name)}
 	go func() {
 		err = o.activityRepo.Create(activity)
 		if err != nil {
@@ -191,9 +289,19 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 	}
 	response := &types.CreateOrganisationResponse{
 		ID:          organisation.ID,
-		Name:        organisation.OrganisationName,
+		Name:        organisation.Name,
 		Description: organisation.Description,
 		IsHQ:        branch.IsHQ,
+		Branch: []types.Branch{{
+			Name:        branch.Name,
+			IsHQ:        branch.IsHQ,
+			PhoneNumber: branch.PhoneNumber,
+			Country:     country.Code,
+			ZipCode:     branch.ZipCode,
+			Street:      branch.Street,
+			City:        branch.City,
+			State:       branch.State,
+		}},
 	}
 	return response, nil
 }
@@ -228,99 +336,3 @@ func (o *DefaultOrganisationService) GenerateKeyPairs() *APIKeyPair {
 		PublicKey: pkHeader + publicKey,
 	}
 }
-
-func (o *DefaultOrganisationService) CreateBranch(body *types.CreateBranch, organisation *model.Organisation, log log.Logger) (*types.CreateBranch, error) {
-	uw := repository.NewGormUnitOfWork(o.db)
-	tx, err := uw.Begin()
-
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err != nil {
-		return nil, err
-	}
-
-	branch := &model.Branch{}
-	branch.OrganisationID = organisation.ID
-	//filter := map[string]interface{}{"branch_name": body.BranchName, "organisation_id": body.OrganisationID}
-	//err := d.repo.WithTx(tx).FindBranch(filter)
-	//if val == true {
-	//	log.Error("Branch name Already Exist")
-	//	return errs.CustomError(http.StatusNotAcceptable, utils.ALREADY_EXIST, nil)
-	//}
-	//
-	//_, err := repo.CreateBranch(request)
-	//if err != nil {
-	//	log.Error("Error occurred while creating branch, %s", err.Error())
-	//	return errs.UnexpectedError(utils.SMMERROR)
-	//}
-	//
-	//// TODO: Add logged in user's ID to activity log
-	//// Activity log
-	//activity := &model.Activity{By: "", For: request.OrganisationID, Message: fmt.Sprintf("Added a branch '%s'", request.BranchName)}
-	//go func() {
-	//	if err = repo.AddActivity(activity); err != nil {
-	//		log.Error("User activity failed to log")
-	//	}
-	//}()
-
-	if err = uw.Commit(tx); err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-//func GetOrganisations(page int, repo repository.Repository, log log.Logger) (*types.DataView, error) {
-//	organisations, err := repo.GetOrganisations(page)
-//	if err != nil {
-//		log.Error("Error occured while getting list of organisations, %s", err.Error())
-//		return nil, err
-//	}
-//
-//	return organisations, nil
-//}
-
-//func GetSingleOrganisation(orgId string, repo repository.Repository, log log.Logger) (interface{}, error) {
-//	data, err := repo.GetSingleOrganisation(orgId)
-//	if err != nil {
-//		log.Error("Error occurred while getting organisation, %s", err.Error())
-//		return nil, err
-//	}
-//
-//	return data, nil
-//}
-//
-//func GetBranches(orgId, page string, repo repository.Repository, log log.Logger) (interface{}, error) {
-//	data, err := repo.GetBranches(orgId, page)
-//	if err != nil {
-//		log.Error("Error occurred while getting organisation branches, %s", err.Error())
-//		return nil, err
-//	}
-//
-//	return data, nil
-//}
-//
-//
-//func OrganisationStatus(Organs *types.OrganStatus, repo repository.Repository, log log.Logger) (interface{}, error) {
-//	_, err := repo.OrganisationStatus(Organs)
-//
-//	if err != nil {
-//		log.Error("Error occurred while deactivating or activating organisation, %s", err.Error())
-//		return nil, err
-//	}
-//
-//	// TODO: Add logged in user's ID to activity log
-//	// Activity log
-//	activity := &model.Activity{By: "", For: Organs.OrganisationID, Message: fmt.Sprintf("Changed organisation active status to %t", Organs.Active)}
-//	go func() {
-//		if err = repo.AddActivity(activity); err != nil {
-//			log.Error("User activity failed to log")
-//		}
-//	}()
-//
-//	return nil, nil
-//}

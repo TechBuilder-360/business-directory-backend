@@ -33,10 +33,21 @@ type (
 		RefreshToken string `json:"refresh_token" validate:"required"`
 	}
 
+	Activate struct {
+		Status bool `json:"status"`
+	}
+
 	Query struct {
-		Page     uint
-		PageSize uint
-		Search   string
+		Page     int    `json:"page" schema:"page"`
+		PageSize int    `json:"page_size" schema:"page_size"`
+		Search   string `json:"search" schema:"search"`
+	}
+
+	PaginatedResponse struct {
+		Page    int         `json:"page"`
+		PerPage int         `json:"per_page"`
+		Total   int64       `json:"total"`
+		Data    interface{} `json:"-"`
 	}
 )
 

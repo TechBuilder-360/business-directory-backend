@@ -3,6 +3,7 @@ package sendgrid
 const (
 	ACTIVATIONTEMPLATE Template = "activation_template"
 	OTPTEMPLATE        Template = "otp_template"
+	GENERALTEMPLATE    Template = "general_template"
 )
 
 type ActivationMailRequest struct {
@@ -11,6 +12,13 @@ type ActivationMailRequest struct {
 	FullName string
 	Token    string
 	UID      string
+}
+
+type GeneralMailRequest struct {
+	ToName  string
+	ToMail  string
+	Subject string
+	Message string
 }
 
 type OTPMailRequest struct {
