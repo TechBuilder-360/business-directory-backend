@@ -15,7 +15,7 @@ import (
 	"net/http"
 )
 
-type OrganisationController interface {
+type IOrganisationController interface {
 	CreateOrganisation(w http.ResponseWriter, r *http.Request)
 	ChangeStatus(w http.ResponseWriter, r *http.Request)
 	GetSingleOrganisation(w http.ResponseWriter, r *http.Request)
@@ -24,19 +24,19 @@ type OrganisationController interface {
 }
 
 type organisationController struct {
-	Service services.OrganisationService
+	Service services.IOrganisationService
 }
 
 func (c *organisationController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/organisations").Subrouter()
+
 	apis.HandleFunc("", middlewares.Adapt(http.HandlerFunc(c.GetAllOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
 	apis.HandleFunc("", middlewares.Adapt(http.HandlerFunc(c.CreateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
 	apis.HandleFunc("/{id}", middlewares.Adapt(http.HandlerFunc(c.GetSingleOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
 	apis.HandleFunc("/status", middlewares.Adapt(http.HandlerFunc(c.ChangeStatus), middlewares.AuthorizeUserJWT(), middlewares.AuthorizeOrganisationJWT).ServeHTTP).Methods(http.MethodPatch)
-
 }
 
-func DefaultOrganisationController() OrganisationController {
+func DefaultOrganisationController() IOrganisationController {
 	return &organisationController{
 		Service: services.NewOrganisationService(),
 	}
@@ -48,8 +48,8 @@ func DefaultOrganisationController() OrganisationController {
 // @Tags         organisations
 // @Accept       json
 // @Produce      json
-// @Param        default  body	types.CreateOrganisationReq  true  "create this organisation"
-// @Success      200      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse}
+// @Param        default  body	types.CreateOrganisationReq  true  "create this organisation
+// @Success      201      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse
 // @Router       /organisations [post]
 func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
@@ -95,7 +95,7 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(utils.SuccessResponse{
 		Status:  true,
 		Message: "Successful",
@@ -103,6 +103,42 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 	})
 
 }
+
+// GetOrganisation godoc
+// @Summary      get organisation
+// @Description  get organisation
+// @Tags         Organisation
+// @Accept       json
+// @Produce      json
+// @Param        default  path	string  true  "organisation ID"
+// @Success      200      {object}  utils.SuccessResponse{types.Organisation}
+// @Router       /organisation/{id} [get]
+//func (c *organisationController) GetOrganisation(w http.ResponseWriter, r *http.Request) {
+//	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+//	logger.Info("GetOrganisation")
+//
+//	vars := mux.Vars(r)
+//	id := vars["id"]
+//
+//	data, err := c.Service.GetOrganisation(id)
+//	if err != nil {
+//		logger.Error(err.Error())
+//		w.WriteHeader(http.StatusBadRequest)
+//		json.NewEncoder(w).Encode(utils.ErrorResponse{
+//			Status:  false,
+//			Message: err.Error(),
+//		})
+//		return
+//	}
+//
+//	w.WriteHeader(http.StatusOK)
+//	json.NewEncoder(w).Encode(utils.SuccessResponse{
+//		Status:  true,
+//		Message: "Successful",
+//		Data:    data,
+//	})
+//
+//}
 
 // ChangeStatus godoc
 // @Summary      activate/deactivate an organisation

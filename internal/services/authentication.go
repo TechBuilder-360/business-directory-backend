@@ -103,6 +103,7 @@ func (d *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Ent
 		LastName:     body.LastName,
 		DisplayName:  body.DisplayName,
 		EmailAddress: email,
+		Tier:         uint8(0),
 		PhoneNumber:  body.PhoneNumber,
 	}
 

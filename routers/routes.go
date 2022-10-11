@@ -13,6 +13,7 @@ func SetupRoutes(router *mux.Router) {
 		organisationController = controllers.DefaultOrganisationController()
 		branchController       = controllers.DefaultBranchController()
 		authController         = controllers.DefaultAuthController()
+		usersController        = controllers.DefaultUserController()
 		controller             = controllers.DefaultController()
 	)
 
@@ -37,6 +38,11 @@ func SetupRoutes(router *mux.Router) {
 	//******* BRANCH **********************
 	//*************************************
 	branchController.RegisterRoutes(router)
+
+	//*************************************
+	//******* USERS **********************
+	//*************************************
+	usersController.RegisterRoutes(router)
 
 	router.PathPrefix("/documentation/").Handler(httpSwagger.WrapHandler)
 

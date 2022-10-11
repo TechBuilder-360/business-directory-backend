@@ -24,7 +24,7 @@ type APIKeyPair struct {
 }
 
 //go:generate mockgen -destination=../mocks/services/organisation.go -package=services github.com/TechBuilder-360/business-directory-backend/services OrganisationService
-type OrganisationService interface {
+type IOrganisationService interface {
 	CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error)
 	GetOrganisationByPublicKey(publicKey string) (*model.Organisation, error)
 	GenerateKeyPairs() *APIKeyPair
@@ -43,7 +43,7 @@ type DefaultOrganisationService struct {
 	db               *gorm.DB
 }
 
-func NewOrganisationService() OrganisationService {
+func NewOrganisationService() IOrganisationService {
 	return &DefaultOrganisationService{
 		organisationRepo: repository.NewOrganisationRepository(),
 		activityRepo:     repository.NewActivityRepository(),
@@ -174,6 +174,7 @@ func (o *DefaultOrganisationService) GetAllOrganisation(query types.Query, logge
 	}, nil
 
 }
+
 func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrganisationReq, user *model.User, logger *log.Entry) (*types.CreateOrganisationResponse, error) {
 	uw := repository.NewGormUnitOfWork(o.db)
 	tx, err := uw.Begin()
