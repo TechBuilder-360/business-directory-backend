@@ -29,8 +29,10 @@ type Config struct {
 	DbHost string `env:"DB_HOST"`
 	DbPort uint   `env:"DB_PORT"`
 
-	RedisURL      string `env:"REDIS_URL"`
-	RedisPassword string `env:"REDIS_PASSWORD"`
+	RedisURL          string `env:"REDIS_URL"`
+	RedisDB           int    `env:"REDIS_DB"`
+	RedisPassword     string `env:"REDIS_PASSWORD"`
+	RedisCacheRefresh string `env:"REDIS_CACHE_REFRESH"`
 
 	SendGridAPIKey    *string `env:"SENDGRID_API_KEY"`
 	SendGridFromEmail *string `env:"SEND_GRID_FROM_EMAIL"`

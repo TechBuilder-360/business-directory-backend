@@ -7,6 +7,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
+	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
 	"github.com/TechBuilder-360/business-directory-backend/routers"
 	"github.com/TechBuilder-360/business-directory-backend/seeder"
 	"github.com/gorilla/mux"
@@ -83,6 +84,9 @@ func main() {
 		panic(fmt.Sprintf("Migration Failed: %s", err.Error()))
 	}
 	go seeder.Seed(dbConnection)
+
+	// Setup cache
+	middlewares.ResponseCache()
 
 	// Set up the routes
 	router := mux.NewRouter()

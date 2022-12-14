@@ -30,9 +30,9 @@ type organisationController struct {
 func (c *organisationController) RegisterRoutes(router *mux.Router) {
 	apis := router.PathPrefix("/organisations").Subrouter()
 
-	apis.HandleFunc("", middlewares.Adapt(http.HandlerFunc(c.GetAllOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
+	apis.HandleFunc("", middlewares.CacheClient.Middleware(middlewares.Adapt(http.HandlerFunc(c.GetAllOrganisation), middlewares.AuthorizeUserJWT())).ServeHTTP).Methods(http.MethodGet)
 	apis.HandleFunc("", middlewares.Adapt(http.HandlerFunc(c.CreateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
-	apis.HandleFunc("/{id}", middlewares.Adapt(http.HandlerFunc(c.GetSingleOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
+	apis.HandleFunc("/{id}", middlewares.CacheClient.Middleware(middlewares.Adapt(http.HandlerFunc(c.GetSingleOrganisation), middlewares.AuthorizeUserJWT())).ServeHTTP).Methods(http.MethodGet)
 	apis.HandleFunc("/status", middlewares.Adapt(http.HandlerFunc(c.ChangeStatus), middlewares.AuthorizeUserJWT(), middlewares.AuthorizeOrganisationJWT).ServeHTTP).Methods(http.MethodPatch)
 }
 
