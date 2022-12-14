@@ -22,7 +22,24 @@ func AuthorizeUserJWT() Adapter {
 			var user *model.User
 			var ctx context.Context
 			tokenString := ExtractBearerToken(r)
+			if tokenString == "" {
+				w.WriteHeader(http.StatusUnauthorized)
+				json.NewEncoder(w).Encode(utils.ErrorResponse{
+					Status:  false,
+					Message: "missing authentication token",
+				})
+				return
+			}
 			token, err := services.NewAuthService().ValidateToken(tokenString)
+			if err != nil {
+				log.Error(err)
+				w.WriteHeader(http.StatusUnauthorized)
+				json.NewEncoder(w).Encode(utils.ErrorResponse{
+					Status:  false,
+					Message: "authentication failed",
+				})
+				return
+			}
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				userId := claims["user_id"].(string)
 				user, err = repository.NewUserRepository().GetUserByID(userId)
@@ -57,6 +74,9 @@ func AuthorizeUserJWT() Adapter {
 func ExtractBearerToken(r *http.Request) string {
 	const BearerSchema = "Bearer"
 	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return ""
+	}
 	tokenString := authHeader[len(BearerSchema)+1:]
 	return tokenString
 }
