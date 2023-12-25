@@ -9,5 +9,10 @@ const (
 
 	Directory types.Directory = "Directory"
 
-	AuthToken types.Hash = "Auth-Token"
+	Verified   types.VerificationType = "VERIFIED"
+	Partial    types.VerificationType = "PARTIAL"
+	Unverified types.VerificationType = "UNVERIFIED"
+
+	OnSite types.LocationType = "ON-SITE"
+	Remote types.LocationType = "REMOTE"
 )

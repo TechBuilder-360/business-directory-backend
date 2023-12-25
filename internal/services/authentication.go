@@ -52,10 +52,6 @@ func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log
 		return errors.New("user not found")
 	}
 
-	if user.EmailVerified == true {
-		return errors.New("account is already active")
-	}
-
 	valid, err := d.repo.IsTokenValid(user.ID, token)
 	if err != nil {
 		logger.Error("An Error occurred when validating login token. %s", err.Error())
@@ -66,10 +62,6 @@ func (d *DefaultAuthService) ActivateEmail(token string, uid string, logger *log
 		return errors.New("invalid activation link")
 	}
 
-	user.EmailVerified = true
-	if configs.Instance.GetEnv() == configs.SANDBOX {
-		user.Tier = 99
-	}
 	if err = d.userRepo.Update(user); err != nil {
 		logger.Error("An Error occurred while Activating your account, Please try again. %s", err.Error())
 		return errors.New("account activation failed")
@@ -103,7 +95,7 @@ func (d *DefaultAuthService) RegisterUser(body *types.Registration, log *log.Ent
 		LastName:     body.LastName,
 		DisplayName:  body.DisplayName,
 		EmailAddress: email,
-		Tier:         uint8(0),
+		Status:       true,
 		PhoneNumber:  body.PhoneNumber,
 	}
 
@@ -176,14 +168,12 @@ func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginRespons
 	}
 
 	profile := types.UserProfile{
-		ID:            user.ID,
-		FirstName:     user.FirstName,
-		LastName:      user.LastName,
-		DisplayName:   user.DisplayName,
-		EmailAddress:  user.EmailAddress,
-		PhoneNumber:   user.PhoneNumber,
-		EmailVerified: user.EmailVerified,
-		LastLogin:     user.LastLogin,
+		ID:           user.ID,
+		FirstName:    user.FirstName,
+		LastName:     user.LastName,
+		DisplayName:  user.DisplayName,
+		EmailAddress: user.EmailAddress,
+		PhoneNumber:  user.PhoneNumber,
 	}
 
 	response.Profile = profile
@@ -191,7 +181,6 @@ func (d *DefaultAuthService) Login(body *types.AuthRequest) (*types.LoginRespons
 	// Activity log
 	activity := &model.Activity{By: user.ID, Message: "Successful login"}
 	go func() {
-		user.LastLogin = time.Now()
 		if err = d.userRepo.Update(user); err != nil {
 			log.Error("User last login failed to be updated. %s", err.Error())
 		}

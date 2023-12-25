@@ -16,11 +16,10 @@ type Activity struct {
 type Notification struct {
 	Base
 
-	UserID    uuid.UUID `json:"member_id"`
-	Title     string    `json:"title"`
-	Message   string    `json:"message"`
-	Seen      bool      `json:"seen"`
-	IsDeleted bool      `json:"is_deleted"`
+	UserID  uuid.UUID `json:"member_id"`
+	Title   string    `json:"title"`
+	Message string    `json:"message"`
+	Seen    bool      `json:"seen"`
 }
 
 type Token struct {

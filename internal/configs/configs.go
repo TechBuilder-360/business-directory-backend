@@ -57,3 +57,11 @@ func Load() {
 func (c *Config) GetEnv() types.ENVIRONMENT {
 	return types.ENVIRONMENT(strings.ToUpper(string(Instance.Environment)))
 }
+
+func (c *Config) IsSandbox() bool {
+	return types.ENVIRONMENT(strings.ToUpper(string(c.Environment))) == SANDBOX
+}
+
+func (c *Config) IsProduction() bool {
+	return types.ENVIRONMENT(strings.ToUpper(string(c.Environment))) == PRODUCTION
+}

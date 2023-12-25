@@ -25,74 +25,25 @@ type Organisation struct {
 
 	Category           string `json:"-" gorm:"not null"`
 	CountryID          string `json:"-" gorm:"not null"`
-	UserID             string `json:"-" gorm:"not null"`
 	Name               string `gorm:"column:name;unique"`
 	LogoURL            *string
 	PhoneNumber        *string //international format i.e 23481*******1
 	SupportPhoneNumber *string //international format i.e 23481*******1
-	EmailAddress       string  `json:"email_address" gorm:"not null"`
+	EmailAddress       string  `json:"email_address" gorm:"not null;unique"`
 	Website            *string
 	OrganisationSize   types.OrganisationSize `gorm:"not null"`
 	Description        string                 `gorm:"not null"`
-	RegistrationNumber *string
-	Verified           bool `gorm:"default:false"`
+	RegistrationNumber *string                `json:"registration_number" gorm:"null;unique"`
+	Location           types.LocationType     `gorm:"not null;REMOTE"`
+	Verified           types.VerificationType `gorm:"default:UNVERIFIED"`
+	ServiceType        string                 `json:"service_type"`
 	FoundingDate       string
-	Rating             float64               `json:"rating"`
-	Active             bool                  `gorm:"default:false"`
-	PublicKey          string                `gorm:"not null"`
-	SecretKey          string                `gorm:"not null"`
-	User               User                  `gorm:"-"`
-	Branch             []Branch              `gorm:"-"`
-	OrganisationMember []OrganisationMember  `gorm:"-"`
-	Services           []OrganisationService `gorm:"-"`
-	Products           []OrganisationProduct `gorm:"-"`
-}
-
-type OrganisationService struct {
-	Base
-
-	OrganisationID string
-	Service        string
-	Image          string
-}
-
-type OrganisationProduct struct {
-	Base
-
-	OrganisationID string
-	Product        string
-	Image          string
-}
-
-type OrganisationMember struct {
-	BaseP
-
-	UserID         string       `json:"user_id"`
-	OrganizationID string       `json:"organization_id" gorm:"primaryKey"`
-	RoleID         string       `gorm:"primaryKey"`
-	BranchID       *string      `json:"-" gorm:"null"`
-	Branch         Branch       `gorm:"-"`
-	User           User         `gorm:"-"`
-	Role           Role         `gorm:"-"`
-	Organisation   Organisation `gorm:"-"`
-}
-
-type PhoneDetails struct {
-	PhoneNumber string `json:"phone_number"`
-	CountryCode string `json:"country_code"`
-}
-
-type Location struct {
-	Area      string  `json:"area"`
-	Longitude float64 `json:"longitude"`
-	Latitude  float64 `json:"latitude"`
-}
-
-type Address struct {
-	CountryCode string `json:"country_code"`
-	Country     string `json:"country"`
-	ZipCode     int    `json:"zip_code"`
-	Street      string `json:"street"`
-	City        string `json:"city"`
-	State       string `json:"state"`
+	Rating             float64   `json:"rating"`
+	Active             bool      `gorm:"default:false"`
+	PublicKey          string    `gorm:"not null"`
+	SecretKey          string    `gorm:"not null"`
+	Members            []Member  `gorm:"-"`
+	Branch             []Branch  `gorm:"-"`
+	Services           []Service `gorm:"-"`
+	Products           []Product `gorm:"-"`
 }

@@ -23,9 +23,9 @@ func DBMigration(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&model.User{},
 		&model.Organisation{},
-		&model.OrganisationService{},
-		&model.OrganisationProduct{},
-		&model.OrganisationMember{},
+		&model.Service{},
+		&model.Product{},
+		&model.Member{},
 		&model.Activity{},
 		&model.Branch{},
 		&model.Category{},
