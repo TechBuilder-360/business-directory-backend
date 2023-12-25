@@ -22,7 +22,7 @@ type OrganisationRepository interface {
 	Update(organisation *model.Organisation) error
 	WithTx(tx *gorm.DB) OrganisationRepository
 	GetOrganisationByName(name string) (*model.Organisation, error)
-	AddOrganisationMember(member *model.OrganisationMember) error
+	AddOrganisationMember(member *model.Member) error
 }
 
 type DefaultOrganisationRepo struct {
@@ -110,7 +110,7 @@ func (d *DefaultOrganisationRepo) Update(organisation *model.Organisation) error
 	return d.db.WithContext(ctx).Save(organisation).Error
 }
 
-func (d *DefaultOrganisationRepo) AddOrganisationMember(member *model.OrganisationMember) error {
+func (d *DefaultOrganisationRepo) AddOrganisationMember(member *model.Member) error {
 	return d.db.WithContext(context.Background()).Create(member).Error
 }
 

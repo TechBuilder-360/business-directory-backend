@@ -76,7 +76,7 @@ func (o *DefaultOrganisationService) ChangeOrganisationStatus(organisation *mode
 			mailTemplate := &sendgrid.GeneralMailRequest{
 				ToMail:  organisation.EmailAddress,
 				ToName:  organisation.Name,
-				Subject: "Status Update",
+				Subject: "VerificationType Update",
 				Message: message,
 			}
 			err = sendgrid.GeneralMail(mailTemplate)
@@ -191,10 +191,10 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 		return nil, err
 	}
 
-	if user.Tier < 1 {
-		logger.Error("Upgrade your account to create organisation")
-		return nil, errors.New("upgrade your account to create organisation")
-	}
+	//if user.Tier < 1 {
+	//	logger.Error("Upgrade your account to create organisation")
+	//	return nil, errors.New("upgrade your account to create organisation")
+	//}
 
 	country, err := o.countryRepo.GetCountryByCode(body.Country)
 	if err != nil {
@@ -224,7 +224,7 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 	}
 
 	organisation := &model.Organisation{
-		UserID:           user.ID,
+		//Members:           user.ID,
 		Name:             organisationName,
 		Description:      body.Description,
 		FoundingDate:     utils.FormatDate(founding),
@@ -257,7 +257,7 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 		return nil, errors.New("organisation creation failed")
 	}
 
-	member := &model.OrganisationMember{
+	member := &model.Member{
 		UserID:         user.ID,
 		OrganizationID: organisation.ID,
 		RoleID:         role.ID,

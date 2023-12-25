@@ -17,7 +17,7 @@ import (
 
 type IOrganisationController interface {
 	CreateOrganisation(w http.ResponseWriter, r *http.Request)
-	ChangeStatus(w http.ResponseWriter, r *http.Request)
+	ChangeActiveStatus(w http.ResponseWriter, r *http.Request)
 	GetSingleOrganisation(w http.ResponseWriter, r *http.Request)
 	GetAllOrganisation(w http.ResponseWriter, r *http.Request)
 	RegisterRoutes(router *mux.Router)
@@ -33,7 +33,7 @@ func (c *organisationController) RegisterRoutes(router *mux.Router) {
 	apis.HandleFunc("", middlewares.CacheClient.Middleware(middlewares.Adapt(http.HandlerFunc(c.GetAllOrganisation), middlewares.AuthorizeUserJWT())).ServeHTTP).Methods(http.MethodGet)
 	apis.HandleFunc("", middlewares.Adapt(http.HandlerFunc(c.CreateOrganisation), middlewares.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
 	apis.HandleFunc("/{id}", middlewares.CacheClient.Middleware(middlewares.Adapt(http.HandlerFunc(c.GetSingleOrganisation), middlewares.AuthorizeUserJWT())).ServeHTTP).Methods(http.MethodGet)
-	apis.HandleFunc("/status", middlewares.Adapt(http.HandlerFunc(c.ChangeStatus), middlewares.AuthorizeUserJWT(), middlewares.AuthorizeOrganisationJWT).ServeHTTP).Methods(http.MethodPatch)
+	apis.HandleFunc("/activate", middlewares.Adapt(http.HandlerFunc(c.ChangeActiveStatus), middlewares.AuthorizeUserJWT(), middlewares.AuthorizeOrganisationJWT).ServeHTTP).Methods(http.MethodPatch)
 }
 
 func DefaultOrganisationController() IOrganisationController {
@@ -125,7 +125,7 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 //		logger.Error(err.Error())
 //		w.WriteHeader(http.StatusBadRequest)
 //		json.NewEncoder(w).Encode(utils.ErrorResponse{
-//			Status:  false,
+//			VerificationType:  false,
 //			Message: err.Error(),
 //		})
 //		return
@@ -133,14 +133,14 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 //
 //	w.WriteHeader(http.StatusOK)
 //	json.NewEncoder(w).Encode(utils.SuccessResponse{
-//		Status:  true,
+//		VerificationType:  true,
 //		Message: "Successful",
 //		Data:    data,
 //	})
 //
 //}
 
-// ChangeStatus godoc
+// ChangeActiveStatus godoc
 // @Summary      activate/deactivate an organisation
 // @Description  activate/deactivate an organisation
 // @Tags         organisations
@@ -149,7 +149,7 @@ func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *ht
 // @Param        default  body	types.Activate  true  "change organisation status"
 // @Success      200      {object}  utils.SuccessResponse
 // @Router       /organisations/status [patch]
-func (c *organisationController) ChangeStatus(w http.ResponseWriter, r *http.Request) {
+func (c *organisationController) ChangeActiveStatus(w http.ResponseWriter, r *http.Request) {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("ChangeStatus")
 

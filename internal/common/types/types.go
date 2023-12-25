@@ -53,6 +53,8 @@ type (
 
 type ENVIRONMENT string
 type OrganisationSize string
+type LocationType string
 type RoleType string
 type Directory string
 type Hash string
+type VerificationType string

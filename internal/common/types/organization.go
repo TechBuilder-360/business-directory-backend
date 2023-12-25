@@ -48,22 +48,23 @@ type Organisation struct {
 	LogoURL            *string          `json:"logo_url"`
 	Website            *string          `json:"website"`
 	OrganisationSize   OrganisationSize `json:"organisation_size"`
+	ServiceType        string           `json:"service_type"`
 	Description        string           `json:"description"`
 	RegistrationNumber *string          `json:"registration_number"`
 	Rating             float64          `json:"rating"`
 	FoundingDate       string           `json:"founding_date"`
-	Verified           bool             `json:"verified"`
+	Verified           VerificationType `json:"verified"`
 	Branch             []Branch         `json:"branch"`
 }
 
 // Organisations ...
 type Organisations struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	LogoURL     *string `json:"logo_url"`
-	Description string  `json:"description"`
-	Rating      float64 `json:"rating"`
-	Verified    bool    `json:"verified"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	LogoURL     *string          `json:"logo_url"`
+	Description string           `json:"description"`
+	Rating      float64          `json:"rating"`
+	Verified    VerificationType `json:"verified"`
 }
 
 type OrganStatus struct {
