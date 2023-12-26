@@ -258,7 +258,7 @@ func (o *DefaultOrganisationService) CreateOrganisation(body *types.CreateOrgani
 	}
 
 	member := &model.Member{
-		UserID:         user.ID,
+		UserId:         user.ID,
 		OrganizationID: organisation.ID,
 		RoleID:         role.ID,
 	}

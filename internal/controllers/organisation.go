@@ -48,7 +48,7 @@ func DefaultOrganisationController() IOrganisationController {
 // @Tags         organisations
 // @Accept       json
 // @Produce      json
-// @Param        default  body	types.CreateOrganisationReq  true  "create this organisation
+// @Param        default  body	types.CreateOrganisationReq  true  "create an organisation
 // @Success      201      {object}  utils.SuccessResponse{Data=types.CreateOrganisationResponse
 // @Router       /organisations [post]
 func (c *organisationController) CreateOrganisation(w http.ResponseWriter, r *http.Request) {
