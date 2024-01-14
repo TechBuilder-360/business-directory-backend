@@ -1,37 +1,32 @@
 package middlewares
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
-	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
-	"github.com/TechBuilder-360/business-directory-backend/internal/services"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-//AuthorizeOrganisationJWT handles organisation jwt validation
-func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ctx context.Context
-		publicKey := extractOrganisationToken(r)
-		organisation, err := services.NewOrganisationService().GetOrganisationByPublicKey(publicKey)
-		if organisation != nil {
-			ctx = context.WithValue(r.Context(), AuthOrganisationContextKey, organisation)
-		} else {
-			log.Error(err)
-			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(utils.ErrorResponse{
-				Status:  false,
-				Message: "unauthorized",
-			})
-			return
-		}
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
+// AuthorizeOrganisationJWT handles organisation jwt validation
+//func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
+//	return http.HandlerFunc(func(ctx *fiber.Ctx) error {
+//		var ctx context.Context
+//		publicKey := extractOrganisationToken(r)
+//		organisation, err := services.NewOrganisationService().GetOrganisationByPublicKey(publicKey)
+//		if organisation != nil {
+//			ctx = context.WithValue(r.Context(), AuthOrganisationContextKey, organisation)
+//		} else {
+//			log.Error(err)
+//			w.WriteHeader(http.StatusUnauthorized)
+//			json.NewEncoder(w).Encode(utils.ErrorResponse{
+//				Status:  false,
+//				Message: "unauthorized",
+//			})
+//			return
+//		}
+//
+//		next.ServeHTTP(w, r.WithContext(ctx))
+//	})
+//}
 
 func extractOrganisationToken(r *http.Request) string {
 	const BearerSchema = "Bearer"
