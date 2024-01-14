@@ -51,7 +51,7 @@ func (r *DefaultUserRepo) Create(user *model.User) error {
 
 func (r *DefaultUserRepo) GetByEmail(email string) (*model.User, error) {
 	user := &model.User{}
-	err := r.db.Where("email_address = ?", email).First(user).Error
+	err := r.db.Where("lower(email_address) = lower(?)", email).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}

@@ -4,9 +4,8 @@ import "time"
 
 type (
 	LoginResponse struct {
-		Authentication Authentication       `json:"authentication"`
-		Profile        UserProfile          `json:"profile"`
-		Organisations  []OrganisationMember `json:"organisations"`
+		Authentication Authentication `json:"authentication"`
+		Profile        UserProfile    `json:"profile"`
 	}
 
 	OrganisationMember struct {
@@ -14,7 +13,7 @@ type (
 	}
 
 	UserProfile struct {
-		ID            string    `json:"id"`
+		Id            string    `json:"id"`
 		FirstName     string    `json:"first_name"`
 		LastName      string    `json:"last_name"`
 		DisplayName   string    `json:"display_name"`
@@ -27,10 +26,7 @@ type (
 	Authentication struct {
 		AccessToken  string `json:"access_token"`
 		RefreshToken string `json:"refresh_token"`
-	}
-
-	RefreshTokenRequest struct {
-		RefreshToken string `json:"refresh_token" validate:"required"`
+		ExpireAt     int64  `json:"expire_at"`
 	}
 
 	Activate struct {

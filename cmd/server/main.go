@@ -8,13 +8,11 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
 	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
-	"github.com/TechBuilder-360/business-directory-backend/routers"
+	"github.com/TechBuilder-360/business-directory-backend/internal/routers"
 	"github.com/TechBuilder-360/business-directory-backend/seeder"
-	"github.com/gorilla/mux"
 	logrus_papertrail "github.com/polds/logrus-papertrail-hook"
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
-	"net/http"
 	"os"
 	"strconv"
 )
@@ -89,14 +87,13 @@ func main() {
 	middlewares.ResponseCache()
 
 	// Set up the routes
-	router := mux.NewRouter()
-	routers.SetupRoutes(router)
+	router := routers.SetupRoutes()
 
 	// Start the server
-	log.Info("Server started on port ", configs.Instance.BASEURL)
-	err = http.ListenAndServe(fmt.Sprintf("%s", configs.Instance.BASEURL), router)
+	log.Info("Server started on port ", configs.Instance.Port)
+	err = router.Listen(fmt.Sprintf("%s:%s", configs.Instance.BASEURL, configs.Instance.Port))
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("error when starting server ::: %s", err.Error())
 		return
 	}
 }

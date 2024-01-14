@@ -4,7 +4,7 @@ package model
 type User struct {
 	Base
 
-	Uid          string  `json:"uid" gorm:"not null"`
+	Uid          string  `json:"uid" gorm:"not null;unique"`
 	FirstName    string  `json:"first_name" gorm:"not null"`
 	LastName     string  `json:"last_name" gorm:"not null"`
 	DisplayName  string  `json:"display_name" gorm:"not null"`

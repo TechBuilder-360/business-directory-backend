@@ -43,6 +43,9 @@ type Config struct {
 	CloudinaryName   *string `env:"ENV_CLOUD_NAME"`
 	CloudinaryAPIKey *string `env:"ENV_CLOUD_API_KEY"`
 	CloudinarySecret *string `env:"ENV_CLOUD_API_SECRET"`
+
+	AuthServerBaseURL   *string `env:"AUTH_SERVER_BASE_URL"`
+	AuthServerSecretKey *string `env:"AUTH_SERVER_SECRET_KEY"`
 }
 
 func Load() {

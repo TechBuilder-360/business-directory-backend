@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	log "github.com/sirupsen/logrus"
@@ -90,7 +91,7 @@ func (c *Client) Get(key string) (*string, error) {
 
 	key = fmt.Sprintf("%s-%s", c.namespace, key)
 	result, err := c.Client.Get(ctx, key).Result()
-	if err == redis.Nil {
+	if errors.Is(err, redis.Nil) {
 		return nil, nil
 	}
 	return &result, err

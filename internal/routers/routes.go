@@ -1,14 +1,17 @@
 package routers
 
 import (
+	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/controllers"
 	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 	log "github.com/sirupsen/logrus"
-	"github.com/swaggo/http-swagger"
+	"time"
 )
 
-func SetupRoutes(router *mux.Router) {
+func SetupRoutes() *fiber.App {
 	var (
 		organisationController = controllers.DefaultOrganisationController()
 		branchController       = controllers.DefaultBranchController()
@@ -17,34 +20,45 @@ func SetupRoutes(router *mux.Router) {
 		controller             = controllers.DefaultController()
 	)
 
-	router.Use(middlewares.Recovery)
+	app := fiber.New(fiber.Config{
+		ErrorHandler:          middlewares.DefaultErrorHandler,
+		DisableStartupMessage: true,
+		StrictRouting:         true,
+		ReadTimeout:           30 * time.Second,
+		ReadBufferSize:        4096,
+	})
+
+	app.Use(recover.New())
 
 	//*******************************************
 	//******* Controller **********************
 	//*******************************************
-	controller.RegisterRoutes(router)
+	controller.RegisterRoutes(app)
 
 	//*******************************************
 	//******* Authentication **********************
 	//*******************************************
-	authController.RegisterRoutes(router)
+	authController.RegisterRoutes(app)
 
 	//*******************************************
 	//******* ORGANISATION **********************
 	//*******************************************
-	organisationController.RegisterRoutes(router)
+	organisationController.RegisterRoutes(app)
 
 	//*************************************
 	//******* BRANCH **********************
 	//*************************************
-	branchController.RegisterRoutes(router)
+	branchController.RegisterRoutes(app)
 
 	//*************************************
 	//******* USERS **********************
 	//*************************************
-	usersController.RegisterRoutes(router)
+	usersController.RegisterRoutes(app)
 
-	router.PathPrefix("/documentation/").Handler(httpSwagger.WrapHandler)
+	if !configs.Instance.IsProduction() {
+		app.Get("/swagger/*", swagger.HandlerDefault)
+	}
 
 	log.Info("Routes have been initialized")
+	return app
 }
