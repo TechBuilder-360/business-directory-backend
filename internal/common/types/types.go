@@ -48,9 +48,10 @@ type (
 )
 
 type ENVIRONMENT string
-type OrganisationSize string
+type BusinessSize string
 type LocationType string
 type RoleType string
 type Directory string
 type Hash string
 type VerificationType string
+type Status string

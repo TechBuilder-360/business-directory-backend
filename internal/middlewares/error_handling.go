@@ -3,6 +3,7 @@ package middlewares
 import (
 	"errors"
 	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/apiError"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,11 +16,11 @@ type Response struct {
 type ContextKey string
 
 const (
-	AuthUserContextKey         ContextKey = "user"
-	AuthOrganisationContextKey ContextKey = "organisation"
+	AuthUserContextKey     ContextKey = "user"
+	AuthBusinessContextKey ContextKey = "organisation"
 )
 
-// DefaultErrorHandler Default error handler
+// DefaultErrorHandler Default apiError handler
 var DefaultErrorHandler = func(c *fiber.Ctx, err error) error {
 	// Status code defaults to 500
 	code := fiber.StatusInternalServerError
@@ -39,10 +40,9 @@ var DefaultErrorHandler = func(c *fiber.Ctx, err error) error {
 	// Set Content-Type: text/plain; charset=utf-8
 	c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
 
-	// Return status code with error message
-	return c.Status(code).JSON(utils.ErrorResponse{
-		Status:  false,
+	// Return status code with apiError message
+	return c.Status(code).JSON(utils.Error(apiError.AppError{
 		Message: "request failed",
 		Error:   message,
-	})
+	}))
 }

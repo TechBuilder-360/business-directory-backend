@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/apiError"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
@@ -47,32 +48,30 @@ func (c *AuthController) Registration(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(body)
 	if err != nil {
 		logger.Error(err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
 			Message: "request failed",
 			Error:   err.Error(),
-		})
+		}))
 	}
 
-	if errs, ok := validation.ValidateStruct(body, logger); !ok {
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
-			Message: errs,
-		})
+	if valErr, ok := validation.ValidateStruct(body, logger); !ok {
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
+			Message: "request failed",
+			Error:   valErr,
+		}))
 	}
 
 	err = c.as.Registration(ctx.UserContext(), *body, nil)
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
-			Message: err.Error(),
-		})
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
+			Message: "request failed",
+			Error:   err.Error(),
+		}))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(utils.SuccessResponse{
-		Status:  true,
-		Message: "Registration is successful, An email has been sent to activate your account",
-	})
+	return ctx.Status(http.StatusOK).JSON(
+		utils.Success("Registration is successful, An email has been sent to activate your account", nil, nil),
+	)
 }
 
 func (c *AuthController) ActivateAccount(ctx *fiber.Ctx) error {
@@ -83,16 +82,13 @@ func (c *AuthController) ActivateAccount(ctx *fiber.Ctx) error {
 
 	err := c.as.ActivateAccount(ctx.UserContext(), token, logger)
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
-			Message: err.Error(),
-		})
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
+			Message: "request failed",
+			Error:   err.Error(),
+		}))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(utils.SuccessResponse{
-		Status:  true,
-		Message: "email verification successful",
-	})
+	return ctx.Status(http.StatusOK).JSON(utils.Success("email verification successful", nil, nil))
 }
 
 func (c *AuthController) Logout(ctx *fiber.Ctx) error {
@@ -118,33 +114,29 @@ func (c *AuthController) Authenticate(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(body)
 	if err != nil {
 		logger.Error(err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
 			Message: "request failed",
 			Error:   err.Error(),
-		})
+		}))
 	}
 
-	if errs, ok := validation.ValidateStruct(body, logger); !ok {
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
-			Message: errs,
-		})
+	if valErr, ok := validation.ValidateStruct(body, logger); !ok {
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
+			Message: "request failed",
+			Error:   valErr,
+		}))
 	}
 
 	err = c.as.Authenticate(ctx.UserContext(), body)
 	if err != nil {
-		logger.Error("an error occurred ", err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
+		logger.Error("an apiError occurred ", err.Error())
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
 			Message: "request failed",
-		})
+			Error:   err.Error(),
+		}))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(utils.SuccessResponse{
-		Status:  true,
-		Message: "successful",
-	})
+	return ctx.Status(http.StatusOK).JSON(utils.Success("successful", nil, nil))
 }
 
 func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
@@ -156,34 +148,29 @@ func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(body)
 	if err != nil {
 		logger.Error(err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
 			Message: "request failed",
 			Error:   err.Error(),
-		})
+		}))
 	}
 
-	if errs, ok := validation.ValidateStruct(body, logger); !ok {
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
-			Message: errs,
-		})
+	if valErr, ok := validation.ValidateStruct(body, logger); !ok {
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
+			Message: "request failed",
+			Error:   valErr,
+		}))
 	}
 
 	data, err := c.as.RefreshToken(ctx.UserContext(), &body)
 	if err != nil {
-		logger.Error("an error occurred ", err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
-			Message: err.Error(),
-		})
+		logger.Error("an apiError occurred ", err.Error())
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
+			Message: "request failed",
+			Error:   err.Error(),
+		}))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(utils.SuccessResponse{
-		Status:  true,
-		Message: "successful",
-		Data:    data,
-	})
+	return ctx.Status(http.StatusOK).JSON(utils.Success("successful", data, nil))
 }
 
 func (c *AuthController) Login(ctx *fiber.Ctx) error {
@@ -195,32 +182,27 @@ func (c *AuthController) Login(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(body)
 	if err != nil {
 		logger.Error(err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
 			Message: "request failed",
 			Error:   err.Error(),
-		})
+		}))
 	}
 
-	if errs, ok := validation.ValidateStruct(body, logger); !ok {
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
-			Message: errs,
-		})
+	if valErr, ok := validation.ValidateStruct(body, logger); !ok {
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
+			Message: "request failed",
+			Error:   valErr,
+		}))
 	}
 
 	data, err := c.as.Login(ctx.UserContext(), body)
 	if err != nil {
-		logger.Error("an error occurred ", err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(utils.ErrorResponse{
-			Status:  false,
+		logger.Error("an apiError occurred ", err.Error())
+		return ctx.Status(http.StatusBadRequest).JSON(utils.Error(apiError.AppError{
 			Message: "request failed",
-		})
+			Error:   err.Error(),
+		}))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(utils.SuccessResponse{
-		Status:  true,
-		Message: "successful",
-		Data:    data,
-	})
+	return ctx.Status(http.StatusOK).JSON(utils.Success("successful", data, nil))
 }

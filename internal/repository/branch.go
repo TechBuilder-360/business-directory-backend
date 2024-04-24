@@ -14,7 +14,7 @@ import (
 type BranchRepository interface {
 	Create(branch *model.Branch) error
 	Get(id string) (*model.Branch, error)
-	GetByOrganisation(organisationId string) ([]model.Branch, error)
+	GetByBusiness(organisationId string) ([]model.Branch, error)
 	Find(filter map[string]interface{}, branch *model.Branch) error
 	Update(branch *model.Branch) error
 	GetAll(page int) (*types.PaginatedResponse, error)
@@ -36,17 +36,17 @@ func (d *DefaultBranchRepo) Get(id string) (*model.Branch, error) {
 		return nil, nil
 	}
 	if err != nil {
-		return nil, errors.New("an error occurred")
+		return nil, errors.New("an apiError occurred")
 	}
 
 	return branch, nil
 }
 
-func (d *DefaultBranchRepo) GetByOrganisation(organisationId string) ([]model.Branch, error) {
+func (d *DefaultBranchRepo) GetByBusiness(organisationId string) ([]model.Branch, error) {
 	var branch []model.Branch
 	err := d.db.Where("organisation_id = ? and active = true", organisationId).Find(&branch).Error
 	if err != nil {
-		return nil, errors.New("an error occurred")
+		return nil, errors.New("an apiError occurred")
 	}
 
 	return branch, nil

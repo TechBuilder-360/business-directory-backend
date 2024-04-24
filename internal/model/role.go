@@ -12,4 +12,5 @@ type Role struct {
 	Base
 
 	Name types.RoleType `gorm:"unique"`
+	Permission
 }

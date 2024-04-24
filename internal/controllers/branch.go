@@ -7,7 +7,7 @@ import (
 
 type BranchController interface {
 	RegisterRoutes(router *fiber.App)
-	//GetBranches(ctx *fiber.Ctx) error
+	//GetBranches(ctx *fiber.Ctx) apiError
 }
 
 type NewBranchController struct {
@@ -34,7 +34,7 @@ func DefaultBranchController() BranchController {
 // @Produce      json
 // @Success      200      {object}  utils.SuccessResponse{Data=[]types.Branch}
 // @Router       /branches [get]
-//func (c *NewBranchController) GetBranches(ctx *fiber.Ctx) error {
+//func (c *NewBranchController) GetBranches(ctx *fiber.Ctx) apiError {
 //	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 //	logger.Info("fetching single branch.")
 //

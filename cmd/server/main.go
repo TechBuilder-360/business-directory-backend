@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/cmd/migration"
 	"github.com/TechBuilder-360/business-directory-backend/docs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
@@ -9,7 +10,6 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
 	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
 	"github.com/TechBuilder-360/business-directory-backend/internal/routers"
-	"github.com/TechBuilder-360/business-directory-backend/seeder"
 	logrus_papertrail "github.com/polds/logrus-papertrail-hook"
 	log "github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
@@ -81,7 +81,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("Migration Failed: %s", err.Error()))
 	}
-	go seeder.Seed(dbConnection)
+	go migration.Seed(dbConnection)
 
 	// Setup cache
 	middlewares.ResponseCache()
@@ -93,7 +93,7 @@ func main() {
 	log.Info("Server started on port ", configs.Instance.Port)
 	err = router.Listen(fmt.Sprintf("%s:%s", configs.Instance.BASEURL, configs.Instance.Port))
 	if err != nil {
-		log.Error("error when starting server ::: %s", err.Error())
+		log.Error("apiError when starting server ::: %s", err.Error())
 		return
 	}
 }

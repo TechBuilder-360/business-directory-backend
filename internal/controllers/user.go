@@ -6,7 +6,7 @@ import (
 )
 
 type IUserController interface {
-	//UpgradeTier(ctx *fiber.Ctx) error
+	//UpgradeTier(ctx *fiber.Ctx) apiError
 	RegisterRoutes(router *fiber.App)
 }
 
@@ -27,7 +27,7 @@ func DefaultUserController() IUserController {
 	}
 }
 
-//func (c *UserController) UpgradeTier(ctx *fiber.Ctx) error {
+//func (c *UserController) UpgradeTier(ctx *fiber.Ctx) apiError {
 //	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 //	logger.Info("Upgrading user tiers")
 //	body := &types.UpgradeUserTierRequest{}

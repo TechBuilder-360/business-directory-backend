@@ -15,4 +15,7 @@ const (
 
 	OnSite types.LocationType = "ON-SITE"
 	Remote types.LocationType = "REMOTE"
+
+	Active   types.Status = "ACTIVE"
+	Disabled types.Status = "DISABLED"
 )

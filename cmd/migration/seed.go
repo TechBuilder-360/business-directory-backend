@@ -1,4 +1,4 @@
-package seeder
+package migration
 
 import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
@@ -16,7 +16,7 @@ func Seed(db *gorm.DB) {
 
 	for _, e := range errs {
 		if e != nil {
-			log.Errorf("seeder error-> %v", e)
+			log.Errorf("migration apiError-> %v", e)
 		}
 	}
 }
@@ -61,9 +61,10 @@ func runRolesSeeder(tx *gorm.DB) error {
 func runCountrySeeder(tx *gorm.DB) error {
 	country := []model.Country{
 		{
-			Name:   "Nigeria",
-			Code:   "NG",
-			Active: true,
+			Name:        "Nigeria",
+			Code:        "NG",
+			CallingCode: "234",
+			Active:      true,
 		},
 	}
 

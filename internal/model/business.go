@@ -9,18 +9,18 @@ import (
 //// Permissions
 //constant (
 //	OWNER    Permission = "owner"         // owner has all the privileges
-//	ADDADMIN Permission = "can_add_admin" // can add new admin to organisation
-//	CREATEAD Permission = "can_create_ad" // can create advert for organisation
+//	ADDADMIN Permission = "can_add_admin" // can add new admin to Business
+//	CREATEAD Permission = "can_create_ad" // can create advert for Business
 //)
 
 const (
-	MicroSize  types.OrganisationSize = "< 10 employees"
-	SmallSize  types.OrganisationSize = "10 - 49 employees"
-	MediumSize types.OrganisationSize = "50 - 249 employees"
-	LargeSize  types.OrganisationSize = "> 249 employees"
+	MicroSize  types.BusinessSize = "< 10 employees"
+	SmallSize  types.BusinessSize = "10 - 49 employees"
+	MediumSize types.BusinessSize = "50 - 249 employees"
+	LargeSize  types.BusinessSize = "> 249 employees"
 )
 
-type Organisation struct {
+type Business struct {
 	Base
 
 	Category           string `json:"-" gorm:"not null"`
@@ -31,7 +31,7 @@ type Organisation struct {
 	SupportPhoneNumber *string //international format i.e 23481*******1
 	EmailAddress       string  `json:"email_address" gorm:"not null;unique"`
 	Website            *string
-	OrganisationSize   types.OrganisationSize `gorm:"not null"`
+	BusinessSize       types.BusinessSize     `gorm:"not null"`
 	Description        string                 `gorm:"not null"`
 	RegistrationNumber *string                `json:"registration_number" gorm:"null;unique"`
 	Location           types.LocationType     `gorm:"not null;REMOTE"`

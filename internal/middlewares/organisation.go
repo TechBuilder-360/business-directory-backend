@@ -8,7 +8,7 @@ import (
 
 // AuthorizeOrganisationJWT handles organisation jwt validation
 //func AuthorizeOrganisationJWT(next http.Handler) http.Handler {
-//	return http.HandlerFunc(func(ctx *fiber.Ctx) error {
+//	return http.HandlerFunc(func(ctx *fiber.Ctx) apiError {
 //		var ctx context.Context
 //		publicKey := extractOrganisationToken(r)
 //		organisation, err := services.NewOrganisationService().GetOrganisationByPublicKey(publicKey)
@@ -35,14 +35,14 @@ func extractOrganisationToken(r *http.Request) string {
 	return publicKey
 }
 
-func OrganisationFromContext(r *http.Request) (*model.Organisation, error) {
-	org := r.Context().Value(AuthOrganisationContextKey)
+func BusinessFromContext(r *http.Request) (*model.Business, error) {
+	org := r.Context().Value(AuthBusinessContextKey)
 
 	if org == nil {
-		return nil, errors.New("no organisation in context")
+		return nil, errors.New("no business in context")
 	}
 
-	organisation := org.(*model.Organisation)
+	business := org.(*model.Business)
 
-	return organisation, nil
+	return business, nil
 }

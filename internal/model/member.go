@@ -1,15 +1,16 @@
 package model
 
+import "github.com/TechBuilder-360/business-directory-backend/internal/common/types"
+
 // Member ...
 type Member struct {
-	BaseP
+	Base
 
-	UserId         string       `json:"user_id"`
-	OrganizationID string       `json:"organization_id" gorm:"primaryKey"`
-	RoleID         string       `gorm:"primaryKey"`
-	BranchID       *string      `json:"-" gorm:"null"`
-	Branch         Branch       `gorm:"-"`
-	User           User         `gorm:"-"`
-	Role           Role         `gorm:"-"`
-	Organisation   Organisation `gorm:"-"`
+	UserId     string       `json:"user_id"`
+	BusinessID string       `json:"business_id" gorm:"primaryKey"`
+	RoleID     string       `gorm:"primaryKey"`
+	Status     types.Status `json:"status"`
+	User       User         `gorm:"-"`
+	Role       Role         `gorm:"-"`
+	Business   Business     `gorm:"-"`
 }
