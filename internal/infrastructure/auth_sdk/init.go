@@ -106,11 +106,11 @@ func (c *auth) Registration(ctx context.Context, payload types.Registration) (*s
 		Post(fmt.Sprintf("%s/auth/register", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: registration error %+v", err)
+		log.Error("AUTH:: registration apiError %+v", err)
 		return nil, errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: registration error %+v", e)
+		log.Error("AUTH:: registration apiError %+v", e)
 		return nil, errors.New(e.Message)
 	}
 
@@ -131,11 +131,11 @@ func (c *auth) ActivateEmail(ctx context.Context, token string) error {
 		Get(fmt.Sprintf("%s/auth/activate/{token}", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: activate email error %+v", err)
+		log.Error("AUTH:: activate email apiError %+v", err)
 		return errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: activate email error %+v", e)
+		log.Error("AUTH:: activate email apiError %+v", e)
 		return errors.New(e.Message)
 	}
 
@@ -160,11 +160,11 @@ func (c *auth) Authenticate(ctx context.Context, emailAddress string) error {
 		Post(fmt.Sprintf("%s/auth/authentication", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: authenticate error %+v", err)
+		log.Error("AUTH:: authenticate apiError %+v", err)
 		return errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: authenticate error %+v", e)
+		log.Error("AUTH:: authenticate apiError %+v", e)
 		return errors.New(e.Message)
 	}
 
@@ -190,11 +190,11 @@ func (c *auth) Login(ctx context.Context, emailAddress, otp string) (*Login, err
 		Post(fmt.Sprintf("%s/auth/login", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: login error %+v", err)
+		log.Error("AUTH:: login apiError %+v", err)
 		return nil, errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: login error %+v", e)
+		log.Error("AUTH:: login apiError %+v", e)
 		return nil, errors.New(e.Message)
 	}
 
@@ -220,11 +220,11 @@ func (c *auth) RefreshToken(ctx context.Context, token, refreshToken string) (*A
 		Post(fmt.Sprintf("%s/auth/refresh", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: refresh token error %+v", err)
+		log.Error("AUTH:: refresh token apiError %+v", err)
 		return nil, errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: refresh token error %+v", e)
+		log.Error("AUTH:: refresh token apiError %+v", e)
 		return nil, errors.New(e.Message)
 	}
 
@@ -245,11 +245,11 @@ func (c *auth) Logout(ctx context.Context, token string) error {
 		Put(fmt.Sprintf("%s/auth/logout", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: logout error %+v", err)
+		log.Error("AUTH:: logout apiError %+v", err)
 		return errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: logout error %+v", e)
+		log.Error("AUTH:: logout apiError %+v", e)
 		return errors.New(e.Message)
 	}
 
@@ -289,11 +289,11 @@ func (c *auth) GetUser(ctx context.Context, id string) (*User, error) {
 		Get(fmt.Sprintf("%s/users/{id}", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: fetch user error %+v", err)
+		log.Error("AUTH:: fetch user apiError %+v", err)
 		return nil, errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: fetch user error %+v", e)
+		log.Error("AUTH:: fetch user apiError %+v", e)
 		return nil, errors.New(e.Message)
 	}
 
@@ -314,11 +314,11 @@ func (c *auth) GetUserByEmail(ctx context.Context, email string) (*User, error) 
 		Get(fmt.Sprintf("%s/users", utils.AddToStr(configs.Instance.AuthServerBaseURL)))
 
 	if err != nil {
-		log.Error("AUTH:: fetch user error %+v", err)
+		log.Error("AUTH:: fetch user apiError %+v", err)
 		return nil, errors.New("request failed")
 	}
 	if resp.IsError() {
-		log.Error("AUTH:: fetch user error %+v", e)
+		log.Error("AUTH:: fetch user apiError %+v", e)
 		return nil, errors.New(e.Message)
 	}
 

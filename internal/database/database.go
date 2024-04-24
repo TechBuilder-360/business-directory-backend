@@ -22,7 +22,7 @@ func ConnectDB() *gorm.DB {
 func DBMigration(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&model.User{},
-		&model.Organisation{},
+		&model.Business{},
 		&model.Service{},
 		&model.Product{},
 		&model.Member{},

@@ -29,8 +29,5 @@ func DefaultController() Controller {
 func (c *NewController) Ping(ctx *fiber.Ctx) error {
 	log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 
-	return ctx.Status(http.StatusOK).JSON(utils.SuccessResponse{
-		Status:  true,
-		Message: "We are up and running 🚀",
-	})
+	return ctx.Status(http.StatusOK).JSON(utils.Success("We are up and running 🚀", nil, nil))
 }

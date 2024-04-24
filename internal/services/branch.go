@@ -9,14 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -destination=../mocks/services/branch.go -package=services github.com/TechBuilder-360/business-directory-backend/services BranchService
 type BranchService interface {
 	Create(branch *model.Branch) error
-	GetOrganisationBranches(organisation *model.Organisation, logger *log.Entry) ([]types.Branch, error)
+	GetBusinessBranches(Business *model.Business, logger *log.Entry) ([]types.Branch, error)
 	Update(branch *model.Branch) error
-	UpdateBranch(organisation *model.Organisation, body types.CreateBranchRequest)
-	CreateBranch(organisation *model.Organisation, body types.CreateBranchRequest)
-	Activate(organisation *model.Organisation, id string, body types.Activate)
+	UpdateBranch(Business *model.Business, body types.CreateBranchRequest)
+	CreateBranch(Business *model.Business, body types.CreateBranchRequest)
+	Activate(Business *model.Business, id string, body types.Activate)
 }
 
 type DefaultBranchService struct {
@@ -33,38 +32,38 @@ func NewBranchService() BranchService {
 	}
 }
 
-func (o *DefaultBranchService) Update(branch *model.Branch) error {
-	return o.branchRepo.Update(branch)
+func (b *DefaultBranchService) Update(branch *model.Branch) error {
+	return b.branchRepo.Update(branch)
 }
 
-func (o *DefaultBranchService) UpdateBranch(organisation *model.Organisation, body types.CreateBranchRequest) {
+func (b *DefaultBranchService) UpdateBranch(Business *model.Business, body types.CreateBranchRequest) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (o *DefaultBranchService) CreateBranch(organisation *model.Organisation, body types.CreateBranchRequest) {
+func (b *DefaultBranchService) CreateBranch(Business *model.Business, body types.CreateBranchRequest) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (o *DefaultBranchService) Activate(organisation *model.Organisation, id string, body types.Activate) {
+func (b *DefaultBranchService) Activate(Business *model.Business, id string, body types.Activate) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (o *DefaultBranchService) Create(branch *model.Branch) error {
-	return o.branchRepo.Create(branch)
+func (b *DefaultBranchService) Create(branch *model.Branch) error {
+	return b.branchRepo.Create(branch)
 }
 
-func (o *DefaultBranchService) GetOrganisationBranches(organisation *model.Organisation, logger *log.Entry) ([]types.Branch, error) {
+func (b *DefaultBranchService) GetBusinessBranches(Business *model.Business, logger *log.Entry) ([]types.Branch, error) {
 	response := make([]types.Branch, 0)
-	branches, err := o.branchRepo.GetByOrganisation(organisation.Name)
+	branches, err := b.branchRepo.GetByBusiness(Business.Name)
 	if err != nil {
 		logger.Error(err.Error())
 	}
 
 	for _, branch := range branches {
-		country, _ := o.countryRepo.GetCountryByID(branch.CountryID)
+		country, _ := b.countryRepo.GetCountryByID(branch.CountryID)
 		response = append(response, types.Branch{
 			Name:        branch.Name,
 			IsHQ:        branch.IsHQ,

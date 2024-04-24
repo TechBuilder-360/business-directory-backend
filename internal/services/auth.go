@@ -37,7 +37,7 @@ func (a *authService) Registration(ctx context.Context, payload types.Registrati
 
 	user, err := a.userRepository.GetByEmail(payload.EmailAddress)
 	if err != nil {
-		logger.Error("an error occurred ", err.Error())
+		logger.Error("an apiError occurred ", err.Error())
 		return errors.New("request failed")
 	}
 
@@ -47,20 +47,20 @@ func (a *authService) Registration(ctx context.Context, payload types.Registrati
 
 	u, err := a.auth.GetUserByEmail(ctx, payload.EmailAddress)
 	if err != nil {
-		logger.Error("an error occurred ", err.Error())
+		logger.Error("an apiError occurred ", err.Error())
 		return errors.New("request failed")
 	}
 
 	if u == nil {
 		userID, err = a.auth.Registration(ctx, payload)
 		if err != nil {
-			logger.Error("an error occurred ", err.Error())
+			logger.Error("an apiError occurred ", err.Error())
 			return errors.New("request failed")
 		}
 
 		u, err = a.auth.GetUser(ctx, utils.AddToStr(userID))
 		if err != nil {
-			logger.Error("an error occurred ", err.Error())
+			logger.Error("an apiError occurred ", err.Error())
 			return errors.New("request failed")
 		}
 	}
@@ -77,7 +77,7 @@ func (a *authService) Registration(ctx context.Context, payload types.Registrati
 
 	err = a.userRepository.Create(user)
 	if err != nil {
-		logger.Error("an error occurred when creating user ", err.Error())
+		logger.Error("an apiError occurred when creating user ", err.Error())
 		return errors.New("request failed")
 	}
 

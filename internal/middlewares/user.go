@@ -10,7 +10,7 @@ import (
 //func AuthorizeUserJWT() Adapter {
 //
 //	return func(next http.Handler) http.Handler {
-//		return http.HandlerFunc(func(ctx *fiber.Ctx) error {
+//		return http.HandlerFunc(func(ctx *fiber.Ctx) apiError {
 //
 //			var user *model.User
 //			var ctx context.Context
@@ -78,7 +78,7 @@ func UserFromContext(r *fiber.Ctx) (*model.User, error) {
 	u := r.Context().Value(AuthUserContextKey)
 
 	if u == nil {
-		return nil, errors.New("no user in context")
+		return nil, errors.New("user not found")
 	}
 
 	user := u.(*model.User)

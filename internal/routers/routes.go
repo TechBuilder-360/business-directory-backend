@@ -13,7 +13,7 @@ import (
 
 func SetupRoutes() *fiber.App {
 	var (
-		organisationController = controllers.DefaultOrganisationController()
+		organisationController = controllers.DefaultBusinessController()
 		branchController       = controllers.DefaultBranchController()
 		authController         = controllers.DefaultAuthController()
 		usersController        = controllers.DefaultUserController()
