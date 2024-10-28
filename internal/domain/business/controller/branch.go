@@ -1,7 +1,7 @@
-package controllers
+package controller
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend/internal/services"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/service"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -11,7 +11,7 @@ type BranchController interface {
 }
 
 type NewBranchController struct {
-	Service services.BranchService
+	Service service.BranchService
 }
 
 func (c *NewBranchController) RegisterRoutes(router *fiber.App) {
@@ -22,7 +22,7 @@ func (c *NewBranchController) RegisterRoutes(router *fiber.App) {
 
 func DefaultBranchController() BranchController {
 	return &NewBranchController{
-		Service: services.NewBranchService(),
+		Service: service.NewBranchService(),
 	}
 }
 

@@ -1,8 +1,9 @@
-package middlewares
+package user
 
 import (
 	"errors"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/model"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -75,7 +76,7 @@ func ExtractBearerToken(r *fiber.Ctx) string {
 }
 
 func UserFromContext(r *fiber.Ctx) (*model.User, error) {
-	u := r.Context().Value(AuthUserContextKey)
+	u := r.Context().Value(constant.AuthUserContextKey)
 
 	if u == nil {
 		return nil, errors.New("user not found")

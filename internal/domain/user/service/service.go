@@ -1,11 +1,12 @@
-package services
+package service
 
 import (
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/model"
+	repository2 "github.com/TechBuilder-360/business-directory-backend/internal/domain/user/repository"
 	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
 	log "github.com/sirupsen/logrus"
 )
@@ -17,7 +18,7 @@ type UserService interface {
 }
 
 type DefaultUserService struct {
-	userRepo repository.UserRepository
+	userRepo repository2.UserRepository
 	activity repository.ActivityRepository
 }
 
@@ -26,18 +27,18 @@ func (r *DefaultUserService) Update(user *model.User) error {
 }
 
 func NewUserService() UserService {
-	return &DefaultUserService{userRepo: repository.NewUserRepository()}
+	return &DefaultUserService{userRepo: repository2.NewUserRepository()}
 }
 
 func (r *DefaultUserService) UpgradeStatus(body *types.UpgradeUserTierRequest, user *model.User, logger *log.Entry) error {
-	if user.Status {
+	if user.Disabled {
 		return nil
 	}
 
 	//todo: Request body is yet to be known
 	if configs.Instance.IsProduction() {
 		// Todo: Identity needs to be verified
-		user.Status = true
+		user.Disabled = true
 
 		err := r.Update(user)
 		if err != nil {

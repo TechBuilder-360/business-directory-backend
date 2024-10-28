@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/model"
 	"gorm.io/gorm"
 )
 

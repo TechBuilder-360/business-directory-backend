@@ -5,12 +5,11 @@ import (
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/model"
 	"gorm.io/gorm"
 	"math"
 )
 
-//go:generate mockgen -destination=../mocks/repository/branch.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository BranchRepository
 type BranchRepository interface {
 	Create(branch *model.Branch) error
 	Get(id string) (*model.Branch, error)

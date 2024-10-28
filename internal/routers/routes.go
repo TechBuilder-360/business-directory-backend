@@ -3,6 +3,8 @@ package routers
 import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/controllers"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/controller"
+	controller2 "github.com/TechBuilder-360/business-directory-backend/internal/domain/user/controller"
 	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -13,10 +15,10 @@ import (
 
 func SetupRoutes() *fiber.App {
 	var (
-		organisationController = controllers.DefaultBusinessController()
-		branchController       = controllers.DefaultBranchController()
+		organisationController = controller.DefaultBusinessController()
+		branchController       = controller.DefaultBranchController()
 		authController         = controllers.DefaultAuthController()
-		usersController        = controllers.DefaultUserController()
+		usersController        = controller2.DefaultUserController()
 		controller             = controllers.DefaultController()
 	)
 

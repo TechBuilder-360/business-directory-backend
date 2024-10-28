@@ -13,13 +13,6 @@ type Response struct {
 	Data string `json:"data"`
 }
 
-type ContextKey string
-
-const (
-	AuthUserContextKey     ContextKey = "user"
-	AuthBusinessContextKey ContextKey = "organisation"
-)
-
 // DefaultErrorHandler Default apiError handler
 var DefaultErrorHandler = func(c *fiber.Ctx, err error) error {
 	// Status code defaults to 500

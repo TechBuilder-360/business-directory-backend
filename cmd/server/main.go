@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/TechBuilder-360/business-directory-backend/cmd/migration"
 	"github.com/TechBuilder-360/business-directory-backend/docs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
@@ -76,12 +75,12 @@ func main() {
 	// set up redis DB
 	redis.NewClient(configs.Instance.RedisURL, configs.Instance.RedisPassword, configs.Instance.Namespace)
 	dbConnection := database.ConnectDB()
-	// migrate db models
-	err := database.DBMigration(dbConnection)
+	sqlDB, err := dbConnection.DB()
 	if err != nil {
-		panic(fmt.Sprintf("Migration Failed: %s", err.Error()))
+		log.Fatalf("database connection failed %v", err.Error())
 	}
-	go migration.Seed(dbConnection)
+
+	defer sqlDB.Close()
 
 	// Setup cache
 	middlewares.ResponseCache()

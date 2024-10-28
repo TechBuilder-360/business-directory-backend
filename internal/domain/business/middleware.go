@@ -1,8 +1,9 @@
-package middlewares
+package business
 
 import (
 	"errors"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/model"
 	"net/http"
 )
 
@@ -36,7 +37,7 @@ func extractOrganisationToken(r *http.Request) string {
 }
 
 func BusinessFromContext(r *http.Request) (*model.Business, error) {
-	org := r.Context().Value(AuthBusinessContextKey)
+	org := r.Context().Value(constant.AuthBusinessContextKey)
 
 	if org == nil {
 		return nil, errors.New("no business in context")

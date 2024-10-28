@@ -1,7 +1,9 @@
 package model
 
+import "github.com/TechBuilder-360/business-directory-backend/internal/model"
+
 type Country struct {
-	Base
+	model.Base
 
 	Name        string `json:"name" gorm:"not null"`
 	Code        string `json:"code" gorm:"not null"`

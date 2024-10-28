@@ -18,7 +18,7 @@ func ValidateStruct(requestData interface{}, logger *log.Entry) (string, bool) {
 		logger.Error("Validation failed on some fields : %+v", validationErrors)
 		for _, err := range validationErrors {
 			fieldName := err.Field()
-			field, _ := reflect.TypeOf(&requestData).Elem().FieldByName(fieldName)
+			field, _ := reflect.TypeOf(requestData).Elem().FieldByName(fieldName)
 			fieldJSONName, _ := field.Tag.Lookup("json")
 
 			errMsgs = append(errMsgs, fmt.Sprintf(

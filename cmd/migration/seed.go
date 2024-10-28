@@ -1,6 +1,7 @@
 package migration
 
 import (
+	model2 "github.com/TechBuilder-360/business-directory-backend/internal/domain/country/model"
 	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -59,7 +60,7 @@ func runRolesSeeder(tx *gorm.DB) error {
 }
 
 func runCountrySeeder(tx *gorm.DB) error {
-	country := []model.Country{
+	country := []model2.Country{
 		{
 			Name:        "Nigeria",
 			Code:        "NG",

@@ -1,4 +1,4 @@
-package services
+package service
 
 import (
 	"errors"
@@ -8,8 +8,12 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
-	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/repository"
+	cr "github.com/TechBuilder-360/business-directory-backend/internal/domain/country/repository"
+	um "github.com/TechBuilder-360/business-directory-backend/internal/domain/user/model"
+	ur "github.com/TechBuilder-360/business-directory-backend/internal/domain/user/repository"
+	ir "github.com/TechBuilder-360/business-directory-backend/internal/repository"
 	"github.com/araddon/dateparse"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -23,7 +27,7 @@ type APIKeyPair struct {
 }
 
 type IBusinessService interface {
-	CreateBusiness(body *types.BusinessReq, user *model.User, logger *log.Entry) (*types.BusinessResponse, error)
+	CreateBusiness(body *types.BusinessReq, user *um.User, logger *log.Entry) (*types.BusinessResponse, error)
 	//GetBusinessByPublicKey(publicKey string) (*model.Business, error)
 	GenerateKeyPairs() *APIKeyPair
 	//ChangeBusinessStatus(business *model.Business, user *model.User, body *types.Activate, logger *log.Entry) error
@@ -34,22 +38,22 @@ type IBusinessService interface {
 type DefaultBusinessService struct {
 	businessRepo repository.BusinessRepository
 	branchRepo   repository.BranchRepository
-	activityRepo repository.ActivityRepository
-	userRepo     repository.UserRepository
-	roleRepo     repository.RoleRepository
-	countryRepo  repository.CountryRepository
-	db           *gorm.DB
+	//activityRepo repository.ActivityRepository
+	userRepo    ur.UserRepository
+	roleRepo    repository.RoleRepository
+	countryRepo cr.CountryRepository
+	db          *gorm.DB
 }
 
 func NewBusinessService() IBusinessService {
 	return &DefaultBusinessService{
 		businessRepo: repository.NewBusinessRepository(),
-		activityRepo: repository.NewActivityRepository(),
-		userRepo:     repository.NewUserRepository(),
-		branchRepo:   repository.NewBranchRepository(),
-		roleRepo:     repository.NewRoleRepository(),
-		countryRepo:  repository.NewCountryRepository(),
-		db:           database.ConnectDB(),
+		//activityRepo: repository.NewActivityRepository(),
+		userRepo:    ur.NewUserRepository(),
+		branchRepo:  repository.NewBranchRepository(),
+		roleRepo:    repository.NewRoleRepository(),
+		countryRepo: cr.NewCountryRepository(),
+		db:          database.ConnectDB(),
 	}
 }
 
@@ -173,8 +177,8 @@ func NewBusinessService() IBusinessService {
 //
 //}
 
-func (b *DefaultBusinessService) CreateBusiness(body *types.BusinessReq, user *model.User, logger *log.Entry) (*types.BusinessResponse, error) {
-	uw := repository.NewGormUnitOfWork(b.db)
+func (b *DefaultBusinessService) CreateBusiness(body *types.BusinessReq, user *um.User, logger *log.Entry) (*types.BusinessResponse, error) {
+	uw := ir.NewGormUnitOfWork(b.db)
 	tx, err := uw.Begin()
 	if err != nil {
 		return nil, err
@@ -182,7 +186,7 @@ func (b *DefaultBusinessService) CreateBusiness(body *types.BusinessReq, user *m
 
 	defer tx.Rollback()
 
-	if !user.Verified {
+	if !user.EmailVerified {
 		logger.Error("Verify your account to create business")
 		return nil, errors.New("verify your account to create business")
 	}
