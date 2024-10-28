@@ -5,7 +5,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
-	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user"
 	"github.com/TechBuilder-360/business-directory-backend/internal/services"
 	"github.com/TechBuilder-360/business-directory-backend/internal/validation"
 	"github.com/gofiber/fiber/v2"
@@ -78,7 +78,7 @@ func (c *AuthController) ActivateAccount(ctx *fiber.Ctx) error {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("ActivateAccount")
 
-	token := middlewares.ExtractBearerToken(ctx)
+	token := user.ExtractBearerToken(ctx)
 
 	err := c.as.ActivateAccount(ctx.UserContext(), token, logger)
 	if err != nil {
@@ -95,7 +95,7 @@ func (c *AuthController) Logout(ctx *fiber.Ctx) error {
 	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
 	logger.Info("Logout")
 
-	token := middlewares.ExtractBearerToken(ctx)
+	token := user.ExtractBearerToken(ctx)
 
 	err := c.as.Logout(ctx.UserContext(), token)
 	if err != nil {

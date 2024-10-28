@@ -1,12 +1,12 @@
-package controllers
+package controller
 
 import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/apiError"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
-	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
-	"github.com/TechBuilder-360/business-directory-backend/internal/services"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/service"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user"
 	"github.com/TechBuilder-360/business-directory-backend/internal/validation"
 	"github.com/gofiber/fiber/v2"
 	log "github.com/sirupsen/logrus"
@@ -22,7 +22,7 @@ type IBusinessController interface {
 }
 
 type BusinessController struct {
-	Service services.IBusinessService
+	Service service.IBusinessService
 }
 
 func (c *BusinessController) RegisterRoutes(router *fiber.App) {
@@ -36,7 +36,7 @@ func (c *BusinessController) RegisterRoutes(router *fiber.App) {
 
 func DefaultBusinessController() IBusinessController {
 	return &BusinessController{
-		Service: services.NewBusinessService(),
+		Service: service.NewBusinessService(),
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *BusinessController) CreateBusiness(ctx *fiber.Ctx) error {
 	}
 
 	// get user from context
-	user, err := middlewares.UserFromContext(ctx)
+	user, err := user.UserFromContext(ctx)
 	if err != nil {
 		logger.Error(err.Error())
 		ctx.Status(http.StatusBadRequest)

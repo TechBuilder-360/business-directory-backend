@@ -1,8 +1,10 @@
 package model
 
+import "github.com/TechBuilder-360/business-directory-backend/internal/model"
+
 // User ...
 type User struct {
-	Base
+	model.Base
 
 	Uid                  string  `json:"uid" gorm:"not null;unique"`
 	FirstName            string  `json:"first_name" gorm:"not null"`
@@ -11,7 +13,11 @@ type User struct {
 	EmailAddress         string  `json:"email_address" gorm:"not null"`
 	PhoneNumber          string  `json:"phone_number" gorm:"null"`
 	Avatar               *string `json:"avatar" gorm:"null"`
-	Status               bool    `json:"status" gorm:"not null"`
+	Disabled             bool    `json:"disabled" gorm:"not null"`
 	IdentificationNumber *string `json:"identification_number"`
-	Verified             bool
+	EmailVerified        bool
+}
+
+func init() {
+	model.RegisterModels(User{})
 }

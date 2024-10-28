@@ -55,3 +55,4 @@ type Directory string
 type Hash string
 type VerificationType string
 type Status string
+type ContextKey string

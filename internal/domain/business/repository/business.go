@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -30,13 +30,13 @@ type DefaultBusinessRepo struct {
 }
 
 func (d *DefaultBusinessRepo) GetByPublicKey(publicKey string) (*model.Business, error) {
-	Business := &model.Business{}
-	err := d.db.WithContext(context.Background()).Where(&model.Business{PublicKey: publicKey}).First(Business).Error
+	business := &model.Business{}
+	err := d.db.WithContext(context.Background()).Where(&model.Business{PublicKey: publicKey}).First(business).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) == false {
 		return nil, errors.New("could not fetch Business")
 	}
 
-	return Business, nil
+	return business, nil
 }
 
 func (d *DefaultBusinessRepo) GetBusinessByName(name string) (*model.Business, error) {

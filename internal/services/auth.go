@@ -5,9 +5,9 @@ import (
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/repository"
 	auth "github.com/TechBuilder-360/business-directory-backend/internal/infrastructure/auth_sdk"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
-	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -72,7 +72,7 @@ func (a *authService) Registration(ctx context.Context, payload types.Registrati
 		DisplayName:  u.DisplayName,
 		EmailAddress: u.EmailAddress,
 		PhoneNumber:  u.PhoneNumber,
-		Status:       u.EmailVerified,
+		Disabled:     u.EmailVerified,
 	}
 
 	err = a.userRepository.Create(user)

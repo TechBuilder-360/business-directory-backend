@@ -3,12 +3,11 @@ package repository
 import (
 	"errors"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/country/model"
 	"gorm.io/gorm"
 	"strings"
 )
 
-//go:generate mockgen -destination=../mocks/repository/country.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository CountryRepository
 type CountryRepository interface {
 	GetCountryByID(id string) (*model.Country, error)
 	GetCountryByCode(code string) (*model.Country, error)
@@ -17,6 +16,12 @@ type CountryRepository interface {
 
 type countryRepo struct {
 	db *gorm.DB
+}
+
+func NewCountryRepository() CountryRepository {
+	return &countryRepo{
+		db: database.ConnectDB(),
+	}
 }
 
 func (c *countryRepo) GetCountryByID(id string) (*model.Country, error) {
@@ -44,11 +49,5 @@ func (c *countryRepo) GetCountryByCode(code string) (*model.Country, error) {
 func (c *countryRepo) WithTx(tx *gorm.DB) CountryRepository {
 	return &countryRepo{
 		db: tx,
-	}
-}
-
-func NewCountryRepository() CountryRepository {
-	return &countryRepo{
-		db: database.ConnectDB(),
 	}
 }

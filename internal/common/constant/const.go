@@ -19,3 +19,8 @@ const (
 	Active   types.Status = "ACTIVE"
 	Disabled types.Status = "DISABLED"
 )
+
+const (
+	AuthUserContextKey     types.ContextKey = "user"
+	AuthBusinessContextKey types.ContextKey = "organisation"
+)

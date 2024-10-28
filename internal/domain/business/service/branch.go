@@ -1,10 +1,11 @@
-package services
+package service
 
 import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
-	"github.com/TechBuilder-360/business-directory-backend/internal/repository"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/repository"
+	cr "github.com/TechBuilder-360/business-directory-backend/internal/domain/country/repository"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -20,14 +21,14 @@ type BranchService interface {
 
 type DefaultBranchService struct {
 	branchRepo  repository.BranchRepository
-	countryRepo repository.CountryRepository
+	countryRepo cr.CountryRepository
 	db          *gorm.DB
 }
 
 func NewBranchService() BranchService {
 	return &DefaultBranchService{
 		branchRepo:  repository.NewBranchRepository(),
-		countryRepo: repository.NewCountryRepository(),
+		countryRepo: cr.NewCountryRepository(),
 		db:          database.ConnectDB(),
 	}
 }

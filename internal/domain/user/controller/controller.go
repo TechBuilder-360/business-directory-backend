@@ -1,7 +1,7 @@
-package controllers
+package controller
 
 import (
-	"github.com/TechBuilder-360/business-directory-backend/internal/services"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/service"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -11,7 +11,7 @@ type IUserController interface {
 }
 
 type UserController struct {
-	as services.UserService
+	as service.UserService
 }
 
 func (c *UserController) RegisterRoutes(router *fiber.App) {
@@ -23,7 +23,7 @@ func (c *UserController) RegisterRoutes(router *fiber.App) {
 
 func DefaultUserController() IUserController {
 	return &UserController{
-		as: services.NewUserService(),
+		as: service.NewUserService(),
 	}
 }
 

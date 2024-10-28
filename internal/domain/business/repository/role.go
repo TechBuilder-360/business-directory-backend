@@ -3,11 +3,10 @@ package repository
 import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
+	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/model"
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -destination=../mocks/repository/role.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository RoleRepository
 type RoleRepository interface {
 	GetByName(roleName types.RoleType) (*model.Role, error)
 }
