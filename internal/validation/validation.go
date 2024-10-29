@@ -3,13 +3,13 @@ package validation
 import (
 	"errors"
 	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 	"github.com/go-playground/validator/v10"
-	log "github.com/sirupsen/logrus"
 	"reflect"
 	"strings"
 )
 
-func ValidateStruct(requestData interface{}, logger *log.Entry) (string, bool) {
+func ValidateStruct(requestData interface{}, logger log.Entry) (string, bool) {
 	validationRes := validator.New()
 	if err := validationRes.Struct(requestData); err != nil {
 		var validationErrors validator.ValidationErrors

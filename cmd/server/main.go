@@ -7,7 +7,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
-	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
+	"github.com/TechBuilder-360/business-directory-backend/internal/middleware"
 	"github.com/TechBuilder-360/business-directory-backend/internal/routers"
 	logrus_papertrail "github.com/polds/logrus-papertrail-hook"
 	log "github.com/sirupsen/logrus"
@@ -83,7 +83,7 @@ func main() {
 	defer sqlDB.Close()
 
 	// Setup cache
-	middlewares.ResponseCache()
+	middleware.ResponseCache()
 
 	// Set up the routes
 	router := routers.SetupRoutes()

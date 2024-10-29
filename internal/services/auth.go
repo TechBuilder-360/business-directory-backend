@@ -3,17 +3,17 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/TechBuilder-360/business-directory-backend/domain/user/model"
+	"github.com/TechBuilder-360/business-directory-backend/domain/user/repository"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
-	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/model"
-	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user/repository"
 	auth "github.com/TechBuilder-360/business-directory-backend/internal/infrastructure/auth_sdk"
-	log "github.com/sirupsen/logrus"
+	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 )
 
 type IAuthService interface {
-	Registration(ctx context.Context, payload types.Registration, logger *log.Entry) error
-	ActivateAccount(ctx context.Context, token string, logger *log.Entry) error
+	Registration(ctx context.Context, payload types.Registration, logger log.Entry) error
+	ActivateAccount(ctx context.Context, token string, logger log.Entry) error
 	Logout(ctx context.Context, token string) error
 	Authenticate(ctx context.Context, payload types.Authenticate) error
 	RefreshToken(ctx context.Context, payload *types.RefreshToken) (*types.Authentication, error)
@@ -32,7 +32,7 @@ func NewAuthService() IAuthService {
 	}
 }
 
-func (a *authService) Registration(ctx context.Context, payload types.Registration, logger *log.Entry) error {
+func (a *authService) Registration(ctx context.Context, payload types.Registration, logger log.Entry) error {
 	var userID *string
 
 	user, err := a.userRepository.GetByEmail(payload.EmailAddress)
@@ -84,7 +84,7 @@ func (a *authService) Registration(ctx context.Context, payload types.Registrati
 	return nil
 }
 
-func (a *authService) ActivateAccount(ctx context.Context, token string, logger *log.Entry) error {
+func (a *authService) ActivateAccount(ctx context.Context, token string, logger log.Entry) error {
 	//TODO handles redirect action from email activation
 	panic("implement me")
 }

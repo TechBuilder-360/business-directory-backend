@@ -1,15 +1,14 @@
 package controllers
 
 import (
+	mw "github.com/TechBuilder-360/business-directory-backend/domain/user"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/apiError"
-	"github.com/TechBuilder-360/business-directory-backend/internal/common/constant"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/types"
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
-	"github.com/TechBuilder-360/business-directory-backend/internal/domain/user"
 	"github.com/TechBuilder-360/business-directory-backend/internal/services"
 	"github.com/TechBuilder-360/business-directory-backend/internal/validation"
+	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 	"github.com/gofiber/fiber/v2"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -41,7 +40,7 @@ func (c *AuthController) RegisterRoutes(router *fiber.App) {
 }
 
 func (c *AuthController) Registration(ctx *fiber.Ctx) error {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger := log.LoggerInContext(ctx.UserContext())
 	logger.Info("Registration")
 
 	body := new(types.Registration)
@@ -75,10 +74,10 @@ func (c *AuthController) Registration(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) ActivateAccount(ctx *fiber.Ctx) error {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger := log.LoggerInContext(ctx.UserContext())
 	logger.Info("ActivateAccount")
 
-	token := user.ExtractBearerToken(ctx)
+	token := mw.ExtractBearerToken(ctx)
 
 	err := c.as.ActivateAccount(ctx.UserContext(), token, logger)
 	if err != nil {
@@ -92,10 +91,10 @@ func (c *AuthController) ActivateAccount(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) Logout(ctx *fiber.Ctx) error {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger := log.LoggerInContext(ctx.UserContext())
 	logger.Info("Logout")
 
-	token := user.ExtractBearerToken(ctx)
+	token := mw.ExtractBearerToken(ctx)
 
 	err := c.as.Logout(ctx.UserContext(), token)
 	if err != nil {
@@ -106,7 +105,7 @@ func (c *AuthController) Logout(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) Authenticate(ctx *fiber.Ctx) error {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger := log.LoggerInContext(ctx.UserContext())
 	logger.Info("Authenticate")
 
 	body := types.Authenticate{}
@@ -140,7 +139,7 @@ func (c *AuthController) Authenticate(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger := log.LoggerInContext(ctx.UserContext())
 	logger.Info("RefreshToken")
 
 	body := types.RefreshToken{}
@@ -174,7 +173,7 @@ func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) Login(ctx *fiber.Ctx) error {
-	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+	logger := log.LoggerInContext(ctx.UserContext())
 	logger.Info("Login")
 
 	body := types.Authenticate{}
