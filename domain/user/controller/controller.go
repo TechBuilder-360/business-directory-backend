@@ -1,0 +1,69 @@
+package controller
+
+import (
+	"github.com/TechBuilder-360/business-directory-backend/domain/user/service"
+	"github.com/gofiber/fiber/v2"
+)
+
+type IUserController interface {
+	//UpgradeTier(ctx *fiber.Ctx) apiError
+	RegisterRoutes(router *fiber.App)
+}
+
+type UserController struct {
+	as service.UserService
+}
+
+func (c *UserController) RegisterRoutes(router *fiber.App) {
+	_ = router.Group("/users")
+	//apis.HandleFunc("/upgrade/tier-one", middleware.Adapt(http.HandlerFunc(c.UpgradeTier),
+	//	middleware.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodPost)
+
+}
+
+func DefaultUserController() IUserController {
+	return &UserController{
+		as: service.NewUserService(),
+	}
+}
+
+//func (c *UserController) UpgradeTier(ctx *fiber.Ctx) apiError {
+//	logger := log.WithFields(log.Fields{constant.RequestIdentifier: utils.GenerateUUID()})
+//	logger.Info("Upgrading user tiers")
+//	body := &types.UpgradeUserTierRequest{}
+//	json.NewDecoder(r.Body).Decode(body)
+//	logger.Info("Request data: %+v", body)
+//
+//	if validation.ValidateStruct(w, body, logger) {
+//		return
+//	}
+//
+//	// get user from context
+//	user, err := middleware.UserFromContext(r)
+//	if err != nil {
+//		logger.Error(err.Error())
+//		w.WriteHeader(http.StatusBadRequest)
+//		json.NewEncoder(w).Encode(utils.ErrorResponse{
+//			Status:  false,
+//			Message: err.Error(),
+//		})
+//		return
+//	}
+//
+//	err = c.as.UpgradeStatus(body, user, logger)
+//	if err != nil {
+//		w.WriteHeader(http.StatusBadRequest)
+//		logger.Error(err.Error())
+//		json.NewEncoder(w).Encode(utils.ErrorResponse{
+//			Status:  false,
+//			Message: err.Error(),
+//		})
+//		return
+//	}
+//
+//	w.WriteHeader(http.StatusOK)
+//	json.NewEncoder(w).Encode(utils.SuccessResponse{
+//		Status:  true,
+//		Message: "Tier one upgrade successful",
+//	})
+//}

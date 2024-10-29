@@ -1,11 +1,11 @@
 package routers
 
 import (
+	"github.com/TechBuilder-360/business-directory-backend/domain/business/controller"
+	controller2 "github.com/TechBuilder-360/business-directory-backend/domain/user/controller"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/controllers"
-	"github.com/TechBuilder-360/business-directory-backend/internal/domain/business/controller"
-	controller2 "github.com/TechBuilder-360/business-directory-backend/internal/domain/user/controller"
-	"github.com/TechBuilder-360/business-directory-backend/internal/middlewares"
+	"github.com/TechBuilder-360/business-directory-backend/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
@@ -23,14 +23,14 @@ func SetupRoutes() *fiber.App {
 	)
 
 	app := fiber.New(fiber.Config{
-		ErrorHandler:          middlewares.DefaultErrorHandler,
+		ErrorHandler:          middleware.DefaultErrorHandler,
 		DisableStartupMessage: true,
 		StrictRouting:         true,
 		ReadTimeout:           30 * time.Second,
 		ReadBufferSize:        4096,
 	})
 
-	app.Use(recover.New())
+	app.Use(recover.New(), middleware.Logger)
 
 	//*******************************************
 	//******* Controller **********************
