@@ -12,10 +12,6 @@ import (
 	"time"
 )
 
-func initAPM() {
-
-}
-
 func main() {
 	configs.Load()
 
