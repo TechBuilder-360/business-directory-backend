@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/go-redis/redis/v8"
 	log "github.com/sirupsen/logrus"
 	"time"
@@ -23,11 +24,12 @@ type Client struct {
 var redisClient *Client
 
 // NewClient is a client constructor.
-func NewClient(connectionURL, password, namespace string) *Client {
+func NewClient() *Client {
 
+	config := configs.Instance
 	c := redis.NewClient(&redis.Options{
-		Addr:        connectionURL,
-		Password:    password, // no password set
+		Addr:        config.RedisURL,
+		Password:    config.RedisPassword, // no password set
 		DB:          0,
 		DialTimeout: 15 * time.Second,
 		MaxRetries:  10, // use default DB
@@ -45,7 +47,7 @@ func NewClient(connectionURL, password, namespace string) *Client {
 	client := &Client{
 		Client:    c,
 		ttl:       defaultExpirationTime,
-		namespace: namespace,
+		namespace: config.Namespace,
 	}
 
 	setRedisClient(client)
