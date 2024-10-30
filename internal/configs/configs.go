@@ -37,8 +37,7 @@ type Config struct {
 	SendGridAPIKey    *string `env:"SENDGRID_API_KEY"`
 	SendGridFromEmail *string `env:"SEND_GRID_FROM_EMAIL"`
 
-	PaperTailAppName *string `env:"PAPER_TAIL_APP_NAME"`
-	PaperTailPort    *string `env:"PAPER_TAIL_PORT"`
+	SentryURL *string `env:"SENTRY_URL"`
 
 	CloudinaryName   *string `env:"ENV_CLOUD_NAME"`
 	CloudinaryAPIKey *string `env:"ENV_CLOUD_API_KEY"`

@@ -6,6 +6,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/controllers"
 	"github.com/TechBuilder-360/business-directory-backend/internal/middleware"
+	"github.com/TechBuilder-360/business-directory-backend/pkg/apm/sentry"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
@@ -30,7 +31,7 @@ func SetupRoutes() *fiber.App {
 		ReadBufferSize:        4096,
 	})
 
-	app.Use(recover.New(), middleware.Logger)
+	app.Use(recover.New(), sentry.Middleware(), middleware.Logger)
 
 	//*******************************************
 	//******* Controller **********************
