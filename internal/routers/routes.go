@@ -7,10 +7,10 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/controllers"
 	"github.com/TechBuilder-360/business-directory-backend/internal/middleware"
 	"github.com/TechBuilder-360/business-directory-backend/pkg/apm/sentry"
+	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
-	log "github.com/sirupsen/logrus"
 	"time"
 )
 

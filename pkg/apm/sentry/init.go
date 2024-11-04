@@ -10,7 +10,6 @@ import (
 	sentrylogrus "github.com/getsentry/sentry-go/logrus"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
-	"os"
 	"time"
 )
 
@@ -34,20 +33,13 @@ func ClientOpt() sentry.ClientOptions {
 	return client
 }
 
-func InitializeSentry() (*sentrylogrus.Hook, error) {
+func InitializeSentry(l *logrus.Logger) (*sentrylogrus.Hook, error) {
 	initClientOpt()
 
 	if err := sentry.Init(client); err != nil {
 		fmt.Printf("Sentry initialization failed: %v\n", err)
 		return nil, err
 	}
-
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-
-	logrus.SetOutput(os.Stdout)
-
-	// Only log the warning severity or above.
-	logrus.SetLevel(logrus.InfoLevel)
 
 	// Send only ERROR and higher level logs to Sentry
 	sentryLevels := []logrus.Level{logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel}

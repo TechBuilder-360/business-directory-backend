@@ -4,7 +4,6 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 	"github.com/gofiber/fiber/v2"
-	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -28,8 +27,6 @@ func DefaultController() Controller {
 
 func (c *NewController) Ping(ctx *fiber.Ctx) error {
 	logger := log.LoggerInContext(ctx.UserContext())
-	logger.Error("Ping Pong Error")
-	logrus.Error("Test Sentry on ping")
-
+	logger.Info("Ping Pong...")
 	return ctx.Status(http.StatusOK).JSON(utils.Success("We are up and running 🚀", nil, nil))
 }

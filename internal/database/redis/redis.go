@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
+	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 	"github.com/go-redis/redis/v8"
-	log "github.com/sirupsen/logrus"
 	"time"
 )
 
