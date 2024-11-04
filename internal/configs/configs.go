@@ -39,6 +39,9 @@ type Config struct {
 
 	SentryURL *string `env:"SENTRY_URL"`
 
+	NewRelicAppName *string `env:"NEWRELIC_APP_NAME"`
+	NewRelicLicense *string `env:"NEWRELIC_LICENSE"`
+
 	CloudinaryName   *string `env:"ENV_CLOUD_NAME"`
 	CloudinaryAPIKey *string `env:"ENV_CLOUD_API_KEY"`
 	CloudinarySecret *string `env:"ENV_CLOUD_API_SECRET"`

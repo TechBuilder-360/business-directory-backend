@@ -1,11 +1,8 @@
 package migration
 
 import (
-	model2 "github.com/TechBuilder-360/business-directory-backend/internal/domain/country/model"
-	"github.com/TechBuilder-360/business-directory-backend/internal/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // Seed the database with some data
@@ -23,55 +20,55 @@ func Seed(db *gorm.DB) {
 }
 
 func runCategorySeeder(tx *gorm.DB) error {
-	categories := []model.Category{
-		{
-			Name: "Information Technology",
-		},
-		{
-			Name: "Commerce",
-		},
-	}
-
-	if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&categories).Error; err != nil {
-		return err
-	}
+	//categories := []model.Category{
+	//	{
+	//		Name: "Information Technology",
+	//	},
+	//	{
+	//		Name: "Commerce",
+	//	},
+	//}
+	//
+	//if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&categories).Error; err != nil {
+	//	return err
+	//}
 
 	return nil
 }
 
 func runRolesSeeder(tx *gorm.DB) error {
-	roles := []model.Role{
-		{
-			Name: "Owner",
-		},
-		{
-			Name: "Organisation Admin",
-		},
-		{
-			Name: "Branch Manager",
-		},
-	}
-
-	if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&roles).Error; err != nil {
-		return err
-	}
+	//roles := []Role{
+	//	{
+	//		Name: "Owner",
+	//	},
+	//	{
+	//		Name: "Organisation Admin",
+	//	},
+	//	{
+	//		Name: "Branch Manager",
+	//	},
+	//}
+	//
+	//if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&roles).Error; err != nil {
+	//	return err
+	//}
 
 	return nil
 }
 
 func runCountrySeeder(tx *gorm.DB) error {
-	country := []model2.Country{
-		{
-			Name:        "Nigeria",
-			Code:        "NG",
-			CallingCode: "234",
-			Active:      true,
-		},
-	}
-
-	if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&country).Error; err != nil {
-		return err
-	}
+	//country := []model2.Country{
+	//	{
+	//		Name:        "Nigeria",
+	//		Code:        "NG",
+	//		CallingCode: "234",
+	//		Active:      true,
+	//	},
+	//}
+	//
+	//if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&country).Error; err != nil {
+	//	return err
+	//}
 
 	return nil
 }
