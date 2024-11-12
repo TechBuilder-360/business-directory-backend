@@ -5,6 +5,7 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/common/utils"
 	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 	"github.com/gofiber/fiber/v2"
+	"strings"
 )
 
 const XRequestID = "X-Request-ID"
@@ -22,7 +23,9 @@ func Logger(c *fiber.Ctx) error {
 
 	c.SetUserContext(ctx)
 
-	logger.Info("Request: %s", string(c.Body()))
+	if strings.Contains(c.Route().Path, "/gql") {
+		logger.Info("Request: %s", string(c.Body()))
+	}
 
 	return c.Next()
 }

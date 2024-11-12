@@ -11,7 +11,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-//go:generate mockgen -destination=../mocks/repository/Business.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository BusinessRepository
 type BusinessRepository interface {
 	Create(Business *model.Business) error
 	Get(id string) (*model.Business, error)

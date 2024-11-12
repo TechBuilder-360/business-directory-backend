@@ -17,14 +17,14 @@ type IBusinessController interface {
 	//ChangeActiveStatus(ctx *fiber.Ctx) apiError
 	//GetSingleBusiness(ctx *fiber.Ctx) apiError
 	//GetAllBusiness(ctx *fiber.Ctx) apiError
-	RegisterRoutes(router *fiber.App)
+	RegisterRoutes(router fiber.Router)
 }
 
 type BusinessController struct {
 	Service service.IBusinessService
 }
 
-func (c *BusinessController) RegisterRoutes(router *fiber.App) {
+func (c *BusinessController) RegisterRoutes(router fiber.Router) {
 	_ = router.Group("/businesss")
 
 	//apis.HandleFunc("", middleware.CacheClient.Middleware(middleware.Adapt(http.HandlerFunc(c.GetAllBusiness), middleware.AuthorizeUserJWT())).ServeHTTP).Methods(http.MethodGet)

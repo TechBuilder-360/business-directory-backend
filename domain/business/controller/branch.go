@@ -6,7 +6,7 @@ import (
 )
 
 type BranchController interface {
-	RegisterRoutes(router *fiber.App)
+	RegisterRoutes(router fiber.Router)
 	//GetBranches(ctx *fiber.Ctx) apiError
 }
 
@@ -14,7 +14,7 @@ type NewBranchController struct {
 	Service service.BranchService
 }
 
-func (c *NewBranchController) RegisterRoutes(router *fiber.App) {
+func (c *NewBranchController) RegisterRoutes(router fiber.Router) {
 	_ = router.Group("/branches")
 
 	//apis.Get("", middleware.Adapt(http.HandlerFunc(c.GetBranches), middleware.AuthorizeUserJWT()).ServeHTTP).Methods(http.MethodGet)
