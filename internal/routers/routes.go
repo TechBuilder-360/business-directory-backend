@@ -3,6 +3,11 @@ package routers
 import (
 	"github.com/TechBuilder-360/business-directory-backend/domain/business/controller"
 	controller2 "github.com/TechBuilder-360/business-directory-backend/domain/user/controller"
+	"github.com/TechBuilder-360/business-directory-backend/graph"
+	"github.com/TechBuilder-360/business-directory-backend/graph/generated"
+	"github.com/arsmn/fastgql/graphql/handler"
+	"github.com/arsmn/fastgql/graphql/playground"
+
 	"github.com/TechBuilder-360/business-directory-backend/internal/configs"
 	"github.com/TechBuilder-360/business-directory-backend/internal/controllers"
 	"github.com/TechBuilder-360/business-directory-backend/internal/middleware"
@@ -34,24 +39,48 @@ func SetupRoutes() *fiber.App {
 	app.Use(recover.New(), sentry.Middleware(), middleware.Logger)
 
 	//*******************************************
-	//******* Controller **********************
+	//******* Controller ************************
 	//*******************************************
 	controller.RegisterRoutes(app)
 
 	//*******************************************
+	//******* GraphQL **********************
+	//*******************************************
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+
+	gqlHandler := srv.Handler()
+	query := playground.Handler("GraphQL query", "/query")
+
+	app.All("/query", func(c *fiber.Ctx) error {
+		gqlHandler(c.Context())
+		return nil
+	})
+
+	app.All("/gql", func(c *fiber.Ctx) error {
+		query(c.Context())
+		return nil
+	})
+
+	//*******************************************
+	//******* End GraphQL **********************
+	//*******************************************
+
+	r := app.Group("/api")
+
+	//*******************************************
 	//******* Authentication **********************
 	//*******************************************
-	authController.RegisterRoutes(app)
+	authController.RegisterRoutes(r)
 
 	//*******************************************
 	//******* ORGANISATION **********************
 	//*******************************************
-	organisationController.RegisterRoutes(app)
+	organisationController.RegisterRoutes(r)
 
 	//*************************************
 	//******* BRANCH **********************
 	//*************************************
-	branchController.RegisterRoutes(app)
+	branchController.RegisterRoutes(r)
 
 	//*************************************
 	//******* USERS **********************

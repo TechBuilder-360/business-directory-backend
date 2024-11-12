@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -destination=../mocks/repository/activity.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository ActivityRepository
 type ActivityRepository interface {
 	Create(activity *model.Activity) error
 	Get(activity *model.Activity) error

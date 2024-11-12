@@ -11,7 +11,6 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/pkg/log"
 )
 
-//go:generate mockgen -destination=../mocks/services/mockService.go -package=services github.com/TechBuilder-360/business-directory-backend/services UserService
 type UserService interface {
 	UpgradeStatus(body *types.UpgradeUserTierRequest, user *model.User, logger log.Entry) error
 	Update(user *model.User) error

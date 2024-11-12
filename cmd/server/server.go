@@ -6,7 +6,6 @@ import (
 	"github.com/TechBuilder-360/business-directory-backend/internal/database"
 	"github.com/TechBuilder-360/business-directory-backend/internal/database/redis"
 	"github.com/TechBuilder-360/business-directory-backend/internal/routers"
-	"github.com/TechBuilder-360/business-directory-backend/pkg/apm/newrelic"
 	"github.com/TechBuilder-360/business-directory-backend/pkg/apm/sentry"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -26,7 +25,7 @@ func main() {
 	configs.Load()
 
 	l := initLog()
-	newrelic.InitialiseNewRelic(l)
+	//newrelic.InitialiseNewRelic(l)
 
 	sentryHook, err := sentry.InitializeSentry(l)
 	if err == nil {

@@ -19,7 +19,7 @@ type IAuthController interface {
 	Authenticate(ctx *fiber.Ctx) error
 	RefreshToken(ctx *fiber.Ctx) error
 	Login(ctx *fiber.Ctx) error
-	RegisterRoutes(router *fiber.App)
+	RegisterRoutes(router fiber.Router)
 }
 
 type AuthController struct {
@@ -32,7 +32,7 @@ func DefaultAuthController() IAuthController {
 	}
 }
 
-func (c *AuthController) RegisterRoutes(router *fiber.App) {
+func (c *AuthController) RegisterRoutes(router fiber.Router) {
 	auth := router.Group("/auth")
 
 	auth.Post("/registration", c.Registration)

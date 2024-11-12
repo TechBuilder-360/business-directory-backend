@@ -8,7 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -destination=../mocks/repository/auth.go -package=repository github.com/TechBuilder-360/business-directory-backend/repository AuthRepository
 type AuthRepository interface {
 	IsTokenValid(email, token string) (bool, error)
 	CreateToken(token *model.Token) error
